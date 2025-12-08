@@ -1,0 +1,304 @@
+:root {
+    --sidebar-width: 220px;
+    --sidebar-collapsed-width: 72px;
+    --sidebar-bg: #343a40;
+    /* dark */
+    --accent: #0d6efd;
+    /* bootstrap primary */
+    --muted-bg: #f8f9fa;
+    /* page background */
+    --card-radius: 10px;
+    --chart-height-desktop: 260px;
+    --chart-height-tablet: 220px;
+    --chart-height-mobile: 160px;
+}
+
+/* Page baseline */
+html,
+body {
+    height: 100%;
+    margin: 0;
+    background: var(--muted-bg);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    /* prevent horizontal scroll */
+}
+
+/* Layout grid */
+.app {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "sidebar header" "sidebar main";
+    transition: grid-template-columns .25s ease;
+}
+
+/* Collapsed variant */
+.sidebar-collapsed {
+    --current-sidebar-width: var(--sidebar-collapsed-width);
+}
+
+/* Collapsed variant */
+.sidebar-collapsed {
+    --current-sidebar-width: var(--sidebar-collapsed-width);
+}
+
+/* FIXED selector */
+.app.sidebar-collapsed {
+    grid-template-columns: var(--sidebar-collapsed-width) 1fr;
+}
+
+/* Sidebar */
+.sidebar {
+    grid-area: sidebar;
+    background: var(--sidebar-bg);
+    color: #ffffff;
+    padding: 1rem 0.5rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.03);
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: 0 .6rem;
+}
+
+.brand .logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.brand .logo i {
+    font-size: 1.35rem;
+    color: #ffffff;
+}
+
+.nav-links {
+    margin-top: .6rem;
+    flex: 1 1 auto;
+    overflow: auto;
+    padding-right: .25rem;
+}
+
+.nav-links .nav-link {
+    color: #e9ecef;
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+    padding: .55rem .6rem;
+    border-radius: .45rem;
+    transition: background .12s, color .12s;
+}
+
+.nav-links .nav-link i {
+    width: 1.25rem;
+    text-align: center;
+}
+
+.nav-links .nav-link:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+}
+
+.nav-links .nav-link.active {
+    color: var(--accent);
+    background: rgba(13, 110, 253, 0.08);
+    font-weight: 600;
+}
+
+/* collapse behavior: hide text labels */
+.sidebar-collapsed .nav-links .nav-link .label,
+.sidebar-collapsed .brand .brand-text {
+    display: none;
+}
+
+.sidebar-collapsed .sidebar {
+    width: var(--sidebar-collapsed-width);
+    min-width: var(--sidebar-collapsed-width);
+    max-width: var(--sidebar-collapsed-width);
+    align-items: center;
+}
+
+.sidebar .bottom-toggle {
+    margin-top: auto;
+    padding: .5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar .bottom-toggle button {
+    width: 44px;
+    height: 36px;
+    border-radius: .45rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Header */
+header.app-header {
+    grid-area: header;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    padding: .5rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    height: 60px;
+}
+
+.header-left {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+}
+
+.header-right {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+}
+
+/* Search */
+.search-input {
+    width: 220px;
+    max-width: 40vw;
+}
+
+.search-input input {
+    height: 40px;
+}
+
+/* Main content */
+main.app-main {
+    grid-area: main;
+    padding: 1rem;
+    overflow: auto;
+}
+
+/* Cards */
+.stat-card {
+    border-radius: var(--card-radius);
+    padding: .6rem;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-card h6 {
+    font-size: .78rem;
+    margin: 0;
+    color: #6c757d;
+}
+
+.stat-card h4 {
+    margin: .35rem 0 0;
+    font-weight: 700;
+}
+
+/* chart cards */
+.chart-card {
+    border-radius: var(--card-radius);
+    padding: .5rem;
+    /* min-height: var(--chart-height-desktop); */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    height: 260px !important;
+}
+
+/* compact visuals for mobile */
+@media (max-width: 1199.98px) {
+    .search-input {
+        width: 160px;
+    }
+
+    .chart-card {
+        min-height: var(--chart-height-tablet);
+    }
+
+    .app {
+        grid-template-columns: 1fr;
+        grid-template-areas: "header" "main";
+    }
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 1200;
+        transform: translateX(-110%);
+        transition: transform .22s ease-in-out;
+        width: var(--sidebar-width);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .search-input {
+        width: 110px;
+    }
+
+    .chart-card {
+        min-height: var(--chart-height-mobile);
+        padding: .35rem;
+    }
+
+    .header-left .search-input {
+        display: none;
+    }
+
+    /* hide search on smallest if needed */
+}
+
+/* Additional small refinements */
+.btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.accessible-focus:focus {
+    outline: 3px solid rgba(13, 110, 253, 0.18);
+    outline-offset: 2px;
+}
+
+/* ensure canvas takes full card height */
+.chart-card canvas {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
+}
+
+/* ensure nav scroll nicely */
+.nav-links::-webkit-scrollbar {
+    width: 6px;
+}
+
+.nav-links::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+}
