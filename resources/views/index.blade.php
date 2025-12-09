@@ -75,7 +75,7 @@
 
                             <i class="fa-solid fa-calendar-days"></i>
 
-                            <span class="label">Calendar / Timetable</span>
+                            <span class="label">Timetable</span>
 
                             <i
                                 class="fa-solid fa-chevron-down arrow-icon
