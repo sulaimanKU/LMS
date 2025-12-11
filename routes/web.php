@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\DashboardContoller;
+use App\Http\Controllers\FeeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InfoUserController;
 use App\Http\Controllers\RegisterController;
@@ -27,5 +28,6 @@ Route::get('assignments',[AssignmentController::class,'assignment_index'])->name
 Route::get('timetable',[TimetableController::class,'index_timetable'])->name('time.table');
 Route::get('create/timetable',[TimetableController::class,'create_timetable_view'])->name('create.timetable.view');
 Route::get('attendence/view',[AttendenceController::class,'attendence_view'])->name('attendence.view');
+Route::get('fees',[FeeController::class,'fee_view'])->name('fee.view');
 
 

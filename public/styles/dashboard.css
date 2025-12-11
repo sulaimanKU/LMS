@@ -227,7 +227,6 @@ main.app-main {
     height: 260px !important;
 }
 
-
 /* compact visuals for mobile */
 @media (max-width: 1199.98px) {
     .search-input {

@@ -117,7 +117,7 @@
 
                     <!-- Fees -->
                     <li class="nav-item">
-                        <a href="#" class="nav-link {{ request()->routeIs('fees.*') ? 'active' : '' }}">
+                        <a href="{{route('fee.view')}}" class="nav-link {{ request()->routeIs('fees.*') ? 'active' : '' }}">
                             <i class="fa-solid fa-money-bill-wave me-2"></i>
                             <span class="label">Fees / Upload Slip</span>
                         </a>
