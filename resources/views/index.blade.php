@@ -109,7 +109,7 @@
 
                     <!-- Attendance -->
                     <li class="nav-item">
-                        <a href="#" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+                        <a href="{{route('attendence.view')}}" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
                             <i class="fa-solid fa-user-check me-2"></i>
                             <span class="label">Attendance</span>
                         </a>

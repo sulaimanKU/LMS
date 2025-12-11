@@ -186,7 +186,7 @@
         <div class="row g-3">
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card shadow-sm h-100">
-                    <img src="https://via.placeholder.com/300x150" class="card-img-top" alt="Course Thumbnail">
+                    <img src="{{asset('images/4144413.jpg ')}}" class="card-img-top" alt="Course Thumbnail">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">Data Structures</h5>
                         <p class="card-text text-muted mb-2">Instructor: Alice Kim</p>

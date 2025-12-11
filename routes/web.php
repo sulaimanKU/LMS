@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\AttendenceController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChangePasswordController;
@@ -25,5 +26,6 @@ Route::get('courses',[CoursesController::class,'courses_index'])->name('course.i
 Route::get('assignments',[AssignmentController::class,'assignment_index'])->name('assignments');
 Route::get('timetable',[TimetableController::class,'index_timetable'])->name('time.table');
 Route::get('create/timetable',[TimetableController::class,'create_timetable_view'])->name('create.timetable.view');
+Route::get('attendence/view',[AttendenceController::class,'attendence_view'])->name('attendence.view');
 
 
