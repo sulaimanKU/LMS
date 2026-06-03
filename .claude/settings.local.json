@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(submiss\")",
+      "Bash(php -r ' *)",
+      "Bash(php -r \"echo 'PHP OK';\")",
+      "Bash(rm -rf D:/LMS/storage/app/public/courses/* D:/LMS/storage/app/public/assignments/* D:/LMS/storage/app/public/lesson_materials/* D:/LMS/storage/app/public/paymentSlips/* D:/LMS/storage/app/public/submissions/*)",
+      "Bash(rm -rf D:/LMS/public/uploads/teachers/*)"
+    ]
+  }
+}
