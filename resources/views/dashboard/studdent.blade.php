@@ -175,6 +175,37 @@
                 @endforelse
             </div>
 
+            {{-- Submit a Review --}}
+            <div class="sd-card" style="margin-top:1rem; border:1.5px solid #E0E7FF; background:linear-gradient(to bottom, #FFFFFF, #F5F7FF);">
+                <div class="sd-card-head">
+                    <span><i class="fa-solid fa-star me-2 text-warning"></i>Share Your Experience</span>
+                </div>
+                <div style="padding:1.25rem;">
+                    <p style="font-size:.78rem; color:#64748B; margin-bottom:1rem;">
+                        How is your learning journey going? Share a testimonial to be featured on our home page!
+                    </p>
+                    <form action="{{ route('student.review.submit') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Your Rating</label>
+                            <div class="sd-rating-stars">
+                                <input type="radio" name="rating" value="5" id="r5" checked><label for="r5"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" name="rating" value="4" id="r4"><label for="r4"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" name="rating" value="3" id="r3"><label for="r3"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" name="rating" value="2" id="r2"><label for="r2"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" name="rating" value="1" id="r1"><label for="r1"><i class="fa-solid fa-star"></i></label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control form-control-sm" rows="3" placeholder="Write your feedback here..." required style="border-radius:8px; border:1.5px solid #E2E8F0;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold" style="border-radius:8px; background:#4F46E5; border:none; padding:.5rem;">
+                            Submit Testimonial
+                        </button>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -295,6 +326,14 @@
 .sd-card-empty { text-align:center; padding:2.5rem 1rem; color:#CBD5E1; }
 .sd-card-empty i { font-size:1.75rem; display:block; margin-bottom:.4rem; }
 .sd-card-empty p { margin:0; font-size:.8rem; }
+
+/* Star Rating */
+.sd-rating-stars { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: .4rem; }
+.sd-rating-stars input { display: none; }
+.sd-rating-stars label { font-size: 1.1rem; color: #94A3B8; cursor: pointer; transition: color .15s; margin: 0; }
+.sd-rating-stars label:hover,
+.sd-rating-stars label:hover ~ label,
+.sd-rating-stars input:checked ~ label { color: #F59E0B; }
 
 @media(max-width:1100px) { .sd-body { grid-template-columns:1fr; } .sd-card-wide,.sd-right-col { grid-column:1; } }
 @media(max-width:991.98px) { .sd-stats { grid-template-columns:repeat(2,1fr); } }

@@ -8,7 +8,7 @@
 
     <div class="hero-content text-center">
         <div class="hero-badge">
-            <i class="bi bi-mortarboard-fill"></i> Trusted by 500+ Students
+            <i class="bi bi-mortarboard-fill"></i> Trusted by {{ $stats['students'] }}+ Students
         </div>
         <h1 class="hero-title">
             Learn Smarter.<br>
@@ -63,7 +63,7 @@
 
             <div class="col-6 col-md">
                 <div class="stat-item">
-                    <div class="stat-number">500+</div>
+                    <div class="stat-number">{{ $stats['students'] }}+</div>
                     <div class="stat-label">Students Enrolled</div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
 
             <div class="col-6 col-md">
                 <div class="stat-item">
-                    <div class="stat-number">40+</div>
+                    <div class="stat-number">{{ $stats['courses'] }}+</div>
                     <div class="stat-label">Active Courses</div>
                 </div>
             </div>
@@ -85,7 +85,7 @@
 
             <div class="col-6 col-md">
                 <div class="stat-item">
-                    <div class="stat-number">25+</div>
+                    <div class="stat-number">{{ $stats['teachers'] }}+</div>
                     <div class="stat-label">Expert Teachers</div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
 
             <div class="col-6 col-md">
                 <div class="stat-item">
-                    <div class="stat-number">98%</div>
+                    <div class="stat-number">{{ $stats['satisfaction'] }}%</div>
                     <div class="stat-label">Satisfaction Rate</div>
                 </div>
             </div>
@@ -121,95 +121,47 @@
 
         <div class="row g-4">
 
-            <!-- Course 1 -->
+            @foreach($popularCourses as $course)
             <div class="col-md-4">
                 <div class="course-card-new">
                     <div class="course-img-wrap">
-                        <span class="course-cat-badge">Development</span>
-                        <span class="course-price-badge">Free</span>
-                        <img src="{{ asset('images/learning-education-ideas-insight-intelligence-study-concept.jpg') }}"
-                             alt="Web Development Basics">
+                        <span class="course-cat-badge">{{ $course->category }}</span>
+                        <span class="course-price-badge">{{ $course->price > 0 ? '$'.number_format($course->price, 0) : 'Free' }}</span>
+                        <img src="{{ $course->image ? asset('storage/'.$course->image) : asset('images/learning-education-ideas-insight-intelligence-study-concept.jpg') }}"
+                             alt="{{ $course->title }}">
                     </div>
                     <div class="course-card-body-new">
-                        <h5 class="course-card-title-new">Web Development Basics</h5>
+                        <h5 class="course-card-title-new">{{ $course->title }}</h5>
                         <p class="course-card-desc-new">
-                            Learn HTML, CSS, and JavaScript fundamentals to build modern, responsive websites from scratch.
+                            {{ \Illuminate\Support\Str::limit($course->short_description, 100) }}
                         </p>
+                        @php
+                            $instructor = $course->teacher->first();
+                            $initials = '';
+                            if ($instructor) {
+                                $names = explode(' ', $instructor->name);
+                                foreach ($names as $name) {
+                                    $initials .= strtoupper(substr($name, 0, 1));
+                                }
+                                $initials = substr($initials, 0, 2);
+                            }
+                        @endphp
                         <div class="course-instructor-row">
-                            <div class="inst-avatar">JD</div>
-                            <span class="inst-name">John Doe</span>
+                            <div class="inst-avatar">{{ $initials ?: '?' }}</div>
+                            <span class="inst-name">{{ $instructor->name ?? 'Unknown' }}</span>
                         </div>
                         <div class="course-meta-row">
-                            <span><i class="bi bi-clock me-1"></i>10 hours</span>
-                            <span><i class="bi bi-journal-bookmark me-1"></i>18 lessons</span>
-                            <span><i class="bi bi-people me-1"></i>124 students</span>
+                            <span><i class="bi bi-clock me-1"></i>{{ $course->duration }}</span>
+                            <span><i class="bi bi-journal-bookmark me-1"></i>{{ $course->lessons->count() }} lessons</span>
+                            <span><i class="bi bi-people me-1"></i>{{ $course->enrollments_count }} students</span>
                         </div>
-                        <a href="#" class="btn-enroll-new">
+                        <a href="{{ route('courses.index') }}" class="btn-enroll-new">
                             <i class="bi bi-arrow-right me-1"></i> View Course
                         </a>
                     </div>
                 </div>
             </div>
-
-            <!-- Course 2 -->
-            <div class="col-md-4">
-                <div class="course-card-new">
-                    <div class="course-img-wrap">
-                        <span class="course-cat-badge">Design</span>
-                        <span class="course-price-badge">$49</span>
-                        <img src="{{ asset('images/4144413.jpg') }}"
-                             alt="Graphic Design Essentials">
-                    </div>
-                    <div class="course-card-body-new">
-                        <h5 class="course-card-title-new">Graphic Design Essentials</h5>
-                        <p class="course-card-desc-new">
-                            Master layout, typography, and color theory using industry-standard design tools.
-                        </p>
-                        <div class="course-instructor-row">
-                            <div class="inst-avatar">SS</div>
-                            <span class="inst-name">Sarah Smith</span>
-                        </div>
-                        <div class="course-meta-row">
-                            <span><i class="bi bi-clock me-1"></i>8 hours</span>
-                            <span><i class="bi bi-journal-bookmark me-1"></i>14 lessons</span>
-                            <span><i class="bi bi-people me-1"></i>89 students</span>
-                        </div>
-                        <a href="#" class="btn-enroll-new">
-                            <i class="bi bi-arrow-right me-1"></i> View Course
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Course 3 -->
-            <div class="col-md-4">
-                <div class="course-card-new">
-                    <div class="course-img-wrap">
-                        <span class="course-cat-badge">Business</span>
-                        <span class="course-price-badge">Popular</span>
-                        <img src="{{ asset('images/city-committed-education-collage-concept.jpg') }}"
-                             alt="Business Management">
-                    </div>
-                    <div class="course-card-body-new">
-                        <h5 class="course-card-title-new">Business Management</h5>
-                        <p class="course-card-desc-new">
-                            Learn essential strategies to plan, organize, and grow successful businesses effectively.
-                        </p>
-                        <div class="course-instructor-row">
-                            <div class="inst-avatar">MW</div>
-                            <span class="inst-name">Mark Wilson</span>
-                        </div>
-                        <div class="course-meta-row">
-                            <span><i class="bi bi-clock me-1"></i>12 hours</span>
-                            <span><i class="bi bi-journal-bookmark me-1"></i>20 lessons</span>
-                            <span><i class="bi bi-people me-1"></i>210 students</span>
-                        </div>
-                        <a href="#" class="btn-enroll-new">
-                            <i class="bi bi-arrow-right me-1"></i> View Course
-                        </a>
-                    </div>
-                </div>
-            </div>
+            @endforeach
 
         </div>
 
@@ -320,74 +272,54 @@
 
         <div class="row g-4">
 
-            <!-- Testimonial 1 -->
+            @foreach($reviews as $review)
             <div class="col-md-4">
                 <div class="testi-card">
                     <div class="testi-quote-mark">"</div>
                     <div class="testi-stars">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i>
+                        @for($i = 1; $i <= 5; $i++)
+                            @if($i <= $review->rating)
+                                <i class="bi bi-star-fill"></i>
+                            @else
+                                <i class="bi bi-star"></i>
+                            @endif
+                        @endfor
                     </div>
                     <p class="testi-text">
-                        "This LMS completely changed the way I study. The course materials are well-organized
-                        and the teachers are very supportive. I passed my exams with confidence!"
+                        "{{ $review->content }}"
                     </p>
                     <div class="testi-author">
-                        <div class="testi-avatar" style="background: linear-gradient(135deg,#4F46E5,#7C3AED);">AK</div>
+                        @php
+                            $names = explode(' ', $review->name);
+                            $initials = '';
+                            foreach($names as $n) $initials .= strtoupper(substr($n, 0, 1));
+                            $initials = substr($initials, 0, 2);
+                            
+                            // Random gradient for variety
+                            $gradients = [
+                                'linear-gradient(135deg,#4F46E5,#7C3AED)',
+                                'linear-gradient(135deg,#10B981,#06B6D4)',
+                                'linear-gradient(135deg,#F59E0B,#EF4444)',
+                                'linear-gradient(135deg,#EC4899,#8B5CF6)',
+                                'linear-gradient(135deg,#3B82F6,#2DD4BF)'
+                            ];
+                            $bg = $gradients[$review->id % count($gradients)];
+                        @endphp
+                        <div class="testi-avatar" style="background: {{ $bg }};">{{ $initials }}</div>
                         <div>
-                            <div class="testi-author-name">Ali Khan</div>
-                            <div class="testi-author-role">B.Sc. Computer Science</div>
+                            <div class="testi-author-name">{{ $review->name }}</div>
+                            <div class="testi-author-role">{{ $review->role }}</div>
                         </div>
                     </div>
                 </div>
             </div>
+            @endforeach
 
-            <!-- Testimonial 2 -->
-            <div class="col-md-4">
-                <div class="testi-card">
-                    <div class="testi-quote-mark">"</div>
-                    <div class="testi-stars">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-half"></i>
-                    </div>
-                    <p class="testi-text">
-                        "Managing students and tracking attendance has never been easier.
-                        The admin dashboard gives me full control and saves hours every week."
-                    </p>
-                    <div class="testi-author">
-                        <div class="testi-avatar" style="background: linear-gradient(135deg,#10B981,#06B6D4);">SA</div>
-                        <div>
-                            <div class="testi-author-name">Sara Ahmad</div>
-                            <div class="testi-author-role">High School Administrator</div>
-                        </div>
-                    </div>
+            @if($reviews->isEmpty())
+                <div class="col-12 text-center text-muted py-4">
+                    <p>No student stories shared yet. Be the first to review!</p>
                 </div>
-            </div>
-
-            <!-- Testimonial 3 -->
-            <div class="col-md-4">
-                <div class="testi-card">
-                    <div class="testi-quote-mark">"</div>
-                    <div class="testi-stars">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i>
-                    </div>
-                    <p class="testi-text">
-                        "Uploading materials, creating assignments, and grading submissions — everything
-                        is seamless. Perfect for any educational institution."
-                    </p>
-                    <div class="testi-author">
-                        <div class="testi-avatar" style="background: linear-gradient(135deg,#F59E0B,#EF4444);">AR</div>
-                        <div>
-                            <div class="testi-author-name">Ahmed Raza</div>
-                            <div class="testi-author-role">College Lecturer</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endif
 
         </div>
     </div>

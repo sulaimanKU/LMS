@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\Enrollment;
 use App\Models\OnlineClass;
 use App\Models\Submission;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -193,5 +194,26 @@ class StudentController
         ]);
 
         return back()->with('success', 'Your work has been submitted successfully!');
+    }
+
+    public function storeReview(Request $request)
+    {
+        $request->validate([
+            'rating'  => 'required|integer|min:1|max:5',
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $user = auth()->user();
+
+        Review::create([
+            'user_id' => $user->id,
+            'name'    => $user->name,
+            'content' => $request->content,
+            'rating'  => $request->rating,
+            'role'    => 'Student',
+            'status'  => 'active',
+        ]);
+
+        return back()->with('success', 'Thank you for your feedback! Your testimonial is now live.');
     }
 }

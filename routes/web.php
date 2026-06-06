@@ -36,6 +36,35 @@ Route::get('/team', [HomeController::class, 'team_index'])->name('team.index');
 Route::get('/register', [RegisterController::class, 'register_index'])->name('register');
 Route::post('/register/submit', [RegisterController::class, 'register_store'])->name('register.store');
 Route::get('/registeration/success/{id}', [RegisterController::class, 'registerationSuccess'])->name('registration.success');
+
+// Temporary route to create a test student
+Route::get('/test-setup-student', function() {
+    $user = \App\Models\User::firstOrCreate(
+        ['email' => 'teststudent@example.com'],
+        [
+            'name' => 'Test Student',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+        ]
+    );
+
+    // Assign student role if Spatie Permission is set up
+    if (method_exists($user, 'assignRole')) {
+        $user->assignRole('student');
+    }
+
+    // Optionally enroll in a course to see data on dashboard
+    $course = \App\Models\Courses::where('status', 'active')->first();
+    if ($course) {
+        \App\Models\Enrollment::firstOrCreate([
+            'user_id' => $user->id,
+            'module_id' => $course->id,
+            'status' => 'enrolled'
+        ]);
+    }
+
+    return "Test student created! Email: teststudent@example.com | Password: password123. <a href='/login'>Go to Login</a>";
+});
+
 Route::post('trackRegisteration', [RegisterController::class, 'trackRegisteration'])->name('registration.track');
 Route::get('/payment/upload', [PaymentController::class, 'uploadPaymentView'])->name('payment.upload');
 Route::post('payment/slipUploaded', [PaymentController::class, 'uploadPayment'])->name('payment.submit');
@@ -157,4 +186,5 @@ Route::prefix('student')->middleware(['student:student'])->group(function () {
     Route::get('learning/materials',[StudentController::class,'learningMaterialsView'])->name('learning.materials.view');
     Route::get('assigments/upload',[StudentController::class,'assigmentsUploadView'])->name('assigments.upload.view');
     Route::post('/student/assignment/submit', [StudentController::class, 'storeSubmission'])->name('student.submissions.store');
+    Route::post('/student/review/submit', [StudentController::class, 'storeReview'])->name('student.review.submit');
 });
