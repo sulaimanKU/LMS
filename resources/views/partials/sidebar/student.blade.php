@@ -77,6 +77,18 @@
 
             </ul>
 
+            {{-- ── System ── --}}
+            <p class="sb-section-label"><span class="sb-label">System</span></p>
+            <ul class="sb-list">
+                <li>
+                    <a href="{{ route('settings.view') }}" title="Settings"
+                       class="sb-link {{ request()->routeIs('settings.view') ? 'sb-active' : '' }}">
+                        <span class="sb-icon"><i class="fa-solid fa-gear"></i></span>
+                        <span class="sb-label">Settings</span>
+                    </a>
+                </li>
+            </ul>
+
         </nav>
 
         {{-- User profile card --}}
@@ -121,18 +133,28 @@
 
             <div class="dropdown">
                 <button class="hdr-profile-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="hdr-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    @if(auth()->user()->profile_image)
+                        <img src="{{ asset('storage/'.auth()->user()->profile_image) }}" class="hdr-avatar" style="object-fit: cover;">
+                    @else
+                        <div class="hdr-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    @endif
                     <span class="hdr-name d-none d-md-inline">{{ auth()->user()->name }}</span>
                     <i class="fa-solid fa-chevron-down hdr-caret d-none d-md-inline"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end hdr-dropdown">
                     <li class="hdr-dd-user">
-                        <div class="hdr-dd-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                        @if(auth()->user()->profile_image)
+                            <img src="{{ asset('storage/'.auth()->user()->profile_image) }}" class="hdr-dd-avatar" style="object-fit: cover;">
+                        @else
+                            <div class="hdr-dd-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                        @endif
                         <div>
                             <div class="hdr-dd-name">{{ auth()->user()->name }}</div>
                             <div class="hdr-dd-email">{{ auth()->user()->email }}</div>
                         </div>
                     </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item hdr-dd-item" href="{{ route('settings.view') }}"><i class="fa-solid fa-gear me-2"></i>Settings</a></li>
                     <li><hr class="dropdown-divider my-1"></li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST">

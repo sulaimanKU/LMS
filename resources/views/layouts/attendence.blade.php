@@ -120,12 +120,33 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="ps-3 fw-bold">10-A</td>
-                        <td class="text-success">38</td>
-                        <td class="text-danger">02</td>
-                        <td class="text-end pe-3">95%</td>
-                    </tr>
+                    @forelse($attendanceStats as $stat)
+                        @php
+                            $enrolledCount = \App\Models\Enrollment::where('module_id', $stat->module_id)->count();
+                            $attendanceRate = $enrolledCount > 0 ? round(($stat->attendances_count / $enrolledCount) * 100) : 0;
+                        @endphp
+                        <tr>
+                            <td class="ps-3 fw-bold">
+                                {{ $stat->module->title ?? 'N/A' }}
+                                <div class="text-muted" style="font-size: 10px;">{{ \Carbon\Carbon::parse($stat->class_date)->format('d M, Y') }}</div>
+                            </td>
+                            <td class="text-success">{{ $stat->attendances_count }}</td>
+                            <td class="text-danger">{{ max(0, $enrolledCount - $stat->attendances_count) }}</td>
+                            <td class="text-end pe-3">
+                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                    <span class="fw-bold">{{ $attendanceRate }}%</span>
+                                    <div class="progress" style="width: 40px; height: 4px;">
+                                        <div class="progress-bar bg-{{ $attendanceRate > 70 ? 'success' : ($attendanceRate > 40 ? 'warning' : 'danger') }}" 
+                                             role="progressbar" style="width: {{ $attendanceRate }}%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No attendance data found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

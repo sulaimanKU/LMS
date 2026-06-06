@@ -48,28 +48,28 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($recentTransactions as $tx)
                             <tr>
                                 <td class="ps-3">
-                                    <div class="fw-bold">Robert Fox</div>
-                                    <small class="text-muted text-nowrap">Grade 10-A</small>
+                                    <div class="fw-bold">{{ $tx->registration->name ?? 'Unknown' }}</div>
+                                    <small class="text-muted text-nowrap">{{ $tx->registration->email ?? 'N/A' }}</small>
                                 </td>
-                                <td>$450.00</td>
-                                <td><span class="badge bg-success-subtle text-success px-2 py-1">Paid</span></td>
+                                <td>PKR {{ number_format($tx->registration->total_amount ?? 0, 0) }}</td>
+                                <td>
+                                    @php
+                                        $statusClass = $tx->status === 'approved' ? 'success' : ($tx->status === 'pending' ? 'warning' : 'danger');
+                                    @endphp
+                                    <span class="badge bg-{{ $statusClass }}-subtle text-{{ $statusClass }} px-2 py-1">{{ ucfirst($tx->status) }}</span>
+                                </td>
                                 <td class="text-end pe-3">
-                                    <button class="btn btn-light btn-sm"><i class="bi bi-three-dots"></i></button>
+                                    <a href="{{ route('admin.student.managment') }}" class="btn btn-light btn-sm"><i class="bi bi-eye"></i></a>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td class="ps-3">
-                                    <div class="fw-bold">Cody Fisher</div>
-                                    <small class="text-muted text-nowrap">Grade 12-B</small>
-                                </td>
-                                <td>$1,200.00</td>
-                                <td><span class="badge bg-danger-subtle text-danger px-2 py-1">Overdue</span></td>
-                                <td class="text-end pe-3">
-                                    <button class="btn btn-light btn-sm text-primary">Notify</button>
-                                </td>
+                                <td colspan="4" class="text-center py-4 text-muted">No transactions found.</td>
                             </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -85,17 +85,18 @@
                     <h6 class="fw-bold mb-3">Quick Summary</h6>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted small">Total Collected</span>
-                        <span class="fw-bold text-success">$84,000</span>
+                        <span class="fw-bold text-success">PKR {{ number_format($totalCollected, 0) }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted small">Outstanding</span>
-                        <span class="fw-bold text-danger">$12,500</span>
+                        <span class="fw-bold text-danger">PKR {{ number_format($outstanding, 0) }}</span>
                     </div>
                     <hr>
-                    <div class="small mb-1 text-muted">Collection Target</div>
+                    <div class="small mb-1 text-muted">Collection Rate</div>
                     <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-primary" style="width: 85%"></div>
+                        <div class="progress-bar bg-primary" style="width: {{ $collectionRate }}%"></div>
                     </div>
+                    <div class="text-end mt-1 small fw-bold text-primary">{{ $collectionRate }}%</div>
                 </div>
             </div>
 
@@ -103,14 +104,17 @@
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body">
                     <h6 class="fw-bold mb-3">System Log</h6>
-                    <div class="border-start ps-3 py-1 mb-3">
-                        <div class="small fw-bold">Payment Confirmed</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">Robert Fox paid $450.00 via Bank.</div>
+                    @forelse($systemLogs as $log)
+                    <div class="border-start border-3 border-{{ $log->status === 'approved' ? 'success' : 'warning' }} ps-3 py-1 mb-3">
+                        <div class="small fw-bold">Payment {{ ucfirst($log->status) }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            {{ $log->student_name }} submitted a slip. 
+                            <div class="mt-1 small opacity-75">{{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }}</div>
+                        </div>
                     </div>
-                    <div class="border-start ps-3 py-1">
-                        <div class="small fw-bold">Invoice Generated</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">12 new invoices for Grade 12.</div>
-                    </div>
+                    @empty
+                    <p class="text-muted small">No logs available.</p>
+                    @endforelse
                 </div>
             </div>
 

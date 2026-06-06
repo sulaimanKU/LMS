@@ -100,11 +100,13 @@
                 <i class="bi bi-person-circle me-1"></i> Profile Settings
             </button>
         </li>
+        @if(auth()->user()->hasRole('admin'))
         <li class="nav-item" role="presentation">
             <button class="nav-link fw-bold" id="pills-system-tab" data-bs-toggle="pill" data-bs-target="#pills-system" type="button" role="tab">
                 <i class="bi bi-gear-fill me-1"></i> System Configuration
             </button>
         </li>
+        @endif
     </ul>
 
     <div class="tab-content" id="pills-tabContent">
@@ -303,6 +305,37 @@
                             <div class="col-12">
                                 <label class="form-label-pro">Meta Description</label>
                                 <textarea name="seo_description" class="form-control input-pro" rows="2" placeholder="Brief description for search engines...">{{ $settings['seo_description'] ?? '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Payment Info --}}
+                <div class="settings-card">
+                    <div class="card-header-pro">
+                        <h6 class="m-0 fw-bold text-primary"><i class="bi bi-wallet2 me-2"></i>Payment Instructions (Registration)</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label-pro">EasyPaisa Number</label>
+                                <input type="text" name="payment_easypaisa" class="form-control input-pro" value="{{ $settings['payment_easypaisa'] ?? '' }}" placeholder="e.g. +92 3XX XXXXXXX">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-pro">JazzCash Number</label>
+                                <input type="text" name="payment_jazzcash" class="form-control input-pro" value="{{ $settings['payment_jazzcash'] ?? '' }}" placeholder="e.g. +92 3XX XXXXXXX">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-pro">Bank Name</label>
+                                <input type="text" name="payment_bank_name" class="form-control input-pro" value="{{ $settings['payment_bank_name'] ?? '' }}" placeholder="e.g. HBL Bank">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-pro">Account Title</label>
+                                <input type="text" name="payment_bank_title" class="form-control input-pro" value="{{ $settings['payment_bank_title'] ?? '' }}" placeholder="e.g. John Doe">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label-pro">Bank Account Number / IBAN</label>
+                                <input type="text" name="payment_bank_number" class="form-control input-pro" value="{{ $settings['payment_bank_number'] ?? '' }}" placeholder="e.g. PK00 HABB 0000 0000 0000 0000">
                             </div>
                         </div>
                     </div>

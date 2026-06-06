@@ -5,7 +5,11 @@
     {{-- ── Header ── --}}
     <div class="td-header">
         <div class="td-welcome">
-            <div class="td-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+            @if($user->profile_image)
+                <img src="{{ asset('storage/'.$user->profile_image) }}" class="td-avatar" style="object-fit: cover;">
+            @else
+                <div class="td-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+            @endif
             <div>
                 <h5 class="td-title">Welcome back, {{ explode(' ', $user->name)[0] }}!</h5>
                 <p class="td-subtitle">{{ now()->format('l, d F Y') }}</p>

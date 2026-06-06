@@ -11,10 +11,133 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ asset('styles/styles.css') }}">
+
+    <style>
+        :root {
+            --brand-primary: #6366F1;
+            --brand-dark: #0F172A;
+            --nav-height: 85px;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            background: #fff;
+        }
+
+        /* ── Modern Navbar ── */
+        .lms-navbar {
+            height: var(--nav-height);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.8) !important; /* Semi-dark at top for visibility */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .lms-navbar.scrolled {
+            background: rgba(15, 23, 42, 0.95) !important; /* Deeper navy when scrolling */
+            height: 72px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .navbar-brand { display: flex; align-items: center; gap: 12px; font-weight: 800; color: #fff !important; font-size: 1.35rem; }
+        
+        /* Fixed Logo Visibility */
+        .nav-logo-box {
+            height: 55px; width: 55px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 14px; 
+            padding: 8px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .nav-logo-box:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+        .nav-logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* Force high visibility for links - HIGH SPECIFICITY */
+        html body .lms-navbar .navbar-nav .nav-link {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9) !important;
+            padding: 0.5rem 1.4rem !important;
+            transition: all 0.2s ease;
+            position: relative;
+            background: transparent !important;
+        }
+        
+        html body .lms-navbar .navbar-nav .nav-link:hover,
+        html body .lms-navbar .navbar-nav .nav-link.active { 
+            color: #fff !important; 
+            opacity: 1; 
+            background: transparent !important;
+        }
+        
+        /* Active State Underline */
+        html body .lms-navbar .navbar-nav .nav-link.active::after {
+            content: ""; position: absolute; bottom: -5px; left: 1.4rem; right: 1.4rem;
+            height: 3px; background: var(--brand-primary); border-radius: 10px;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+        }
+
+        /* Mobile Menu Fix */
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: #0F172A !important; /* Force dark background on mobile */
+                margin-top: 15px;
+                padding: 20px;
+                border-radius: 20px;
+                border: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            }
+        }
+
+        .btn-nav-login {
+            font-size: 0.85rem; font-weight: 700; color: #fff;
+            padding: 8px 22px; border-radius: 12px; transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-nav-login:hover { color: var(--brand-primary); }
+
+        .btn-nav-register {
+            font-size: 0.85rem; font-weight: 700; background: var(--brand-primary); color: #fff !important;
+            padding: 11px 28px; border-radius: 14px; transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2); text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-nav-register:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4); }
+
+        /* ── Footer ── */
+        .lms-footer { background: #0B0F19; color: #94A3B8; padding: 6rem 0 2rem; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-heading { color: #fff; font-weight: 700; margin-bottom: 2rem; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1.5px; }
+        .footer-links { list-style: none; padding: 0; }
+        .footer-links li { margin-bottom: 1rem; }
+        .footer-links a { color: #94A3B8; text-decoration: none; transition: 0.2s; font-size: 0.9rem; font-weight: 500; }
+        .footer-links a:hover { color: var(--brand-primary); padding-left: 6px; }
+
+        .social-btn {
+            width: 42px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 12px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; text-decoration: none; transition: all 0.3s; margin-right: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .social-btn:hover { background: var(--brand-primary); transform: translateY(-5px); border-color: transparent; }
+
+        .footer-divider { border-color: rgba(255,255,255,0.05); margin: 4rem 0 2.5rem; }
+        
+        .footer-cta-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(15, 23, 42, 1));
+            border-radius: 20px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05);
+        }
+    </style>
 </head>
 
 <body>
@@ -22,44 +145,50 @@
 <!-- ============================================================
      NAVBAR
 ============================================================ -->
-<nav class="navbar navbar-expand-lg lms-navbar">
+<nav class="navbar navbar-expand-lg lms-navbar fixed-top">
     <div class="container">
 
         <a class="navbar-brand" href="/">
-            <img src="{{ isset($systemSettings['site_logo_nav']) ? asset('storage/'.$systemSettings['site_logo_nav']) : asset('images/logo/logo.png') }}" alt="Logo">
+            <div class="nav-logo-box">
+                @if(isset($systemSettings['site_logo_nav']))
+                    <img src="{{ asset('storage/'.$systemSettings['site_logo_nav']) }}" alt="Logo">
+                @else
+                    <i class="bi bi-mortarboard-fill"></i>
+                @endif
+            </div>
             <span>{{ $systemSettings['site_title'] ?? 'MyLMS' }}</span>
         </a>
 
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLMS">
-            <span class="navbar-toggler-icon"></span>
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLMS">
+            <i class="bi bi-list fs-2 text-white"></i>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarLMS">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1">
                 <li class="nav-item">
-                    <a class="nav-link active" href="/"><i class="bi bi-house me-1"></i>Home</a>
+                    <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="/">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('courses.index') }}"><i class="bi bi-book me-1"></i>Courses</a>
+                    <a class="nav-link {{ request()->routeIs('courses.index') || request()->routeIs('course.show') ? 'active' : '' }}" href="{{ route('courses.index') }}">Courses</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('team.index') }}"><i class="bi bi-people me-1"></i>Our Team</a>
+                    <a class="nav-link {{ request()->routeIs('team.index') ? 'active' : '' }}" href="{{ route('team.index') }}">Faculty</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#statusModal">
-                        <i class="bi bi-search me-1"></i>Track Status
-                    </a>
+                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#statusModal">Track Status</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('payment.upload') }}">
-                        <i class="bi bi-cloud-arrow-up me-1"></i>Upload Slip
-                    </a>
+                    <a class="nav-link {{ request()->routeIs('payment.upload') ? 'active' : '' }}" href="{{ route('payment.upload') }}">Payments</a>
                 </li>
             </ul>
 
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ route('login') }}" class="btn-nav-login">Login</a>
-                <a href="{{ route('register') }}" class="btn-nav-register">Get Started</a>
+                @auth
+                    <a href="{{ url('/dashboard') }}" class="btn-nav-register">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}" class="btn-nav-login">Login</a>
+                    <a href="{{ route('register') }}" class="btn-nav-register">Join Academy</a>
+                @endauth
             </div>
         </div>
 
@@ -69,51 +198,31 @@
 <!-- Track Status Modal -->
 <div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
-            <div class="modal-header border-0 pb-0" style="background: var(--gradient-primary); padding: 1.5rem 1.75rem;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 28px; overflow: hidden;">
+            <div class="modal-header border-0 pb-0" style="background: #0F172A; padding: 2.5rem;">
                 <div>
                     <h5 class="modal-title fw-bold text-white mb-1">
-                        <i class="bi bi-search-heart me-2"></i>Check Registration Status
+                        <i class="bi bi-search me-2 text-primary"></i>Application Tracker
                     </h5>
-                    <p class="text-white mb-0" style="opacity:.8; font-size:.85rem;">
-                        Enter your email to track your application
+                    <p class="text-white mb-0" style="opacity:.6; font-size:.85rem;">
+                        Check your enrollment status instantly.
                     </p>
                 </div>
-                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white ms-auto shadow-none" data-bs-dismiss="modal"></button>
             </div>
 
             <form action="{{ route('registration.track') }}" method="post">
                 @csrf
-
-                @if(session('success'))
-                    <div class="alert alert-success border-0 rounded-0 mb-0 py-2 px-4">
-                        <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+                <div class="modal-body p-4 p-md-5">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase ls-1">Registered Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 px-3"><i class="bi bi-envelope text-primary"></i></span>
+                            <input type="email" name="email" class="form-control bg-light border-0 py-3 shadow-none" style="border-radius: 0 12px 12px 0;" placeholder="your@email.com" required>
+                        </div>
                     </div>
-                @endif
-
-                @if($errors->any())
-                    <div class="alert alert-danger border-0 rounded-0 mb-0 py-2 px-4">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        @foreach($errors->all() as $error) {{ $error }} @endforeach
-                    </div>
-                @endif
-
-                <div class="modal-body p-4">
-                    <label class="form-label fw-semibold small text-uppercase text-muted ls-1">Email Address</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0">
-                            <i class="bi bi-envelope text-muted"></i>
-                        </span>
-                        <input type="email" name="email"
-                               class="form-control border-start-0 ps-0"
-                               placeholder="your@email.com" required>
-                    </div>
-                </div>
-
-                <div class="modal-footer border-0 pt-0 px-4 pb-4">
-                    <button type="submit" class="btn w-100 py-2 fw-semibold text-white"
-                            style="background: var(--gradient-primary); border: none; border-radius: 10px;">
-                        <i class="bi bi-arrow-right-circle me-2"></i>Search Status
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-4 shadow-lg border-0" style="background: var(--brand-primary);">
+                        Check Status <i class="bi bi-arrow-right ms-2"></i>
                     </button>
                 </div>
             </form>
@@ -121,31 +230,35 @@
     </div>
 </div>
 
-@yield('content')
+<main>
+    @yield('content')
+</main>
 
 <!-- ============================================================
      FOOTER
 ============================================================ -->
 <footer class="lms-footer">
     <div class="container">
-        <div class="row g-4">
+        <div class="row g-5">
 
             <!-- Brand -->
             <div class="col-lg-4 col-md-6">
-                <div class="footer-brand d-flex align-items-center gap-2 mb-2">
-                    @if(isset($systemSettings['site_logo_footer']))
-                        <img src="{{ asset('storage/'.$systemSettings['site_logo_footer']) }}" alt="Logo" style="height:40px; object-fit: contain;">
-                    @elseif(isset($systemSettings['site_logo_nav']))
-                        <img src="{{ asset('storage/'.$systemSettings['site_logo_nav']) }}" alt="Logo" style="height:40px; object-fit: contain; filter: brightness(0) invert(1);">
-                    @else
-                        <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" style="height:40px; filter:brightness(0) invert(1);">
-                    @endif
-                    {{ $systemSettings['site_title'] ?? 'MyLMS' }}
+                <div class="footer-brand d-flex align-items-center gap-3 mb-4">
+                    <div class="nav-logo-box" style="height: 48px; width: 48px;">
+                        @if(isset($systemSettings['site_logo_footer']))
+                            <img src="{{ asset('storage/'.$systemSettings['site_logo_footer']) }}" alt="Logo">
+                        @elseif(isset($systemSettings['site_logo_nav']))
+                            <img src="{{ asset('storage/'.$systemSettings['site_logo_nav']) }}" alt="Logo" style="filter: brightness(0) invert(1);">
+                        @else
+                            <i class="bi bi-mortarboard-fill text-white fs-2"></i>
+                        @endif
+                    </div>
+                    <span class="text-white fw-bold fs-4">{{ $systemSettings['site_title'] ?? 'MyLMS' }}</span>
                 </div>
-                <p class="footer-desc">
+                <p class="footer-desc" style="line-height: 1.8; font-size: 0.92rem;">
                     {{ $systemSettings['site_about'] ?? 'A modern learning management system built to connect students, teachers, and institutions — all in one place.' }}
                 </p>
-                <div class="footer-social mt-3">
+                <div class="footer-social mt-4">
                     @if(isset($systemSettings['social_facebook']))
                         <a href="{{ $systemSettings['social_facebook'] }}" class="social-btn" target="_blank"><i class="bi bi-facebook"></i></a>
                     @endif
@@ -163,41 +276,33 @@
 
             <!-- Quick Links -->
             <div class="col-lg-2 col-md-6">
-                <h6 class="footer-heading">Quick Links</h6>
+                <h6 class="footer-heading">Sitemap</h6>
                 <ul class="footer-links">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="{{ route('courses.index') }}">Courses</a></li>
-                    <li><a href="{{ route('team.index') }}">Our Team</a></li>
-                    <li><a href="{{ route('payment.upload') }}">Upload Slip</a></li>
-                </ul>
-            </div>
-
-            <!-- Programmes -->
-            <div class="col-lg-3 col-md-6">
-                <h6 class="footer-heading">Programmes</h6>
-                <ul class="footer-links">
-                    <li><a href="#">Web Development</a></li>
-                    <li><a href="#">Business Management</a></li>
-                    <li><a href="#">Graphic Design</a></li>
-                    <li><a href="#">Data Science</a></li>
-                    <li><a href="#">Languages</a></li>
+                    <li><a href="/">Home Page</a></li>
+                    <li><a href="{{ route('courses.index') }}">Browse Modules</a></li>
+                    <li><a href="{{ route('team.index') }}">Our Experts</a></li>
+                    <li><a href="{{ route('payment.upload') }}">Fee Portal</a></li>
                 </ul>
             </div>
 
             <!-- Contact -->
-            <div class="col-lg-3 col-md-6">
-                <h6 class="footer-heading">Contact</h6>
-                <ul class="footer-links">
-                    <li><i class="bi bi-envelope me-2 text-indigo-400"></i>{{ $systemSettings['contact_email'] ?? 'info@mylms.edu' }}</li>
-                    <li><i class="bi bi-telephone me-2"></i>{{ $systemSettings['contact_phone'] ?? '+92 300 000 0000' }}</li>
-                    <li><i class="bi bi-geo-alt me-2"></i>{{ $systemSettings['contact_address'] ?? '123 Education St, City' }}</li>
-                </ul>
-                <div class="mt-3">
-                    <a href="{{ route('register') }}"
-                       class="btn btn-sm fw-semibold text-white px-3 py-2"
-                       style="background: var(--gradient-primary); border-radius: 8px;">
-                        <i class="bi bi-person-plus me-1"></i>Enroll Now
-                    </a>
+            <div class="col-lg-6 col-md-12">
+                <div class="footer-cta-card">
+                    <h6 class="footer-heading mb-3">Institutional Support</h6>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <ul class="footer-links">
+                                <li><i class="bi bi-envelope-at me-2 text-primary"></i>{{ $systemSettings['contact_email'] ?? 'info@mylms.edu' }}</li>
+                                <li><i class="bi bi-telephone-outbound me-2 text-primary"></i>{{ $systemSettings['contact_phone'] ?? '+92 300 000 0000' }}</li>
+                                <li><i class="bi bi-geo-alt me-2 text-primary"></i>{{ $systemSettings['contact_address'] ?? '123 Education St, City' }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ route('register') }}" class="btn btn-primary w-100 py-3 fw-bold rounded-4 shadow-lg border-0" style="background: var(--brand-primary);">
+                                Join Academy Now
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -205,11 +310,11 @@
 
         <hr class="footer-divider">
 
-        <div class="footer-bottom">
-            <span>{{ $systemSettings['footer_text'] ?? ('&copy; ' . date('Y') . ' ' . ($systemSettings['site_title'] ?? 'MyLMS') . ' — All Rights Reserved') }}</span>
-            <div class="d-flex gap-3">
-                <a href="#" class="footer-links-inline">Privacy Policy</a>
-                <a href="#" class="footer-links-inline">Terms of Service</a>
+        <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center gap-3 pb-4">
+            <span class="small fw-500">{{ $systemSettings['footer_text'] ?? ('&copy; ' . date('Y') . ' ' . ($systemSettings['site_title'] ?? 'MyLMS') . ' — All Rights Reserved') }}</span>
+            <div class="d-flex gap-4">
+                <a href="#" class="footer-links-inline small text-muted text-decoration-none">Privacy Policy</a>
+                <a href="#" class="footer-links-inline small text-muted text-decoration-none">Standard Terms</a>
             </div>
         </div>
     </div>
@@ -219,14 +324,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    const carouselElement = document.querySelector('#lmsCarousel');
-    if (carouselElement) {
-        new bootstrap.Carousel(carouselElement, { interval: 4000, touch: true });
-    }
-    const testimonialCarousel = document.querySelector('#testimonialCarousel');
-    if (testimonialCarousel) {
-        new bootstrap.Carousel(testimonialCarousel, { interval: 5000, touch: true });
-    }
+    // Smart Navbar Scroll Effect
+    window.addEventListener('scroll', function() {
+        const nav = document.querySelector('.lms-navbar');
+        if (window.scrollY > 50) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+    });
 </script>
 
 </body>

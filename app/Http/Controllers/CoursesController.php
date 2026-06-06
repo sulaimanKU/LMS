@@ -30,10 +30,30 @@ class CoursesController
         $inactiveCourses = Courses::where('status', 'inactive')->count();
         $totalEnrolled  = \DB::table('enrollments')->whereIn('status', ['active', 'completed'])->count();
 
-        return view('layouts.courses', compact(
+        return view('layouts.courses.index', compact(
             'courses', 'teachers', 'filter',
             'totalCourses', 'activeCourses', 'inactiveCourses', 'totalEnrolled'
         ));
+    }
+
+    public function create()
+    {
+        return view('layouts.courses.create');
+    }
+
+    public function edit($id)
+    {
+        $course = Courses::findOrFail($id);
+        return view('layouts.courses.edit', compact('course'));
+    }
+
+    public function show($id)
+    {
+        $course = Courses::with(['teacher', 'lessons'])
+            ->withCount(['lessons', 'enrollments'])
+            ->findOrFail($id);
+            
+        return view('home_layouts.courseDetail', compact('course'));
     }
 
     public function store(Request $request)

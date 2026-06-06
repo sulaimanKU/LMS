@@ -31,7 +31,10 @@ class HomeController
     }
     public function courses_index() {
 
-       $courses = Courses::with('teacher')->get();
+       $courses = Courses::with('teacher')
+            ->withCount(['lessons', 'enrollments'])
+            ->where('status', 'active')
+            ->paginate(12);
 
         // Pass the data to the view
         return view('home_layouts.coursesView', compact('courses'));

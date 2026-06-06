@@ -134,8 +134,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('financial/reports/view',[ReportsController::class,'index'])->name('financial.view');
     Route::get('systems/logs/view',[ReportsController::class,'systemLogs'])->name('systemlogs.view');
     Route::post('systems/logs/clear',[ReportsController::class,'clearLogs'])->name('systemlogs.clear');
-    Route::get('settings/view',[SettingController::class,'index'])->name('settings.view');
-    Route::put('settings/update',[SettingController::class,'updateSetting'])->name('settings.update');
+    
+    // System Settings (Admin only)
     Route::put('settings/update/system',[SettingController::class,'updateSystemSetting'])->name('settings.update.system');
 
     Route::get('system/admins', [DashboardController::class, 'systemAdminsView'])->name('admin.system.admins');
@@ -143,7 +143,15 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('system/admins/{id}/delete', [DashboardController::class, 'systemAdminDelete'])->name('admin.system.admins.delete');
 });
 
+Route::middleware(['auth'])->group(function() {
+    Route::get('settings/view',[SettingController::class,'index'])->name('settings.view');
+    Route::put('settings/update',[SettingController::class,'updateSetting'])->name('settings.update');
+});
+
 Route::get('courses', [CoursesController::class, 'courses_index'])->name('course.index');
+Route::get('courses/create', [CoursesController::class, 'create'])->name('course.create');
+Route::get('courses/{id}/edit', [CoursesController::class, 'edit'])->name('course.edit');
+Route::get('courses/{id}', [CoursesController::class, 'show'])->name('course.show');
 Route::post('courses/store', [CoursesController::class, 'store'])->name('course.store');
 Route::put('courses/{id}/update', [CoursesController::class, 'update'])->name('course.update');
 Route::delete('courses/{id}/delete', [CoursesController::class, 'destroy'])->name('course.destroy');

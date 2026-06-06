@@ -53,6 +53,10 @@ class SettingController extends Controller
 
     public function updateSystemSetting(Request $request)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $data = $request->except(['_token', 'site_logo_nav', 'site_logo_footer', 'site_favicon']);
 
         foreach ($data as $key => $value) {

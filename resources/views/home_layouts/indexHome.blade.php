@@ -1,352 +1,285 @@
 @extends('welcome')
+
 @section('content')
+<!-- Premium Font -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<!-- ============================================================
-     HERO
-============================================================ -->
-<section class="hero-section position-relative">
+<style>
+    :root {
+        --brand-indigo: #6366F1;
+        --brand-indigo-dark: #4F46E5;
+        --slate-900: #0F172A;
+        --slate-800: #1E293B;
+        --slate-600: #475569;
+        --slate-400: #94A3B8;
+    }
 
-    <div class="hero-content text-center">
-        <div class="hero-badge">
-            <i class="bi bi-mortarboard-fill"></i> Trusted by {{ $stats['students'] }}+ Students
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* ── Premium Aurora Hero ── */
+    .hero-premium {
+        background-color: var(--slate-900);
+        background-image: 
+            radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(79, 70, 229, 0.15) 0%, transparent 40%);
+        padding: 8rem 0 7rem;
+        position: relative;
+        overflow: hidden;
+        color: #fff;
+    }
+    .hero-premium::after {
+        content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 100px;
+        background: linear-gradient(to top, #fff, transparent);
+    }
+    .badge-premium {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+        padding: 8px 20px; border-radius: 50px; font-size: 0.75rem; font-weight: 800;
+        text-transform: uppercase; letter-spacing: 1.5px; color: #A5B4FC; margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+    }
+    .hero-h1 { 
+        font-size: clamp(2.8rem, 6vw, 4.5rem); font-weight: 800; margin-bottom: 1.5rem; line-height: 1; 
+        background: linear-gradient(to bottom, #FFFFFF 40%, #94A3B8 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-h1 span { 
+        background: linear-gradient(135deg, #818CF8 0%, #6366F1 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-p { font-size: 1.2rem; color: var(--slate-400); max-width: 700px; margin: 0 auto 2.5rem; line-height: 1.6; }
+
+    .btn-brand-primary {
+        padding: 16px 36px; background: var(--brand-indigo); color: #fff;
+        border: none; border-radius: 14px; font-weight: 700; font-size: 1.05rem;
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); transition: all 0.3s;
+        text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+    }
+    .btn-brand-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 35px rgba(99, 102, 241, 0.5); color: #fff; }
+
+    .btn-brand-outline {
+        padding: 16px 36px; background: rgba(255,255,255,0.05); color: #fff;
+        border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; font-weight: 700; font-size: 1.05rem;
+        transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+        backdrop-filter: blur(10px);
+    }
+    .btn-brand-outline:hover { background: rgba(255,255,255,0.1); border-color: #fff; color: #fff; }
+
+    /* ── High-Fidelity Stats Bar ── */
+    .stats-premium { margin-top: -50px; position: relative; z-index: 10; }
+    .stats-container {
+        background: #fff; border: 1px solid #E5E7EB; border-radius: 24px;
+        padding: 2.5rem; box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    }
+    .stat-val { font-size: 2.2rem; font-weight: 800; color: var(--slate-900); margin-bottom: 2px; }
+    .stat-name { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--slate-400); letter-spacing: 1px; }
+
+    /* ── International Card Design ── */
+    .course-card-premium {
+        background: #fff; border-radius: 24px; border: 1px solid #E5E7EB;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .course-card-premium:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.12);
+        border-color: var(--brand-indigo);
+    }
+    .course-img-box {
+        position: relative; width: 100%; padding-top: 56.25%; /* 16:9 */
+        overflow: hidden; background: #F1F5F9;
+    }
+    .course-img-box img {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover; transition: transform 0.6s ease;
+    }
+    .course-card-premium:hover .course-img-box img { transform: scale(1.08); }
+
+    .badge-cat {
+        position: absolute; top: 1.25rem; left: 1.25rem; z-index: 2;
+        background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px);
+        color: #fff; padding: 5px 14px; border-radius: 10px; font-size: 0.7rem; font-weight: 700;
+    }
+
+    .course-body-premium { padding: 1.75rem; display: flex; flex-direction: column; flex: 1; }
+    .course-title-premium { font-size: 1.25rem; font-weight: 800; color: var(--slate-900); margin-bottom: 0.75rem; line-height: 1.4; }
+    .course-desc-premium { font-size: 0.9rem; color: var(--slate-600); line-height: 1.6; margin-bottom: 1.5rem; flex: 1; }
+
+    .course-meta-premium { display: flex; align-items: center; gap: 15px; padding-top: 1.25rem; border-top: 1px solid #F1F5F9; }
+    .meta-item-p { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 700; color: var(--slate-400); }
+    .meta-item-p i { color: var(--brand-indigo); font-size: 0.9rem; }
+
+    .btn-view-premium {
+        width: 100%; padding: 12px; background: #F1F5F9; color: var(--brand-indigo);
+        border: none; border-radius: 12px; font-weight: 700; font-size: 0.9rem;
+        transition: all 0.2s; margin-top: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+        text-decoration: none;
+    }
+    .btn-view-premium:hover { background: var(--brand-indigo); color: #fff; }
+
+    /* ── Testimonials ── */
+    .testi-premium-card {
+        background: #fff; padding: 2.5rem; border-radius: 24px; border: 1px solid #E5E7EB;
+        position: relative; height: 100%;
+    }
+    .quote-icon { font-size: 3rem; color: var(--brand-indigo-dark); opacity: 0.1; position: absolute; top: 1rem; right: 2rem; }
+    .testi-stars-p { color: #F59E0B; font-size: 0.8rem; margin-bottom: 1rem; display: flex; gap: 3px; }
+    .testi-text-p { font-size: 1rem; line-height: 1.7; color: var(--slate-600); margin-bottom: 1.5rem; font-style: italic; }
+
+    .testi-user { display: flex; align-items: center; gap: 12px; }
+    .user-avatar-p { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 0.9rem; }
+
+    @media (max-width: 768px) {
+        .hero-premium { padding: 6rem 0 5rem; text-align: center; }
+        .stats-container { padding: 1.5rem; }
+        .stat-val { font-size: 1.6rem; }
+    }
+</style>
+
+{{-- ── Hero Section ── --}}
+<section class="hero-premium">
+    <div class="container text-center">
+        <div class="badge-premium">
+            <i class="bi bi-shield-check"></i> Globally Trusted Learning Platform
         </div>
-        <h1 class="hero-title">
+        <h1 class="hero-h1">
             @if(isset($systemSettings['site_hero_title']))
                 {!! nl2br(e($systemSettings['site_hero_title'])) !!}
             @else
-                Learn Smarter.<br>
-                <span class="highlight">Grow Faster.</span>
+                Master Your Future.<br><span>Excel Globally.</span>
             @endif
         </h1>
-        <p class="hero-subtitle">
-            {{ $systemSettings['site_hero_subtitle'] ?? 'Manage courses, track attendance, submit assignments, and connect with teachers — all from one powerful platform.' }}
+        <p class="hero-p">
+            {{ $systemSettings['site_hero_subtitle'] ?? 'Experience next-generation academic training with expert mentors and industry-standard research modules.' }}
         </p>
-        <div class="hero-cta-group">
-            <a href="{{ route('register') }}" class="btn-hero-primary">
-                <i class="bi bi-person-plus-fill"></i> Enroll Now
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ route('register') }}" class="btn-brand-primary">
+                Get Started Today <i class="bi bi-arrow-right"></i>
             </a>
-            <a href="{{ route('courses.index') }}" class="btn-hero-outline">
-                <i class="bi bi-play-circle"></i> Explore Courses
+            <a href="{{ route('courses.index') }}" class="btn-brand-outline">
+                Explore Modules
             </a>
         </div>
     </div>
-
-    <!-- Carousel -->
-    <div id="lmsCarousel" class="carousel slide h-100" data-bs-ride="carousel">
-        <div class="carousel-inner h-100">
-            <div class="carousel-item active h-100">
-                <img src="{{ asset('images/learning-education-ideas-insight-intelligence-study-concept.jpg') }}"
-                     class="d-block w-100 hero-img" alt="Learning">
-            </div>
-            <div class="carousel-item h-100">
-                <img src="{{ asset('images/city-committed-education-collage-concept.jpg') }}"
-                     class="d-block w-100 hero-img" alt="Education">
-            </div>
-            <div class="carousel-item h-100">
-                <img src="{{ asset('images/4144413.jpg') }}"
-                     class="d-block w-100 hero-img" alt="Study">
-            </div>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#lmsCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#lmsCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </button>
-    </div>
-
 </section>
 
-<!-- ============================================================
-     STATS BAR
-============================================================ -->
-<div class="stats-bar">
+{{-- ── Stats Section ── --}}
+<section class="stats-premium">
     <div class="container">
-        <div class="row align-items-center justify-content-center g-3 g-md-0">
-
-            <div class="col-6 col-md">
-                <div class="stat-item">
-                    <div class="stat-number">{{ $stats['students'] }}+</div>
-                    <div class="stat-label">Students Enrolled</div>
+        <div class="stats-container">
+            <div class="row g-4 text-center">
+                <div class="col-6 col-md-3">
+                    <div class="stat-val">{{ $stats['students'] }}+</div>
+                    <div class="stat-name">Active Learners</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-val">{{ $stats['courses'] }}+</div>
+                    <div class="stat-name">Premium Modules</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-val">{{ $stats['teachers'] }}+</div>
+                    <div class="stat-name">Expert Faculty</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-val">{{ $stats['satisfaction'] }}%</div>
+                    <div class="stat-name">Global Success</div>
                 </div>
             </div>
-
-            <div class="col-auto d-none d-md-block">
-                <div class="stat-sep"></div>
-            </div>
-
-            <div class="col-6 col-md">
-                <div class="stat-item">
-                    <div class="stat-number">{{ $stats['courses'] }}+</div>
-                    <div class="stat-label">Active Courses</div>
-                </div>
-            </div>
-
-            <div class="col-auto d-none d-md-block">
-                <div class="stat-sep"></div>
-            </div>
-
-            <div class="col-6 col-md">
-                <div class="stat-item">
-                    <div class="stat-number">{{ $stats['teachers'] }}+</div>
-                    <div class="stat-label">Expert Teachers</div>
-                </div>
-            </div>
-
-            <div class="col-auto d-none d-md-block">
-                <div class="stat-sep"></div>
-            </div>
-
-            <div class="col-6 col-md">
-                <div class="stat-item">
-                    <div class="stat-number">{{ $stats['satisfaction'] }}%</div>
-                    <div class="stat-label">Satisfaction Rate</div>
-                </div>
-            </div>
-
         </div>
     </div>
-</div>
+</section>
 
-<!-- ============================================================
-     POPULAR COURSES
-============================================================ -->
-<section class="py-5" style="padding: 5rem 0 !important;">
+{{-- ── Popular Courses Section ── --}}
+<section class="py-5" style="padding: 7rem 0 !important;">
     <div class="container">
-
-        <div class="section-header">
-            <span class="section-label">What We Offer</span>
-            <h2 class="section-title">Popular Courses</h2>
-            <p class="section-subtitle">
-                Discover top-rated courses designed and delivered by expert instructors.
-            </p>
+        <div class="mb-5 text-center">
+            <span style="color: var(--brand-indigo); font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px;">Academy Spotlight</span>
+            <h2 class="fw-bold mt-2" style="font-size: 2.5rem; color: var(--slate-900);">Featured Modules</h2>
+            <p class="text-muted mx-auto" style="max-width: 500px;">Begin your professional journey with our most sought-after training programs.</p>
         </div>
 
         <div class="row g-4">
-
             @foreach($popularCourses as $course)
-            <div class="col-md-4">
-                <div class="course-card-new">
-                    <div class="course-img-wrap">
-                        <span class="course-cat-badge">{{ $course->category }}</span>
-                        <span class="course-price-badge">{{ $course->price > 0 ? '$'.number_format($course->price, 0) : 'Free' }}</span>
-                        <img src="{{ $course->image ? asset('storage/'.$course->image) : asset('images/learning-education-ideas-insight-intelligence-study-concept.jpg') }}"
+            <div class="col-md-6 col-lg-4">
+                <div class="course-card-premium">
+                    <div class="course-img-box">
+                        <span class="badge-cat">{{ $course->category }}</span>
+                        <img src="{{ $course->image ? asset('storage/'.$course->image) : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80' }}"
                              alt="{{ $course->title }}">
                     </div>
-                    <div class="course-card-body-new">
-                        <h5 class="course-card-title-new">{{ $course->title }}</h5>
-                        <p class="course-card-desc-new">
-                            {{ \Illuminate\Support\Str::limit($course->short_description, 100) }}
+                    <div class="course-body-premium">
+                        <h5 class="course-title-premium">{{ $course->title }}</h5>
+                        <p class="course-desc-premium">
+                            {{ \Illuminate\Support\Str::limit(strip_tags($course->short_description), 100) }}
                         </p>
-                        @php
-                            $instructor = $course->teacher->first();
-                            $initials = '';
-                            if ($instructor) {
-                                $names = explode(' ', $instructor->name);
-                                foreach ($names as $name) {
-                                    $initials .= strtoupper(substr($name, 0, 1));
-                                }
-                                $initials = substr($initials, 0, 2);
-                            }
-                        @endphp
-                        <div class="course-instructor-row">
-                            <div class="inst-avatar">{{ $initials ?: '?' }}</div>
-                            <span class="inst-name">{{ $instructor->name ?? 'Unknown' }}</span>
+                        
+                        <div class="course-meta-premium">
+                            <div class="meta-item-p"><i class="bi bi-clock"></i> {{ $course->duration }}</div>
+                            <div class="meta-item-p"><i class="bi bi-people"></i> {{ $course->enrollments_count }}</div>
+                            <div class="meta-item-p" style="margin-left: auto; color: var(--brand-indigo); font-size: 0.9rem;">PKR {{ number_format($course->price, 0) }}</div>
                         </div>
-                        <div class="course-meta-row">
-                            <span><i class="bi bi-clock me-1"></i>{{ $course->duration }}</span>
-                            <span><i class="bi bi-journal-bookmark me-1"></i>{{ $course->lessons->count() }} lessons</span>
-                            <span><i class="bi bi-people me-1"></i>{{ $course->enrollments_count }} students</span>
-                        </div>
-                        <a href="{{ route('courses.index') }}" class="btn-enroll-new">
-                            <i class="bi bi-arrow-right me-1"></i> View Course
+
+                        <a href="{{ route('course.show', $course->id) }}" class="btn-view-premium">
+                            View Module <i class="bi bi-arrow-up-right"></i>
                         </a>
                     </div>
                 </div>
             </div>
             @endforeach
-
-        </div>
-
-        <div class="text-center mt-4">
-            <a href="{{ route('courses.index') }}"
-               class="btn px-4 py-2 fw-semibold"
-               style="border: 2px solid var(--color-primary); color: var(--color-primary); border-radius: 50px;">
-                View All Courses <i class="bi bi-arrow-right ms-1"></i>
-            </a>
-        </div>
-
-    </div>
-</section>
-
-<!-- ============================================================
-     TOP CATEGORIES
-============================================================ -->
-<section class="categories-section">
-    <div class="container">
-
-        <div class="section-header">
-            <span class="section-label">Browse by Topic</span>
-            <h2 class="section-title">Top Categories</h2>
-            <p class="section-subtitle">
-                Choose from a wide range of subjects taught by passionate experts.
-            </p>
-        </div>
-
-        <div class="row g-3">
-
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="cat-card">
-                    <div class="cat-icon" style="background:#EEF2FF;">
-                        <i class="bi bi-code-slash" style="color:#4F46E5;"></i>
-                    </div>
-                    <h6>Development</h6>
-                    <small>12 Courses</small>
-                </div>
-            </div>
-
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="cat-card">
-                    <div class="cat-icon" style="background:#ECFDF5;">
-                        <i class="bi bi-flask" style="color:#10B981;"></i>
-                    </div>
-                    <h6>Science</h6>
-                    <small>8 Courses</small>
-                </div>
-            </div>
-
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="cat-card">
-                    <div class="cat-icon" style="background:#FFF7ED;">
-                        <i class="bi bi-graph-up-arrow" style="color:#F59E0B;"></i>
-                    </div>
-                    <h6>Business</h6>
-                    <small>10 Courses</small>
-                </div>
-            </div>
-
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="cat-card">
-                    <div class="cat-icon" style="background:#FFF1F2;">
-                        <i class="bi bi-translate" style="color:#F43F5E;"></i>
-                    </div>
-                    <h6>Languages</h6>
-                    <small>6 Courses</small>
-                </div>
-            </div>
-
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="cat-card">
-                    <div class="cat-icon" style="background:#F0F9FF;">
-                        <i class="bi bi-palette" style="color:#0EA5E9;"></i>
-                    </div>
-                    <h6>Design</h6>
-                    <small>9 Courses</small>
-                </div>
-            </div>
-
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="cat-card">
-                    <div class="cat-icon" style="background:#FAF5FF;">
-                        <i class="bi bi-calculator" style="color:#8B5CF6;"></i>
-                    </div>
-                    <h6>Mathematics</h6>
-                    <small>7 Courses</small>
-                </div>
-            </div>
-
         </div>
     </div>
 </section>
 
-<!-- ============================================================
-     TESTIMONIALS
-============================================================ -->
-<section class="testimonials-section">
+{{-- ── Testimonials Section ── --}}
+<section class="py-5" style="padding: 5rem 0 8rem !important; background: #F8FAFF;">
     <div class="container">
-
-        <div class="section-header">
-            <span class="section-label">Student Stories</span>
-            <h2 class="section-title">What Our Students Say</h2>
-            <p class="section-subtitle">
-                Real feedback from learners who transformed their skills with MyLMS.
-            </p>
+        <div class="mb-5 text-center">
+            <span style="color: var(--brand-indigo); font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px;">Global Feedback</span>
+            <h2 class="fw-bold mt-2" style="font-size: 2.5rem; color: var(--slate-900);">Student Stories</h2>
         </div>
 
         <div class="row g-4">
-
             @foreach($reviews as $review)
-            <div class="col-md-4">
-                <div class="testi-card">
-                    <div class="testi-quote-mark">"</div>
-                    <div class="testi-stars">
+            <div class="col-md-6 col-lg-4">
+                <div class="testi-premium-card">
+                    <i class="bi bi-quote quote-icon"></i>
+                    <div class="testi-stars-p">
                         @for($i = 1; $i <= 5; $i++)
-                            @if($i <= $review->rating)
-                                <i class="bi bi-star-fill"></i>
-                            @else
-                                <i class="bi bi-star"></i>
-                            @endif
+                            <i class="bi bi-star-fill"></i>
                         @endfor
                     </div>
-                    <p class="testi-text">
-                        "{{ $review->content }}"
-                    </p>
-                    <div class="testi-author">
+                    <p class="testi-text-p">"{{ $review->content }}"</p>
+                    
+                    <div class="testi-user">
                         @php
                             $names = explode(' ', $review->name);
                             $initials = '';
                             foreach($names as $n) $initials .= strtoupper(substr($n, 0, 1));
                             $initials = substr($initials, 0, 2);
-                            
-                            // Random gradient for variety
-                            $gradients = [
-                                'linear-gradient(135deg,#4F46E5,#7C3AED)',
-                                'linear-gradient(135deg,#10B981,#06B6D4)',
-                                'linear-gradient(135deg,#F59E0B,#EF4444)',
-                                'linear-gradient(135deg,#EC4899,#8B5CF6)',
-                                'linear-gradient(135deg,#3B82F6,#2DD4BF)'
-                            ];
+                            $gradients = ['#6366F1', '#10B981', '#F59E0B', '#EC4899', '#3B82F6'];
                             $bg = $gradients[$review->id % count($gradients)];
                         @endphp
-                        <div class="testi-avatar" style="background: {{ $bg }};">{{ $initials }}</div>
+                        <div class="user-avatar-p" style="background: {{ $bg }};">{{ $initials }}</div>
                         <div>
-                            <div class="testi-author-name">{{ $review->name }}</div>
-                            <div class="testi-author-role">{{ $review->role }}</div>
+                            <div style="font-size: 0.9rem; font-weight: 800; color: var(--slate-900);">{{ $review->name }}</div>
+                            <div style="font-size: 0.75rem; font-weight: 600; color: var(--slate-400);">{{ $review->role }}</div>
                         </div>
                     </div>
                 </div>
             </div>
             @endforeach
-
-            @if($reviews->isEmpty())
-                <div class="col-12 text-center text-muted py-4">
-                    <p>No student stories shared yet. Be the first to review!</p>
-                </div>
-            @endif
-
         </div>
     </div>
 </section>
 
-<!-- ============================================================
-     CTA SECTION
-============================================================ -->
-<section class="cta-section">
-    <div class="container" style="position: relative; z-index: 1;">
-        <h2 class="fw-bold">Ready to Start Learning?</h2>
-        <p>
-            Join hundreds of students and educators already using MyLMS to achieve
-            their academic goals. Registration is quick and easy.
-        </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-            <a href="{{ route('register') }}" class="btn-cta-white">
-                <i class="bi bi-person-plus-fill"></i> Create Free Account
-            </a>
-            <a href="{{ route('courses.index') }}"
-               class="btn-hero-outline" style="position:relative; z-index:1;">
-                <i class="bi bi-book-half"></i> Browse Courses
-            </a>
-        </div>
+{{-- ── Final CTA ── --}}
+<section class="py-5" style="background: var(--brand-indigo); color: #fff; padding: 6rem 0 !important;">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-4" style="font-size: 2.5rem;">Join the Global Research Community</h2>
+        <p class="opacity-75 mb-5 mx-auto" style="max-width: 600px;">Take the first step towards academic excellence. Enroll now and gain instant access to our expert-led modules.</p>
+        <a href="{{ route('register') }}" class="btn btn-light rounded-pill px-5 py-3 fw-bold" style="color: var(--brand-indigo); box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            Join Academy
+        </a>
     </div>
 </section>
 

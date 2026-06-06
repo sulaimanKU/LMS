@@ -1,6 +1,7 @@
 @extends('applayouts.app')
 
 @section('contents')
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 <div class="cr-page">
 
     {{-- ── Alerts ── --}}
@@ -223,7 +224,7 @@
                     </div>
                     <div class="cr-field">
                         <label class="cr-label">Full Details <span class="cr-opt">optional</span></label>
-                        <textarea name="details" class="cr-input" rows="3" placeholder="Detailed course description…">{{ old('details') }}</textarea>
+                        <textarea name="details" id="add_details" class="summernote" rows="3" placeholder="Detailed course description…">{{ old('details') }}</textarea>
                     </div>
                     <div class="cr-field">
                         <label class="cr-label">Course Image <span class="cr-opt">optional</span></label>
@@ -289,7 +290,7 @@
                     </div>
                     <div class="cr-field">
                         <label class="cr-label">Full Details <span class="cr-opt">optional</span></label>
-                        <textarea name="details" id="edit_details" class="cr-input" rows="3"></textarea>
+                        <textarea name="details" id="edit_details" class="summernote" rows="3"></textarea>
                     </div>
                     <div class="cr-field">
                         <label class="cr-label">Course Image <span class="cr-opt">optional — leave blank to keep existing</span></label>
@@ -472,8 +473,27 @@ textarea.cr-input { resize: vertical; }
 }
 </style>
 
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Summernote
+    $('.summernote').summernote({
+        placeholder: 'Enter detailed course information...',
+        tabsize: 2,
+        height: 200,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ]
+    });
+
     const editModal = document.getElementById('editCourseModal');
     if (editModal) {
         editModal.addEventListener('show.bs.modal', function (e) {
@@ -486,7 +506,10 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('edit_price').value    = btn.dataset.price;
             document.getElementById('edit_duration').value = btn.dataset.duration;
             document.getElementById('edit_short').value    = btn.dataset.short;
-            document.getElementById('edit_details').value  = btn.dataset.details;
+            
+            // Populate Summernote
+            $('#edit_details').summernote('code', btn.dataset.details);
+
             document.getElementById('edit_status').value   = btn.dataset.status;
 
             // Reset new image preview

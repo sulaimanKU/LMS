@@ -13,7 +13,11 @@
     {{-- ── Header ── --}}
     <div class="sd-header">
         <div class="sd-welcome">
-            <div class="sd-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+            @if($user->profile_image)
+                <img src="{{ asset('storage/'.$user->profile_image) }}" class="sd-avatar" style="object-fit: cover;">
+            @else
+                <div class="sd-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+            @endif
             <div>
                 <h5 class="sd-title">Welcome back, {{ explode(' ', $user->name)[0] }}!</h5>
                 <p class="sd-subtitle">{{ now()->format('l, d F Y') }}</p>
