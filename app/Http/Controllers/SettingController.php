@@ -57,14 +57,14 @@ class SettingController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $data = $request->except(['_token', 'site_logo_nav', 'site_logo_footer', 'site_favicon']);
+        $data = $request->except(['_token', 'site_logo_nav', 'site_logo_footer', 'site_favicon', 'home_poster']);
 
         foreach ($data as $key => $value) {
             SystemSetting::set($key, $value);
         }
 
         // Handle File Uploads
-        $files = ['site_logo_nav', 'site_logo_footer', 'site_favicon'];
+        $files = ['site_logo_nav', 'site_logo_footer', 'site_favicon', 'home_poster'];
         foreach ($files as $fileKey) {
             if ($request->hasFile($fileKey)) {
                 // Delete old file if exists

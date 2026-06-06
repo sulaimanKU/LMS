@@ -163,6 +163,161 @@
     </div>
 </section>
 
+</section>
+
+{{-- ── Promotional Poster & Popup ── --}}
+@if(isset($systemSettings['home_poster_enabled']) && $systemSettings['home_poster_enabled'] == '1' && isset($systemSettings['home_poster']))
+    <!-- Full Screen Popup Modal -->
+    <div id="posterModal" class="poster-modal">
+        <div class="poster-modal-content animate__animated animate__zoomIn">
+            <button class="poster-modal-close" onclick="closePosterModal()">&times;</button>
+            <div class="poster-modal-body">
+                @if(isset($systemSettings['home_poster_title']) && $systemSettings['home_poster_title'] != '')
+                    <h3 class="poster-popup-title">{{ $systemSettings['home_poster_title'] }}</h3>
+                @endif
+                <a href="{{ asset('storage/'.$systemSettings['home_poster']) }}" download="Academy-Offer" class="poster-popup-link">
+                    <img src="{{ asset('storage/'.$systemSettings['home_poster']) }}" alt="Special Offer">
+                    <div class="poster-popup-overlay">
+                        <span><i class="bi bi-download me-2"></i>Download Special Offer</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Page Integrated Poster Section -->
+    <section class="py-5 poster-main-section">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 animate__animated animate__fadeInLeft">
+                    <span class="offer-badge">Limited Time Offer</span>
+                    <h2 class="display-5 fw-bold mb-4 text-dark">
+                        {{ $systemSettings['home_poster_title'] ?? 'Exclusive Academic Opportunities' }}
+                    </h2>
+                    <p class="lead text-muted mb-5">
+                        Don't miss out on our latest modules and special training programs. Download our official poster for full details on upcoming intakes and scholarship opportunities.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="{{ asset('storage/'.$systemSettings['home_poster']) }}" download="Academy-Poster" class="btn-poster-download">
+                            <i class="bi bi-download"></i> Download Poster
+                        </a>
+                        <a href="{{ route('courses.index') }}" class="btn-poster-explore">
+                            Explore All Modules
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 animate__animated animate__fadeInRight">
+                    <div class="poster-card-wrapper">
+                        <div class="poster-card-inner shadow-2xl">
+                            <img src="{{ asset('storage/'.$systemSettings['home_poster']) }}" class="img-fluid rounded-4" alt="Offer Poster">
+                            <div class="card-glass-effect">
+                                <i class="bi bi-star-fill text-warning me-2"></i> Featured Spotlight
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        /* Modal Styles */
+        .poster-modal {
+            display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px);
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .poster-modal-content {
+            background-color: #fff; margin: auto; padding: 0; border-radius: 24px;
+            width: 100%; max-width: 600px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        .poster-modal-close {
+            position: absolute; right: 15px; top: 15px; color: #fff; font-size: 30px; font-weight: bold;
+            z-index: 10; cursor: pointer; background: rgba(0,0,0,0.3); border: none; width: 40px; height: 40px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+        }
+        .poster-modal-close:hover { background: rgba(0,0,0,0.6); }
+        .poster-modal-body { padding: 0; position: relative; }
+        .poster-popup-title {
+            position: absolute; top: 20px; left: 20px; right: 60px; color: #fff;
+            font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5;
+        }
+        .poster-popup-link { display: block; position: relative; overflow: hidden; }
+        .poster-popup-link img { width: 100%; height: auto; display: block; transition: transform 0.5s; }
+        .poster-popup-link:hover img { transform: scale(1.05); }
+        .poster-popup-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, var(--brand-indigo), transparent);
+            padding: 40px 20px 20px; color: #fff; text-align: center; font-weight: 700;
+            transform: translateY(100%); transition: transform 0.3s;
+        }
+        .poster-popup-link:hover .poster-popup-overlay { transform: translateY(0); }
+
+        /* Section Styles */
+        .poster-main-section { background: #f8faff; overflow: hidden; }
+        .offer-badge {
+            background: rgba(99, 102, 241, 0.1); color: var(--brand-indigo);
+            padding: 8px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.5rem; display: inline-block;
+        }
+        .btn-poster-download {
+            background: var(--brand-indigo); color: #fff; padding: 14px 28px;
+            border-radius: 12px; font-weight: 700; text-decoration: none; transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+        }
+        .btn-poster-download:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(99, 102, 241, 0.3); color: #fff; }
+        .btn-poster-explore {
+            background: transparent; color: var(--slate-900); padding: 14px 28px;
+            border-radius: 12px; font-weight: 700; text-decoration: none; border: 2px solid #E5E7EB; transition: all 0.3s;
+        }
+        .btn-poster-explore:hover { background: #fff; border-color: var(--brand-indigo); color: var(--brand-indigo); }
+
+        .poster-card-wrapper { position: relative; z-index: 1; }
+        .poster-card-wrapper::before {
+            content: ''; position: absolute; width: 100%; height: 100%; background: var(--brand-indigo);
+            border-radius: 24px; top: 20px; left: 20px; z-index: -1; opacity: 0.1; transform: rotate(3deg);
+        }
+        .poster-card-inner { position: relative; transition: all 0.5s ease; cursor: pointer; }
+        .poster-card-inner:hover { transform: perspective(1000px) rotateY(-5deg) rotateX(2deg); }
+        .card-glass-effect {
+            position: absolute; bottom: 20px; right: 20px; background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 14px;
+            font-weight: 700; font-size: 0.85rem; color: var(--slate-900); border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        @media (max-width: 991px) {
+            .poster-main-section { text-align: center; }
+            .d-flex { justify-content: center; }
+            .poster-card-wrapper { margin-top: 3rem; }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('posterModal');
+            // Show modal with a slight delay
+            setTimeout(() => {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }, 1000);
+        });
+
+        function closePosterModal() {
+            const modal = document.getElementById('posterModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('posterModal');
+            if (event.target == modal) {
+                closePosterModal();
+            }
+        }
+    </script>
+@endif
+
 {{-- ── Stats Section ── --}}
 <section class="stats-premium">
     <div class="container">

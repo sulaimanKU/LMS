@@ -341,6 +341,40 @@
                     </div>
                 </div>
 
+                {{-- Promotional Poster --}}
+                <div class="settings-card">
+                    <div class="card-header-pro">
+                        <h6 class="m-0 fw-bold text-primary"><i class="bi bi-megaphone me-2"></i>Promotional Poster (Home Page)</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label-pro">Poster Title / Heading</label>
+                                <input type="text" name="home_poster_title" class="form-control input-pro" value="{{ $settings['home_poster_title'] ?? '' }}" placeholder="e.g. Special Offer: 50% Off on All Courses!">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label-pro">Poster Visibility</label>
+                                <select name="home_poster_enabled" class="form-select input-pro">
+                                    <option value="1" {{ ($settings['home_poster_enabled'] ?? '') == '1' ? 'selected' : '' }}>Enabled (Visible on Home Page)</option>
+                                    <option value="0" {{ ($settings['home_poster_enabled'] ?? '') == '0' ? 'selected' : '' }}>Disabled (Hidden)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label-pro">Upload Poster Image</label>
+                                <input type="file" name="home_poster" class="form-control input-pro" accept="image/*">
+                                <small class="text-muted">This poster will be shown on the home page. Users can click to download it.</small>
+                                
+                                @if(isset($settings['home_poster']))
+                                    <div class="mt-3 p-3 border rounded bg-light text-center">
+                                        <p class="small text-muted mb-2">Current Poster Preview:</p>
+                                        <img src="{{ asset('storage/'.$settings['home_poster']) }}" class="img-fluid rounded shadow-sm" style="max-height: 250px;">
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Other --}}
                 <div class="settings-card">
                     <div class="card-header-pro">
