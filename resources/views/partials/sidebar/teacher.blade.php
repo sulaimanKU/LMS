@@ -6,9 +6,13 @@
         {{-- Brand --}}
         <div class="sb-brand">
             <div class="sb-brand-icon">
-                <i class="fa-solid fa-graduation-cap"></i>
+                @if(isset($systemSettings['site_logo_nav']))
+                    <img src="{{ asset('storage/'.$systemSettings['site_logo_nav']) }}" style="height: 24px; width: 24px; object-fit: contain;">
+                @else
+                    <i class="fa-solid fa-graduation-cap"></i>
+                @endif
             </div>
-            <span class="sb-brand-text">MyLMS</span>
+            <span class="sb-brand-text">{{ $systemSettings['site_title'] ?? 'MyLMS' }}</span>
             <button id="sidebarCollapseBtn" class="sb-collapse-btn" title="Collapse sidebar">
                 <i class="fa-solid fa-angles-left"></i>
             </button>
@@ -153,10 +157,14 @@
 
         {{-- User profile card --}}
         <div class="sb-profile">
-            <div class="sb-profile-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+            @if(auth()->user()->profile_image)
+                <img src="{{ asset('storage/'.auth()->user()->profile_image) }}" class="sb-profile-avatar" style="object-fit: cover;">
+            @else
+                <div class="sb-profile-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+            @endif
             <div class="sb-profile-info sb-label">
                 <p class="sb-profile-name">{{ auth()->user()->name }}</p>
-                <p class="sb-profile-role">Teacher</p>
+                <p class="sb-profile-role">Instructor</p>
             </div>
             <form action="{{ route('logout') }}" method="POST" class="sb-label">
                 @csrf

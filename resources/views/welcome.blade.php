@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'LMS') }}</title>
-    <link rel="icon" href="{{ asset('images/logo/logo1.png') }}" type="image/png">
+    <title>{{ $systemSettings['site_title'] ?? config('app.name', 'LMS') }}</title>
+    <link rel="icon" href="{{ isset($systemSettings['site_favicon']) ? asset('storage/'.$systemSettings['site_favicon']) : asset('images/logo/logo1.png') }}" type="image/png">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -26,8 +26,8 @@
     <div class="container">
 
         <a class="navbar-brand" href="/">
-            <img src="{{ asset('images/logo/logo.png') }}" alt="MyLMS">
-            <span>MyLMS</span>
+            <img src="{{ isset($systemSettings['site_logo_nav']) ? asset('storage/'.$systemSettings['site_logo_nav']) : asset('images/logo/logo.png') }}" alt="Logo">
+            <span>{{ $systemSettings['site_title'] ?? 'MyLMS' }}</span>
         </a>
 
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLMS">
@@ -133,18 +133,31 @@
             <!-- Brand -->
             <div class="col-lg-4 col-md-6">
                 <div class="footer-brand d-flex align-items-center gap-2 mb-2">
-                    <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" style="height:30px; filter:brightness(0) invert(1);">
-                    MyLMS
+                    @if(isset($systemSettings['site_logo_footer']))
+                        <img src="{{ asset('storage/'.$systemSettings['site_logo_footer']) }}" alt="Logo" style="height:40px; object-fit: contain;">
+                    @elseif(isset($systemSettings['site_logo_nav']))
+                        <img src="{{ asset('storage/'.$systemSettings['site_logo_nav']) }}" alt="Logo" style="height:40px; object-fit: contain; filter: brightness(0) invert(1);">
+                    @else
+                        <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" style="height:40px; filter:brightness(0) invert(1);">
+                    @endif
+                    {{ $systemSettings['site_title'] ?? 'MyLMS' }}
                 </div>
                 <p class="footer-desc">
-                    A modern learning management system built to connect students, teachers,
-                    and institutions — all in one place.
+                    {{ $systemSettings['site_about'] ?? 'A modern learning management system built to connect students, teachers, and institutions — all in one place.' }}
                 </p>
                 <div class="footer-social mt-3">
-                    <a href="#" class="social-btn" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="social-btn" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
-                    <a href="#" class="social-btn" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="social-btn" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    @if(isset($systemSettings['social_facebook']))
+                        <a href="{{ $systemSettings['social_facebook'] }}" class="social-btn" target="_blank"><i class="bi bi-facebook"></i></a>
+                    @endif
+                    @if(isset($systemSettings['social_twitter']))
+                        <a href="{{ $systemSettings['social_twitter'] }}" class="social-btn" target="_blank"><i class="bi bi-twitter-x"></i></a>
+                    @endif
+                    @if(isset($systemSettings['social_instagram']))
+                        <a href="{{ $systemSettings['social_instagram'] }}" class="social-btn" target="_blank"><i class="bi bi-instagram"></i></a>
+                    @endif
+                    @if(isset($systemSettings['social_linkedin']))
+                        <a href="{{ $systemSettings['social_linkedin'] }}" class="social-btn" target="_blank"><i class="bi bi-linkedin"></i></a>
+                    @endif
                 </div>
             </div>
 
@@ -175,9 +188,9 @@
             <div class="col-lg-3 col-md-6">
                 <h6 class="footer-heading">Contact</h6>
                 <ul class="footer-links">
-                    <li><i class="bi bi-envelope me-2 text-indigo-400"></i>info@mylms.edu</li>
-                    <li><i class="bi bi-telephone me-2"></i>+92 300 000 0000</li>
-                    <li><i class="bi bi-geo-alt me-2"></i>123 Education St, City</li>
+                    <li><i class="bi bi-envelope me-2 text-indigo-400"></i>{{ $systemSettings['contact_email'] ?? 'info@mylms.edu' }}</li>
+                    <li><i class="bi bi-telephone me-2"></i>{{ $systemSettings['contact_phone'] ?? '+92 300 000 0000' }}</li>
+                    <li><i class="bi bi-geo-alt me-2"></i>{{ $systemSettings['contact_address'] ?? '123 Education St, City' }}</li>
                 </ul>
                 <div class="mt-3">
                     <a href="{{ route('register') }}"
@@ -193,7 +206,7 @@
         <hr class="footer-divider">
 
         <div class="footer-bottom">
-            <span>&copy; {{ date('Y') }} MyLMS — All Rights Reserved</span>
+            <span>{{ $systemSettings['footer_text'] ?? ('&copy; ' . date('Y') . ' ' . ($systemSettings['site_title'] ?? 'MyLMS') . ' — All Rights Reserved') }}</span>
             <div class="d-flex gap-3">
                 <a href="#" class="footer-links-inline">Privacy Policy</a>
                 <a href="#" class="footer-links-inline">Terms of Service</a>

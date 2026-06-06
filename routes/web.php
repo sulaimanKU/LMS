@@ -37,8 +37,20 @@ Route::get('/register', [RegisterController::class, 'register_index'])->name('re
 Route::post('/register/submit', [RegisterController::class, 'register_store'])->name('register.store');
 Route::get('/registeration/success/{id}', [RegisterController::class, 'registerationSuccess'])->name('registration.success');
 
-// Temporary route to create a test student
+// Temporary route to create a test student and setup permissions
 Route::get('/test-setup-student', function() {
+    // Create the permissions if they don't exist
+    if (class_exists(\Spatie\Permission\Models\Permission::class)) {
+        $p1 = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'manage-enrollments', 'guard_name' => 'web']);
+        $p2 = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'manage-user-passwords', 'guard_name' => 'web']);
+        
+        // Give them to the admin role
+        $adminRole = \Spatie\Permission\Models\Role::where('name', 'admin')->first();
+        if ($adminRole) {
+            $adminRole->givePermissionTo([$p1, $p2]);
+        }
+    }
+
     $user = \App\Models\User::firstOrCreate(
         ['email' => 'teststudent@example.com'],
         [
@@ -90,6 +102,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('teacher/{id}/delete', [DashboardController::class, 'teacherDelete'])->name('teacher.delete');
     Route::get('/student/managment', [DashboardController::class, 'studentManagment'])->name('admin.student.managment');
     Route::post('approve/{id}/student', [DashboardController::class, 'adminApproveStudent'])->name('admin.approve.student');
+    Route::post('/enrollment/update-status', [DashboardController::class, 'updateEnrollmentStatus'])->name('admin.enrollment.updateStatus');
+    Route::post('/user/update-password', [DashboardController::class, 'adminUpdateUserPassword'])->name('admin.user.updatePassword');
     Route::get('/admin/rolesOrPermissions', [DashboardController::class, 'roleOrPermissionsView'])->name('admin.role');
     Route::post('/roles/created', [RolesController::class, 'store'])->name('roles.store');
     Route::get('/roles/{roleId}/update', [RolesController::class, 'updateView'])->name('role.update.view');
@@ -122,6 +136,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::post('systems/logs/clear',[ReportsController::class,'clearLogs'])->name('systemlogs.clear');
     Route::get('settings/view',[SettingController::class,'index'])->name('settings.view');
     Route::put('settings/update',[SettingController::class,'updateSetting'])->name('settings.update');
+    Route::put('settings/update/system',[SettingController::class,'updateSystemSetting'])->name('settings.update.system');
 
     Route::get('system/admins', [DashboardController::class, 'systemAdminsView'])->name('admin.system.admins');
     Route::post('system/admins/store', [DashboardController::class, 'systemAdminStore'])->name('admin.system.admins.store');

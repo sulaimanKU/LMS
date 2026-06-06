@@ -96,6 +96,15 @@
                         </td>
                         <td class="text-end">
                             <div class="d-flex align-items-center justify-content-end gap-1">
+                                {{-- Reset Password --}}
+                                <button class="tm-icon-btn tm-btn-pw"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#passwordModal"
+                                        data-name="{{ $teacher->name }}"
+                                        data-email="{{ $teacher->email }}"
+                                        title="Reset Password">
+                                    <i class="fa-solid fa-key"></i>
+                                </button>
                                 {{-- Assign course --}}
                                 <button class="tm-icon-btn tm-btn-assign"
                                         data-bs-toggle="modal"
@@ -625,8 +634,69 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // ── Handle Password Modal ──
+    const passwordModal = document.getElementById('passwordModal');
+    if (passwordModal) {
+        passwordModal.addEventListener('show.bs.modal', function (e) {
+            const btn   = e.relatedTarget;
+            const name  = btn.dataset.name;
+            const email = btn.dataset.email;
+
+            passwordModal.querySelector('#passwordSubtitle').textContent = 'Resetting password for: ' + name;
+            passwordModal.querySelector('#passwordEmail').value = email;
+            
+            // Clear previous inputs
+            passwordModal.querySelectorAll('input[type=password]').forEach(i => i.value = '');
+        });
+    }
+
 });
 </script>
+
+{{-- ═══════════════════════════════════════════
+     MODAL — Reset Password
+═══════════════════════════════════════════ --}}
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+        <div class="modal-content tm-modal">
+
+            <div class="tm-modal-header" style="background: linear-gradient(135deg, #475569, #1E293B);">
+                <div>
+                    <h5 class="tm-modal-title"><i class="fa-solid fa-key me-2"></i>Reset Password</h5>
+                    <p class="tm-modal-sub" id="passwordSubtitle">Updating teacher credentials</p>
+                </div>
+                <button type="button" class="tm-modal-close" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form action="{{ route('admin.user.updatePassword') }}" method="POST">
+                @csrf
+                <div class="tm-modal-body" style="gap: 0.75rem;">
+                    <input type="hidden" name="email" id="passwordEmail">
+                    
+                    <div class="mb-2">
+                        <label class="tm-label">New Password <span class="text-danger">*</span></label>
+                        <input type="password" name="password" class="tm-input" style="padding-left: 1rem;" required minlength="8" placeholder="Enter new password">
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="tm-label">Confirm Password <span class="text-danger">*</span></label>
+                        <input type="password" name="password_confirmation" class="tm-input" style="padding-left: 1rem;" required minlength="8" placeholder="Confirm new password">
+                    </div>
+                </div>
+
+                <div class="tm-modal-footer">
+                    <button type="button" class="tm-btn-cancel" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="tm-btn-submit" style="background: linear-gradient(135deg, #475569, #1E293B);">
+                        <i class="fa-solid fa-save me-2"></i>Update Password
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
 
 {{-- ═══════════════════════════════════════════
      MODAL — Edit Teacher

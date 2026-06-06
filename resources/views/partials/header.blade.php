@@ -1,6 +1,7 @@
  <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MyLMS — Admin</title>
+    <title>{{ $systemSettings['site_title'] ?? 'MyLMS' }}</title>
+    <link rel="icon" href="{{ isset($systemSettings['site_favicon']) ? asset('storage/'.$systemSettings['site_favicon']) : asset('images/logo/logo1.png') }}" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('styles/dashboard.css') }}">
     <!-- Bootstrap 5 CSS -->

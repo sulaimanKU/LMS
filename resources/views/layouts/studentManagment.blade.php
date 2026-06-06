@@ -83,11 +83,44 @@
                 <div class="sm-courses-list">
                     @foreach($courseIds as $cid)
                         @if(isset($allCourses[$cid]))
-                            @php $isEnrolled = in_array($cid, $enrolledIds); @endphp
-                            <span class="sm-course-pill {{ $isEnrolled ? 'sm-pill-enrolled' : 'sm-pill-pending' }}">
-                                <i class="fa-solid fa-{{ $isEnrolled ? 'circle-check' : 'clock' }} me-1"></i>
-                                {{ Str::limit($allCourses[$cid]->title, 26) }}
-                            </span>
+                            @php 
+                                $enrollment = $enrolledByEmail[$reg->email][$cid] ?? null;
+                                $isEnrolled = !is_null($enrollment);
+                                $status = $isEnrolled ? $enrollment->pivot->status : 'pending';
+                            @endphp
+                            
+                            @if($isEnrolled)
+                                <div class="dropdown d-inline-block">
+                                    <button class="sm-course-pill sm-pill-{{ $status }} dropdown-toggle border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa-solid fa-{{ $status == 'active' ? 'circle-check' : ($status == 'completed' ? 'graduation-cap' : 'circle-xmark') }} me-1"></i>
+                                        {{ Str::limit($allCourses[$cid]->title, 20) }}
+                                    </button>
+                                    <ul class="dropdown-menu shadow-sm border-0" style="font-size: .8rem; min-width: 140px;">
+                                        <li><h6 class="dropdown-header">Update Status</h6></li>
+                                        <li>
+                                            <form action="{{ route('admin.enrollment.updateStatus') }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="email" value="{{ $reg->email }}">
+                                                <input type="hidden" name="module_id" value="{{ $cid }}">
+                                                <button type="submit" name="status" value="active" class="dropdown-item {{ $status == 'active' ? 'active' : '' }}">
+                                                    <i class="fa-solid fa-circle-check me-2 text-success"></i>Active
+                                                </button>
+                                                <button type="submit" name="status" value="completed" class="dropdown-item {{ $status == 'completed' ? 'active' : '' }}">
+                                                    <i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Completed
+                                                </button>
+                                                <button type="submit" name="status" value="dropped" class="dropdown-item {{ $status == 'dropped' ? 'active' : '' }}">
+                                                    <i class="fa-solid fa-circle-xmark me-2 text-danger"></i>Dropped
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            @else
+                                <span class="sm-course-pill sm-pill-pending">
+                                    <i class="fa-solid fa-clock me-1"></i>
+                                    {{ Str::limit($allCourses[$cid]->title, 20) }}
+                                </span>
+                            @endif
                         @endif
                     @endforeach
                 </div>
@@ -113,6 +146,16 @@
                     ])->values()->toJson();
                 @endphp
                 <div class="d-flex align-items-center gap-2 flex-wrap">
+                    @if($hasAccount)
+                        <button class="sm-slip-btn" style="background: #F1F5F9; color: #475569; border-color: #E2E8F0;"
+                                data-bs-toggle="modal" data-bs-target="#passwordModal"
+                                data-name="{{ $reg->name }}"
+                                data-email="{{ $reg->email }}"
+                                title="Reset Student Password">
+                            <i class="fa-solid fa-key me-1"></i>PW
+                        </button>
+                    @endif
+
                     @if($hasSlip)
                         <a href="{{ $latestSlipUrl }}" target="_blank" class="sm-slip-btn" title="View latest payment slip">
                             <i class="fa-solid fa-receipt me-1"></i>Slip
@@ -267,6 +310,51 @@
     </div>
 </div>
 
+{{-- ═══════════════════════════════════════════
+     MODAL — Reset Password
+═══════════════════════════════════════════ --}}
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+        <div class="modal-content sm-modal">
+
+            <div class="sm-modal-header" style="background: linear-gradient(135deg, #475569, #1E293B);">
+                <div>
+                    <h5 class="sm-modal-title"><i class="fa-solid fa-key me-2"></i>Reset Password</h5>
+                    <p class="sm-modal-sub" id="passwordSubtitle">Updating student credentials</p>
+                </div>
+                <button type="button" class="sm-modal-close" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form action="{{ route('admin.user.updatePassword') }}" method="POST">
+                @csrf
+                <div class="sm-modal-body" style="gap: 0.75rem;">
+                    <input type="hidden" name="email" id="passwordEmail">
+                    
+                    <div class="mb-2">
+                        <label class="sm-label">New Password <span class="text-danger">*</span></label>
+                        <input type="password" name="password" class="tm-input" style="padding-left: 1rem;" required minlength="8" placeholder="Enter new password">
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="sm-label">Confirm Password <span class="text-danger">*</span></label>
+                        <input type="password" name="password_confirmation" class="tm-input" style="padding-left: 1rem;" required minlength="8" placeholder="Confirm new password">
+                    </div>
+                </div>
+
+                <div class="sm-modal-footer">
+                    <button type="button" class="sm-btn-cancel" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="sm-btn-approve" style="background: linear-gradient(135deg, #475569, #1E293B);">
+                        <i class="fa-solid fa-save me-2"></i>Update Password
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
 <style>
 /* ── Page ── */
 .sm-page { padding: 1.5rem; background: #F8FAFF; min-height: 100%; }
@@ -352,8 +440,11 @@
     font-size: .72rem; font-weight: 600;
     display: inline-flex; align-items: center;
 }
-.sm-pill-enrolled { background: #D1FAE5; color: #065F46; }
-.sm-pill-pending  { background: #FEF3C7; color: #92400E; }
+.sm-pill-active    { background: #D1FAE5; color: #065F46; }
+.sm-pill-completed { background: #DBEAFE; color: #1D4ED8; }
+.sm-pill-dropped   { background: #FEE2E2; color: #991B1B; }
+.sm-pill-pending   { background: #FEF3C7; color: #92400E; }
+.sm-pill-enrolled  { background: #D1FAE5; color: #065F46; }
 
 /* ── Card foot ── */
 .sm-card-foot {
@@ -694,6 +785,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateTracker();
     });
+
+    // ── Handle Password Modal ──
+    const passwordModal = document.getElementById('passwordModal');
+    if (passwordModal) {
+        passwordModal.addEventListener('show.bs.modal', function (e) {
+            const btn   = e.relatedTarget;
+            const name  = btn.dataset.name;
+            const email = btn.dataset.email;
+
+            passwordModal.querySelector('#passwordSubtitle').textContent = 'Resetting password for: ' + name;
+            passwordModal.querySelector('#passwordEmail').value = email;
+            
+            // Clear previous inputs
+            passwordModal.querySelectorAll('input[type=password]').forEach(i => i.value = '');
+        });
+    }
 
 });
 </script>

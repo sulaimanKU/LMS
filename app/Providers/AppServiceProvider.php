@@ -20,6 +20,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Paginator::useBootstrapFive();
+        \Illuminate\Pagination\Paginator::useBootstrapFive();
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('system_settings')) {
+            $settings = \App\Models\SystemSetting::pluck('value', 'key')->toArray();
+            \Illuminate\Support\Facades\View::share('systemSettings', $settings);
+        } else {
+            \Illuminate\Support\Facades\View::share('systemSettings', []);
+        }
     }
 }

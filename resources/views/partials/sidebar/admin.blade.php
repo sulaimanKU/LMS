@@ -8,9 +8,13 @@
         {{-- Brand --}}
         <div class="sb-brand">
             <div class="sb-brand-icon">
-                <i class="fa-solid fa-graduation-cap"></i>
+                @if(isset($systemSettings['site_logo_nav']))
+                    <img src="{{ asset('storage/'.$systemSettings['site_logo_nav']) }}" style="height: 24px; width: 24px; object-fit: contain;">
+                @else
+                    <i class="fa-solid fa-graduation-cap"></i>
+                @endif
             </div>
-            <span class="sb-brand-text">MyLMS</span>
+            <span class="sb-brand-text">{{ $systemSettings['site_title'] ?? 'MyLMS' }}</span>
             <button id="sidebarCollapseBtn" class="sb-collapse-btn" id="sidebarCollapseBtn" title="Collapse sidebar">
                 <i class="fa-solid fa-angles-left"></i>
             </button>
@@ -206,7 +210,11 @@
 
         {{-- User profile card --}}
         <div class="sb-profile">
-            <div class="sb-profile-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+            @if(auth()->user()->profile_image)
+                <img src="{{ asset('storage/'.auth()->user()->profile_image) }}" class="sb-profile-avatar" style="object-fit: cover;">
+            @else
+                <div class="sb-profile-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+            @endif
             <div class="sb-profile-info sb-label">
                 <p class="sb-profile-name">{{ auth()->user()->name }}</p>
                 <p class="sb-profile-role">Administrator</p>
@@ -244,13 +252,21 @@
 
             <div class="dropdown">
                 <button class="hdr-profile-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="hdr-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    @if(auth()->user()->profile_image)
+                        <img src="{{ asset('storage/'.auth()->user()->profile_image) }}" class="hdr-avatar" style="object-fit: cover;">
+                    @else
+                        <div class="hdr-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    @endif
                     <span class="hdr-name d-none d-md-inline">{{ auth()->user()->name }}</span>
                     <i class="fa-solid fa-chevron-down hdr-caret d-none d-md-inline"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end hdr-dropdown">
                     <li class="hdr-dd-user">
-                        <div class="hdr-dd-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                        @if(auth()->user()->profile_image)
+                            <img src="{{ asset('storage/'.auth()->user()->profile_image) }}" class="hdr-dd-avatar" style="object-fit: cover;">
+                        @else
+                            <div class="hdr-dd-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                        @endif
                         <div>
                             <div class="hdr-dd-name">{{ auth()->user()->name }}</div>
                             <div class="hdr-dd-email">{{ auth()->user()->email }}</div>

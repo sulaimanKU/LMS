@@ -11,12 +11,15 @@
             <i class="bi bi-mortarboard-fill"></i> Trusted by {{ $stats['students'] }}+ Students
         </div>
         <h1 class="hero-title">
-            Learn Smarter.<br>
-            <span class="highlight">Grow Faster.</span>
+            @if(isset($systemSettings['site_hero_title']))
+                {!! nl2br(e($systemSettings['site_hero_title'])) !!}
+            @else
+                Learn Smarter.<br>
+                <span class="highlight">Grow Faster.</span>
+            @endif
         </h1>
         <p class="hero-subtitle">
-            Manage courses, track attendance, submit assignments, and connect with teachers —
-            all from one powerful platform.
+            {{ $systemSettings['site_hero_subtitle'] ?? 'Manage courses, track attendance, submit assignments, and connect with teachers — all from one powerful platform.' }}
         </p>
         <div class="hero-cta-group">
             <a href="{{ route('register') }}" class="btn-hero-primary">

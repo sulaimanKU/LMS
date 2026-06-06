@@ -16,6 +16,7 @@ use App\Mail\StudentApprovedMail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 
 class DashboardController
 {
@@ -225,13 +226,13 @@ public function studentManagment(Request $request)
     $registrations = $query->paginate(9)->withQueryString();
     $allCourses    = Courses::orderBy('title')->get()->keyBy('id');
 
-    // For each registration email, find which module IDs are actually enrolled
+    // For each registration email, find which module IDs are actually enrolled with their status
     $emails = $registrations->pluck('email')->unique()->filter();
     $enrolledByEmail = User::whereIn('email', $emails)
-        ->with('enrolledModules:id')
+        ->with('enrolledModules')
         ->get()
         ->keyBy('email')
-        ->map(fn($u) => $u->enrolledModules->pluck('id')->toArray());
+        ->map(fn($u) => $u->enrolledModules->keyBy('id'));
 
     return view('layouts.studentManagment', compact('registrations', 'allCourses', 'filter', 'enrolledByEmail'));
 }
@@ -350,6 +351,47 @@ public function roleOrPermissionsView ()
     $roles = Role::all();
     $permissions = Permission::paginate(10);
     return view('layouts.adminRoles' , compact('roles','permissions'));
+}
+
+public function updateEnrollmentStatus(Request $request)
+{
+    if (!auth()->user()->can('manage-enrollments')) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $request->validate([
+        'email' => 'required|email|exists:users,email',
+        'module_id' => 'required|exists:modules,id',
+        'status' => 'required|in:active,completed,dropped',
+    ]);
+
+    $user = User::where('email', $request->email)->firstOrFail();
+    
+    $user->enrolledModules()->updateExistingPivot($request->module_id, [
+        'status' => $request->status
+    ]);
+
+    return back()->with('success', 'Enrollment status updated successfully.');
+}
+
+public function adminUpdateUserPassword(Request $request)
+{
+    if (!auth()->user()->can('manage-user-passwords')) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $request->validate([
+        'email' => 'required|email|exists:users,email',
+        'password' => 'required|string|min:8|confirmed',
+    ]);
+
+    $user = User::where('email', $request->email)->firstOrFail();
+    
+    $user->update([
+        'password' => Hash::make($request->password)
+    ]);
+
+    return back()->with('success', "Password for {$user->name} has been updated successfully.");
 }
 
 }
