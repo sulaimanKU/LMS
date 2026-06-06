@@ -101,11 +101,18 @@
         }
 
         .btn-nav-login {
-            font-size: 0.85rem; font-weight: 700; color: #fff;
-            padding: 8px 22px; border-radius: 12px; transition: all 0.2s;
+            font-size: 0.85rem; font-weight: 700; color: #fff !important;
+            padding: 10px 24px; border-radius: 12px; transition: all 0.3s ease;
             text-decoration: none;
+            border: 1.5px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(5px);
         }
-        .btn-nav-login:hover { color: var(--brand-primary); }
+        .btn-nav-login:hover { 
+            background: rgba(255,255,255,0.15); 
+            border-color: #fff;
+            transform: translateY(-2px);
+        }
 
         .btn-nav-register {
             font-size: 0.85rem; font-weight: 700; background: var(--brand-primary); color: #fff !important;
