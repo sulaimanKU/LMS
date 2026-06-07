@@ -364,6 +364,71 @@ public function deleteRegistration($id)
     }
 }
 
+public function manualRegistration(Request $request)
+{
+    $request->validate([
+        'name'             => 'required|string|max:255',
+        'email'            => 'required|email|max:255',
+        'phone'            => 'required|string|max:30',
+        'institution'      => 'nullable|string|max:255',
+        'research_area'    => 'nullable|string|max:255',
+        'selected_courses' => 'required|array|min:1',
+        'selected_courses.*' => 'integer|exists:modules,id',
+    ]);
+
+    try {
+        $courseIds = $request->selected_courses;
+        $saveNewId = [];
+
+        // Check for existing user enrollments to avoid duplicates
+        $existingUser = User::where('email', $request->email)->with('enrolledModules')->first();
+        $enrolledIds = $existingUser ? $existingUser->enrolledModules->pluck('id')->toArray() : [];
+
+        foreach ($courseIds as $id) {
+            if (!in_array($id, $enrolledIds)) {
+                $saveNewId[] = $id;
+            }
+        }
+
+        if (empty($saveNewId)) {
+            return back()->with('warning', 'Student is already enrolled in all selected modules.');
+        }
+
+        $calculateAllPrices = Courses::whereIn('id', $saveNewId)->sum('price');
+        $existingReg = Registration::where('email', $request->email)->first();
+
+        if ($existingReg) {
+            $currentCourses = $existingReg->selected_courses ?? [];
+            $mergedCourses = array_unique(array_merge($currentCourses, $saveNewId));
+            
+            $existingReg->update([
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'institution' => $request->institution ?? $existingReg->institution,
+                'research_area' => $request->research_area ?? $existingReg->research_area,
+                'selected_courses' => $mergedCourses,
+                'total_amount' => $existingReg->total_amount + $calculateAllPrices,
+                'status' => 'pending'
+            ]);
+        } else {
+            Registration::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'institution' => $request->institution,
+                'research_area' => $request->research_area,
+                'selected_courses' => $saveNewId,
+                'total_amount' => $calculateAllPrices,
+                'status' => 'pending'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Manual entry created successfully. You can now Review & Approve it.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
+    }
+}
+
 public function systemAdminsView()
 {
     $admins = User::role('admin')->orderBy('created_at', 'desc')->get();

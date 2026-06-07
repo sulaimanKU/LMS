@@ -103,6 +103,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/student/managment', [DashboardController::class, 'studentManagment'])->name('admin.student.managment');
     Route::post('approve/{id}/student', [DashboardController::class, 'adminApproveStudent'])->name('admin.approve.student');
     Route::delete('delete-registration/{id}', [DashboardController::class, 'deleteRegistration'])->name('admin.registration.delete');
+    Route::post('manual-registration', [DashboardController::class, 'manualRegistration'])->name('admin.registration.manual');
     Route::post('/enrollment/update-status', [DashboardController::class, 'updateEnrollmentStatus'])->name('admin.enrollment.updateStatus');
     Route::post('/user/update-password', [DashboardController::class, 'adminUpdateUserPassword'])->name('admin.user.updatePassword');
     Route::get('/admin/rolesOrPermissions', [DashboardController::class, 'roleOrPermissionsView'])->name('admin.role');

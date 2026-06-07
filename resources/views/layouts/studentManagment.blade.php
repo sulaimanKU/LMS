@@ -34,12 +34,18 @@
 
     {{-- ── Header ── --}}
     <div class="sm-header">
-        <div>
-            <h5 class="sm-title">Student Registrations</h5>
-            <p class="sm-subtitle">
-                {{ $registrations->total() }} total &nbsp;·&nbsp;
-                Page {{ $registrations->currentPage() }} of {{ $registrations->lastPage() }}
-            </p>
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <div>
+                <h5 class="sm-title">Student Registrations</h5>
+                <p class="sm-subtitle">
+                    {{ $registrations->total() }} total &nbsp;·&nbsp;
+                    Page {{ $registrations->currentPage() }} of {{ $registrations->lastPage() }}
+                </p>
+            </div>
+            
+            <button class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#manualEntryModal">
+                <i class="fa-solid fa-user-plus me-2"></i>Add New Student
+            </button>
         </div>
 
         {{-- Status filter tabs (server-side) --}}
@@ -886,5 +892,78 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 </script>
+
+</div>
+
+{{-- ═══════════════════════════════════════════
+     MODAL — Manual Student Entry
+═══════════════════════════════════════════ --}}
+<div class="modal fade" id="manualEntryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:650px;">
+        <div class="modal-content sm-modal">
+
+            <div class="sm-modal-header">
+                <div>
+                    <h5 class="sm-modal-title"><i class="fa-solid fa-user-plus me-2"></i>Manual Student Entry</h5>
+                    <p class="sm-modal-sub">Create a new registration record for a student</p>
+                </div>
+                <button type="button" class="sm-modal-close" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form action="{{ route('admin.registration.manual') }}" method="POST">
+                @csrf
+                <div class="sm-modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" placeholder="Student Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" placeholder="student@example.com" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Phone Number <span class="text-danger">*</span></label>
+                            <input type="text" name="phone" class="form-control" placeholder="+92 ..." required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Institution</label>
+                            <input type="text" name="institution" class="form-control" placeholder="University/Org">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Research Area</label>
+                            <input type="text" name="research_area" class="form-control" placeholder="e.g. Computer Science, AI, etc.">
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <p class="small fw-bold text-primary text-uppercase mb-3"><i class="fa-solid fa-book-open me-1"></i>Select Modules to Enroll</p>
+                        <div class="row g-2">
+                            @foreach($allCourses as $id => $course)
+                            <div class="col-md-6">
+                                <div class="form-check p-2 rounded border bg-light-subtle">
+                                    <input class="form-check-input ms-0 me-2" type="checkbox" name="selected_courses[]" value="{{ $id }}" id="manMod{{ $id }}">
+                                    <label class="form-check-label small d-block" for="manMod{{ $id }}" style="cursor:pointer;">
+                                        <span class="fw-bold d-block text-truncate" title="{{ $course->title }}">{{ $course->title }}</span>
+                                        <span class="text-muted" style="font-size: 0.65rem;">PKR {{ number_format($course->price, 0) }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                <div class="sm-modal-footer">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="sm-btn-approve px-5">
+                        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Create Manual Entry
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @endsection
