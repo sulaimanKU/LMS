@@ -217,10 +217,34 @@
                             <i class="fa-solid fa-user-check me-1"></i>Review & Approve
                         </button>
                     @else
-                        <button class="sm-action-btn sm-waiting" disabled>
-                            <i class="fa-solid fa-clock me-1"></i>Awaiting Slip
+                        {{-- MANUAL APPROVAL (No Slip) --}}
+                        <button class="sm-action-btn sm-approve-btn"
+                                style="background: linear-gradient(135deg, #64748b, #475569);"
+                                data-bs-toggle="modal" data-bs-target="#reviewModal"
+                                data-id="{{ $reg->id }}"
+                                data-name="{{ $reg->name }}"
+                                data-email="{{ $reg->email }}"
+                                data-phone="{{ $reg->phone }}"
+                                data-institution="{{ $reg->institution }}"
+                                data-amount="{{ $reg->total_amount }}"
+                                data-slips="[]"
+                                data-courses="{{ json_encode($courseObjects) }}"
+                                data-enrolled-ids="[]"
+                                data-has-account="false">
+                            <i class="fa-solid fa-user-plus me-1"></i>Manual Approve
                         </button>
                     @endif
+
+                    {{-- DELETE BUTTON --}}
+                    <form action="{{ route('admin.registration.delete', $reg->id) }}" method="POST" 
+                          onsubmit="return confirm('Are you sure you want to PERMANENTLY delete this registration and the associated user account? This cannot be undone.')" 
+                          class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="sm-action-btn" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -266,10 +290,10 @@
                     {{-- How-to banner --}}
                     <div class="sm-howto">
                         <span class="sm-howto-step">1</span>
-                        <span>Open the payment slip below and check the paid amount</span>
+                        <span>Check payment (Slip or WhatsApp)</span>
                         <span class="sm-howto-sep">→</span>
                         <span class="sm-howto-step">2</span>
-                        <span><strong>Tick</strong> only the module(s) the student paid for</span>
+                        <span><strong>Tick</strong> module(s) paid for</span>
                         <span class="sm-howto-sep">→</span>
                         <span class="sm-howto-step">3</span>
                         <span>Click Approve</span>
@@ -693,8 +717,14 @@ document.addEventListener('DOMContentLoaded', function () {
         // Slip row — show ALL slips
         const slipRow = reviewModal.querySelector('#reviewSlipRow');
         if (slips.length === 0) {
-            slipRow.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#EF4444;"></i>
-                                 <span style="color:#EF4444;font-size:.82rem;">No slip uploaded yet</span>`;
+            slipRow.innerHTML = `
+                <div style="width:100%; padding:.75rem; border-radius:10px; background:#EEF2FF; border:1px solid #C7D2FE; display:flex; align-items:center; gap:.75rem;">
+                    <div style="font-size:1.5rem; color:#4F46E5;"><i class="fa-brands fa-whatsapp"></i></div>
+                    <div>
+                        <p style="margin:0; font-size:.82rem; font-weight:700; color:#1E293B;">Manual WhatsApp Verification</p>
+                        <p style="margin:0; font-size:.75rem; color:#64748B;">No slip in system. Please verify via WhatsApp proof before approving.</p>
+                    </div>
+                </div>`;
         } else {
             const statusColor = s => s === 'approved' ? '#065F46' : '#92400E';
             const statusBg    = s => s === 'approved' ? '#D1FAE5' : '#FEF3C7';

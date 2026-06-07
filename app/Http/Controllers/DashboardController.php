@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\Models\Courses;
 use App\Models\Registration;
 use App\Models\Teacher;
@@ -259,7 +260,7 @@ public function adminApproveStudent(Request $request, $id)
     if (empty($approvedIds)) {
         return redirect()->back()->withErrors(['approved_courses' => 'Selected modules are not valid for this registration.']);
     }
-    $plainPassword  = '12345678';
+    $plainPassword  = Str::random(8);
     $isExistingUser = User::where('email', $reg->email)->exists();
 
     return DB::transaction(function () use ($reg, $approvedIds, $plainPassword, $isExistingUser) {
@@ -313,6 +314,30 @@ public function adminApproveStudent(Request $request, $id)
     });
 }
 
+public function deleteRegistration($id)
+{
+    $reg = Registration::findOrFail($id);
+    
+    DB::beginTransaction();
+    try {
+        // 1. Find and delete the associated user if they exist
+        $user = User::where('email', $reg->email)->first();
+        if ($user) {
+            // Delete associated files if needed (profile images, etc.)
+            $user->delete();
+        }
+
+        // 2. Delete the registration (cascades or manual cleanup for slips/enrollments depends on your DB setup)
+        // Usually, slips and pivot records should have onDelete('cascade') in migrations.
+        $reg->delete();
+
+        DB::commit();
+        return redirect()->back()->with('success', 'Registration and associated user account deleted successfully.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('error', 'Error deleting registration: ' . $e->getMessage());
+    }
+}
 
 public function systemAdminsView()
 {
