@@ -270,10 +270,23 @@ public function adminApproveStudent(Request $request, $id)
 
     return DB::transaction(function () use ($reg, $approvedIds, $plainPassword, $isExistingUser) {
 
-        $user = User::firstOrCreate(
-            ['email' => $reg->email],
-            ['name' => $reg->name, 'password' => Hash::make($plainPassword)]
-        );
+        // 1. Create or Update the User (Don't overwrite password if they exist)
+        $user = User::where('email', $reg->email)->first();
+        
+        if (!$user) {
+            $user = User::create([
+                'name'     => $reg->name,
+                'email'    => $reg->email,
+                'password' => Hash::make($plainPassword),
+                'phone'    => $reg->phone,
+            ]);
+        } else {
+            // Update name and phone just in case they changed, but KEEP old password
+            $user->update([
+                'name'  => $reg->name,
+                'phone' => $reg->phone,
+            ]);
+        }
 
         // Ensure the student role exists
         if (!\Spatie\Permission\Models\Role::where('name', 'student')->exists()) {
@@ -284,9 +297,11 @@ public function adminApproveStudent(Request $request, $id)
             $user->assignRole('student');
         }
 
+        // 2. Add new modules (syncWithoutDetaching ensures old ones are NOT deleted)
         $pivotData = array_fill_keys($approvedIds, ['status' => 'active']);
         $user->enrolledModules()->syncWithoutDetaching($pivotData);
 
+        // 3. Mark registration as approved
         $reg->update([
             'status'      => 'approved',
             'approved_at' => Carbon::now(),
@@ -295,8 +310,8 @@ public function adminApproveStudent(Request $request, $id)
 
         $enrolledCourseNames = Courses::whereIn('id', $approvedIds)->pluck('title')->toArray();
 
+        // 4. Send Email ONLY for new accounts
         if (!$isExistingUser) {
-            // New account — send full credentials with password
             $emailSent = true;
             $errorDetail = '';
             try {
@@ -316,8 +331,8 @@ public function adminApproveStudent(Request $request, $id)
                 return redirect()->back()->with('warning', $msg);
             }
         } else {
-            // Existing account — enroll only, no password resent
-            $msg = "{$reg->name} enrolled in " . count($approvedIds) . " additional module(s). Account already exists — credentials NOT resent.";
+            // Existing student — only enroll, NO email, NO password change
+            $msg = "{$reg->name} enrolled in " . count($approvedIds) . " new module(s). Account already exists — modules added successfully.";
         }
 
         return redirect()->back()->with('success', $msg);

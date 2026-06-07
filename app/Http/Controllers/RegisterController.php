@@ -38,9 +38,17 @@ class RegisterController
             $saveNewId = [];
             $alreadyExistId = [];
 
+            // Find existing user to check their current enrollments
+            $existingUser = User::where('email', $request->email)->with('enrolledModules')->first();
+            $enrolledIds = $existingUser ? $existingUser->enrolledModules->pluck('id')->toArray() : [];
+
             foreach ($courseId as $id) {
-                $check = Registration::where('email', $request->email)->whereJsonContains('selected_courses', (string)$id)->exists();
-                if ($check) {
+                // Check registrations table
+                $regCheck = Registration::where('email', $request->email)->whereJsonContains('selected_courses', (string)$id)->exists();
+                // Check actual enrollments table
+                $enrollCheck = in_array($id, $enrolledIds);
+
+                if ($regCheck || $enrollCheck) {
                     $courses = Courses::find($id);
                     $alreadyExistId[] = $courses->title;
                 } else {

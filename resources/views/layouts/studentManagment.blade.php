@@ -59,6 +59,15 @@
             $courseCount   = count($courseIds);
             $enrolledMap   = $enrolledByEmail[$reg->email] ?? collect();
             $enrolledIds   = $enrolledMap->keys()->toArray();
+            
+            // Prepare a clean list of currently enrolled module titles for the modal
+            $alreadyEnrolledTitles = [];
+            foreach($enrolledMap as $eid => $eMod) {
+                if(!in_array($eid, $courseIds)) {
+                    $alreadyEnrolledTitles[] = $eMod->title;
+                }
+            }
+            
             $enrolledCount = count(array_intersect($enrolledIds, $courseIds));
             $hasAccount    = array_key_exists($reg->email, $enrolledByEmail->toArray());
             $allEnrolled   = $courseCount > 0 && $enrolledCount >= $courseCount;
@@ -93,6 +102,23 @@
                 <span class="sm-courses-label">
                     <i class="fa-solid fa-book-open me-1"></i>Modules ({{ $enrolledCount }}/{{ $courseCount }} enrolled)
                 </span>
+                
+                {{-- NEW: Show already enrolled modules for this student --}}
+                @if($hasAccount && $enrolledMap->isNotEmpty())
+                    <div class="sm-already-enrolled mb-2">
+                        <small class="text-muted d-block mb-1" style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">Existing Enrollments:</small>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach($enrolledMap as $eid => $eMod)
+                                @if(!in_array($eid, $courseIds))
+                                    <span class="badge bg-light text-dark border" style="font-size: 0.6rem; opacity: 0.7;">
+                                        <i class="fa-solid fa-check text-success me-1"></i>{{ Str::limit($eMod->title, 15) }}
+                                    </span>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <div class="sm-courses-list">
                     @foreach($courseIds as $cid)
                         @if(isset($allCourses[$cid]))
@@ -194,6 +220,7 @@
                                 data-slips="{{ $allSlipsJson }}"
                                 data-courses="{{ json_encode($courseObjects) }}"
                                 data-enrolled-ids="{{ json_encode(array_values($enrolledIds)) }}"
+                                data-already-enrolled="{{ json_encode($alreadyEnrolledTitles) }}"
                                 data-has-account="true">
                             <i class="fa-solid fa-circle-plus me-1"></i>Add Remaining Courses
                         </button>
@@ -213,6 +240,7 @@
                                 data-slips="{{ $allSlipsJson }}"
                                 data-courses="{{ json_encode($courseObjects) }}"
                                 data-enrolled-ids="[]"
+                                data-already-enrolled="{{ json_encode($alreadyEnrolledTitles) }}"
                                 data-has-account="false">
                             <i class="fa-solid fa-user-check me-1"></i>Review & Approve
                         </button>
@@ -230,6 +258,7 @@
                                 data-slips="[]"
                                 data-courses="{{ json_encode($courseObjects) }}"
                                 data-enrolled-ids="[]"
+                                data-already-enrolled="{{ json_encode($alreadyEnrolledTitles) }}"
                                 data-has-account="false">
                             <i class="fa-solid fa-user-plus me-1"></i>Manual Approve
                         </button>
@@ -695,6 +724,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // courses = [{id, title, price}, ...] — pre-built server-side, no lookup needed
         const courses     = JSON.parse(btn.dataset.courses    || '[]');
         const enrolledIds = JSON.parse(btn.dataset.enrolledIds || '[]');
+        const alreadyEnrolledTitles = JSON.parse(btn.dataset.alreadyEnrolled || '[]');
         const hasAccount  = btn.dataset.hasAccount === 'true';
 
         // Courses NOT yet enrolled (the ones admin can approve now)
@@ -752,12 +782,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const list = reviewModal.querySelector('#reviewCourseList');
         let html = '';
 
-        // Show enrolled courses as locked
+        // 1. Show modules from PREVIOUS registrations (already enrolled)
+        alreadyEnrolledTitles.forEach(title => {
+            html += `<div class="sm-course-locked" style="opacity: 0.6; background: #f1f5f9;">
+                       <span class="sm-locked-icon"><i class="fa-solid fa-circle-check text-muted"></i></span>
+                       <span class="sm-chk-label">${title}</span>
+                       <span class="sm-enrolled-tag" style="background:#e2e8f0; color:#475569;">Already Enrolled</span>
+                     </div>`;
+        });
+
+        // 2. Show modules from THIS registration that are already enrolled (partial approval cases)
         courses.filter(c => enrolledIds.includes(c.id)).forEach(c => {
             html += `<div class="sm-course-locked">
-                       <span class="sm-locked-icon"><i class="fa-solid fa-circle-check"></i></span>
+                       <span class="sm-locked-icon"><i class="fa-solid fa-circle-check text-success"></i></span>
                        <span class="sm-chk-label">${c.title}</span>
-                       <span class="sm-enrolled-tag">Already Enrolled</span>
+                       <span class="sm-enrolled-tag">Approved</span>
                      </div>`;
         });
 
