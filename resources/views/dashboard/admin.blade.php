@@ -31,32 +31,32 @@
                 <i class="fa-solid fa-user-graduate"></i>
             </div>
             <div class="dstat-body">
-                <p class="dstat-label">Enrolled Students</p>
+                <p class="dstat-label">Total Students</p>
                 <h3 class="dstat-num">{{ $totalStudents }}</h3>
             </div>
-            <a href="{{ route('admin.student.managment') }}" class="dstat-link">View <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            <a href="{{ route('admin.student.managment') }}" class="dstat-link">View Accounts <i class="fa-solid fa-arrow-right ms-1"></i></a>
+        </div>
+
+        <div class="dstat-card" style="--accent-h:#10B981; --accent-s:#ECFDF5;">
+            <div class="dstat-icon" style="background:#ECFDF5; color:#10B981;">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div class="dstat-body">
+                <p class="dstat-label">Total Revenue</p>
+                <h3 class="dstat-num" style="font-size: 1.6rem; padding-top: 0.2rem;">PKR {{ number_format($totalRevenue, 0) }}</h3>
+            </div>
+            <span class="text-muted" style="font-size: 0.65rem; font-weight: 700;">APPROVED PAYMENTS</span>
         </div>
 
         <div class="dstat-card" style="--accent-h:#7C3AED; --accent-s:#F5F3FF;">
             <div class="dstat-icon" style="background:#F5F3FF; color:#7C3AED;">
-                <i class="fa-solid fa-chalkboard-user"></i>
+                <i class="fa-solid fa-book-bookmark"></i>
             </div>
             <div class="dstat-body">
-                <p class="dstat-label">Teachers</p>
-                <h3 class="dstat-num">{{ $totalTeachers }}</h3>
+                <p class="dstat-label">Course Enrollments</p>
+                <h3 class="dstat-num">{{ $totalEnrollments }}</h3>
             </div>
-            <a href="{{ route('teacher.Mangment.View') }}" class="dstat-link">View <i class="fa-solid fa-arrow-right ms-1"></i></a>
-        </div>
-
-        <div class="dstat-card" style="--accent-h:#0891B2; --accent-s:#ECFEFF;">
-            <div class="dstat-icon" style="background:#ECFEFF; color:#0891B2;">
-                <i class="fa-solid fa-book-open"></i>
-            </div>
-            <div class="dstat-body">
-                <p class="dstat-label">Active Modules</p>
-                <h3 class="dstat-num">{{ $totalCourses }}</h3>
-            </div>
-            <a href="{{ route('course.index') }}" class="dstat-link">View <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            <p class="text-muted mb-0" style="font-size: 0.65rem; font-weight: 700;">TOTAL SEATS FILLED</p>
         </div>
 
         <div class="dstat-card {{ $pendingCount > 0 ? 'dstat-alert' : '' }}" style="--accent-h:#D97706; --accent-s:#FFFBEB;">
@@ -67,7 +67,7 @@
                 <p class="dstat-label">Pending Approvals</p>
                 <h3 class="dstat-num">{{ $pendingCount }}</h3>
             </div>
-            <a href="{{ route('admin.student.managment') }}" class="dstat-link">Review <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            <a href="{{ route('admin.student.managment') }}?filter=pending" class="dstat-link">Review Slips <i class="fa-solid fa-arrow-right ms-1"></i></a>
         </div>
 
     </div>
@@ -88,10 +88,26 @@
         {{-- Module distribution ── --}}
         <div class="dash-card dash-chart-card">
             <div class="dash-card-header">
-                <span class="dash-card-title"><i class="fa-solid fa-circle-nodes me-2 text-purple"></i>User Distribution</span>
+                <span class="dash-card-title"><i class="fa-solid fa-trophy me-2 text-warning"></i>Top Performing Modules</span>
             </div>
-            <div class="dash-card-body" style="height:260px; display:flex; align-items:center; justify-content:center; padding:1rem;">
-                <canvas id="distChart"></canvas>
+            <div class="dash-card-body p-0">
+                <ul class="list-group list-group-flush">
+                    @forelse($topModules as $course)
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-0" style="background:transparent; border-bottom: 1px solid #F1F5F9 !important;">
+                        <div style="flex: 1; min-width: 0;">
+                            <span class="fw-bold d-block text-truncate" style="font-size: .82rem;">{{ $course->title }}</span>
+                            <small class="text-muted" style="font-size: .65rem;">{{ $course->teacher->name ?? 'No teacher' }}</small>
+                        </div>
+                        <div class="text-end ms-3">
+                            <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary" style="font-size: .75rem; font-weight: 800;">
+                                {{ $course->enrolled_users_count }} Students
+                            </span>
+                        </div>
+                    </li>
+                    @empty
+                    <li class="list-group-item text-center text-muted py-5 border-0">No enrollments yet.</li>
+                    @endforelse
+                </ul>
             </div>
         </div>
 
@@ -108,12 +124,11 @@
                 <table class="table table-hover dash-table mb-0">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
+                            <th>Student</th>
                             <th>Modules</th>
                             <th>Amount</th>
                             <th>Status</th>
-                            <th>Date</th>
+                            <th>Applied Date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -122,22 +137,24 @@
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="dash-avatar">{{ strtoupper(substr($reg->name, 0, 1)) }}</div>
-                                    <span class="fw-semibold" style="font-size:.875rem;">{{ $reg->name }}</span>
+                                    <div>
+                                        <span class="fw-semibold d-block" style="font-size:.85rem; line-height: 1.2;">{{ $reg->name }}</span>
+                                        <span class="text-muted" style="font-size:.7rem;">{{ $reg->phone }}</span>
+                                    </div>
                                 </div>
                             </td>
-                            <td style="font-size:.82rem; color:#64748B;">{{ $reg->email }}</td>
                             <td>
                                 <span class="dash-pill">{{ count($reg->selected_courses) }} module{{ count($reg->selected_courses) !== 1 ? 's' : '' }}</span>
                             </td>
-                            <td style="font-size:.875rem; font-weight:600;">PKR {{ number_format($reg->total_amount, 0) }}</td>
+                            <td style="font-size:.85rem; font-weight:700; color: #1E293B;">PKR {{ number_format($reg->total_amount, 0) }}</td>
                             <td>
                                 @if($reg->status === 'approved')
-                                    <span class="dash-status dash-status-approved">Approved</span>
+                                    <span class="dash-status dash-status-approved"><i class="fa-solid fa-circle-check me-1"></i>Approved</span>
                                 @else
-                                    <span class="dash-status dash-status-pending">Pending</span>
+                                    <span class="dash-status dash-status-pending"><i class="fa-solid fa-clock me-1"></i>Pending</span>
                                 @endif
                             </td>
-                            <td style="font-size:.78rem; color:#94A3B8;">{{ $reg->created_at->format('d M Y') }}</td>
+                            <td style="font-size:.78rem; color:#64748B;">{{ $reg->created_at->format('d M, Y') }}</td>
                         </tr>
                         @empty
                         <tr>
@@ -354,31 +371,6 @@
             scales: {
                 x: { grid: { display: false }, ticks: { font: { size: 11 } } },
                 y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: '#F1F5F9' } }
-            }
-        }
-    });
-
-    // ── Doughnut chart: user distribution ──
-    new Chart(document.getElementById('distChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Students', 'Teachers', 'Pending'],
-            datasets: [{
-                data: [{{ $totalStudents }}, {{ $totalTeachers }}, {{ $pendingCount }}],
-                backgroundColor: ['#4F46E5', '#7C3AED', '#F59E0B'],
-                borderWidth: 0,
-                hoverOffset: 6,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '72%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { font: { size: 12 }, padding: 16, usePointStyle: true }
-                }
             }
         }
     });

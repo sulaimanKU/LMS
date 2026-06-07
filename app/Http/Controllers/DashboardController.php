@@ -30,6 +30,16 @@ class DashboardController
         $pendingCount       = Registration::where('status', 'pending')->count();
         $recentRegistrations = Registration::with('slips')->latest()->take(6)->get();
 
+        // New Metrics
+        $totalRevenue       = Registration::where('status', 'approved')->sum('total_amount');
+        $totalEnrollments   = DB::table('enrollments')->count(); // Total course seats filled
+
+        // Top Modules by enrollment
+        $topModules = Courses::withCount('enrolledUsers')
+            ->orderBy('enrolled_users_count', 'desc')
+            ->take(5)
+            ->get();
+
         // Monthly registrations for the last 6 months
         $monthlyData = Registration::selectRaw("DATE_FORMAT(created_at, '%b') as month, COUNT(*) as total")
             ->where('created_at', '>=', Carbon::now()->subMonths(6))
@@ -43,7 +53,10 @@ class DashboardController
             'totalCourses',
             'pendingCount',
             'recentRegistrations',
-            'monthlyData'
+            'monthlyData',
+            'totalRevenue',
+            'totalEnrollments',
+            'topModules'
         ));
     }
 
