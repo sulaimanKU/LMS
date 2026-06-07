@@ -252,6 +252,11 @@
                                 <label class="form-label-pro">Official Phone</label>
                                 <input type="text" name="contact_phone" class="form-control input-pro" value="{{ $settings['contact_phone'] ?? '' }}" placeholder="+92 ...">
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label-pro">WhatsApp Number (For Proofs)</label>
+                                <input type="text" name="contact_whatsapp" class="form-control input-pro" value="{{ $settings['contact_whatsapp'] ?? '' }}" placeholder="e.g. 923469061650">
+                                <small class="text-muted" style="font-size: 10px;">Include country code, no + or spaces (e.g. 923001234567).</small>
+                            </div>
                             <div class="col-12">
                                 <label class="form-label-pro">Full Address</label>
                                 <input type="text" name="contact_address" class="form-control input-pro" value="{{ $settings['contact_address'] ?? '' }}" placeholder="Institutional Address">

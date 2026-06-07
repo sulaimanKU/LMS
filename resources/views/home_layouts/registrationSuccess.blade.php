@@ -82,29 +82,79 @@
                     </div>
 
                     <div class="card bg-light border-0 mb-4">
-                        <div class="card-body">
-                            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Payment Instructions</h6>
-                            <div class="d-flex mb-2">
-                                <div class="me-3 text-primary fw-bold">01.</div>
-                                <div>Transfer amount to <strong>JazzCash/EasyPaisa: 0346 9061650</strong></div>
-                            </div>
-                            <div class="d-flex mb-0">
-                                <div class="me-3 text-primary fw-bold">02.</div>
-                                <div>Click the button below to upload receipt via WhatsApp.</div>
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-bank2 me-2 text-primary"></i>Bank & Account Details for Payment</h6>
+                            <div class="row g-3">
+                                @if(isset($systemSettings['payment_easypaisa']))
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded border-start border-primary border-4 shadow-sm">
+                                        <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem;">EasyPaisa</small>
+                                        <span class="fw-bold d-block">{{ $systemSettings['payment_easypaisa'] }}</span>
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if(isset($systemSettings['payment_jazzcash']))
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded border-start border-danger border-4 shadow-sm">
+                                        <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem;">JazzCash</small>
+                                        <span class="fw-bold d-block">{{ $systemSettings['payment_jazzcash'] }}</span>
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if(isset($systemSettings['payment_bank_name']))
+                                <div class="col-12">
+                                    <div class="p-3 bg-white rounded border-start border-success border-4 shadow-sm">
+                                        <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem;">Bank Account</small>
+                                        <div class="d-flex flex-wrap gap-3">
+                                            <div><span class="text-muted small">Bank:</span> <span class="fw-bold">{{ $systemSettings['payment_bank_name'] }}</span></div>
+                                            @if(isset($systemSettings['payment_bank_title']))
+                                            <div><span class="text-muted small">Title:</span> <span class="fw-bold">{{ $systemSettings['payment_bank_title'] }}</span></div>
+                                            @endif
+                                            @if(isset($systemSettings['payment_bank_number']))
+                                            <div><span class="text-muted small">A/C:</span> <span class="fw-bold text-primary">{{ $systemSettings['payment_bank_number'] }}</span></div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
 
-                    @php
-                        $waMessage = "Hi, I've registered for modules. ID: #{$registeration->id}. Name: {$registeration->name}. Amount: PKR " . number_format($registeration->total_amount, 0);
-                        $waLink = "https://wa.me/923469061650?text=" . urlencode($waMessage);
-                    @endphp
+                    <div class="card border-0 shadow-sm mb-4" style="background: #fff8f0; border-left: 5px solid #f39c12 !important;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Important Next Steps</h5>
+                            <p class="mb-3 fs-6">To complete your enrollment, please follow these instructions carefully:</p>
+                            
+                            <div class="d-flex mb-3">
+                                <div class="me-3 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; flex-shrink: 0; font-weight: bold;">1</div>
+                                <div>Click on the <strong>"Go to Payment Portal"</strong> button below.</div>
+                            </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-5">
-                        <a href="{{ $waLink }}" target="_blank" class="btn btn-success btn-lg px-4 shadow-sm">
-                            <i class="bi bi-whatsapp me-2"></i> WhatsApp Proof
+                            <div class="d-flex mb-3">
+                                <div class="me-3 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; flex-shrink: 0; font-weight: bold;">2</div>
+                                <div>Enter your registered email address (<strong>{{ $registeration->email }}</strong>).</div>
+                            </div>
+
+                            <div class="d-flex mb-3">
+                                <div class="me-3 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; flex-shrink: 0; font-weight: bold;">3</div>
+                                <div>Upload your payment slip or transaction screenshot.</div>
+                            </div>
+
+                            <div class="d-flex mb-0">
+                                <div class="me-3 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; flex-shrink: 0; font-weight: bold;">4</div>
+                                <div>After our team verifies your payment, your <strong>Username and Password</strong> will be sent to your <strong>registered email address</strong>.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-3 d-md-flex justify-content-md-center mt-5">
+                        <a href="{{ route('payment.upload') }}" class="btn btn-primary btn-lg px-5 shadow-sm fw-bold rounded-pill">
+                            <i class="bi bi-wallet2 me-2"></i> Go to Payment Portal
                         </a>
-                        <button onclick="window.print()" class="btn btn-outline-secondary btn-lg px-4">
+                        <button onclick="window.print()" class="btn btn-outline-secondary btn-lg px-4 rounded-pill">
                             <i class="bi bi-printer me-2"></i> Print Receipt
                         </button>
                     </div>
