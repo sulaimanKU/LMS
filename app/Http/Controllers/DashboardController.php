@@ -379,27 +379,36 @@ public function manualRegistration(Request $request)
     try {
         $courseIds = $request->selected_courses;
         $saveNewId = [];
+        $alreadyExistNames = [];
 
-        // Check for existing user enrollments to avoid duplicates
+        // 1. Check for actual user enrollments
         $existingUser = User::where('email', $request->email)->with('enrolledModules')->first();
         $enrolledIds = $existingUser ? $existingUser->enrolledModules->pluck('id')->toArray() : [];
 
+        // 2. Check for existing pending registrations
+        $existingReg = Registration::where('email', $request->email)->first();
+        $registeredIds = $existingReg ? ($existingReg->selected_courses ?? []) : [];
+
         foreach ($courseIds as $id) {
-            if (!in_array($id, $enrolledIds)) {
+            $isEnrolled = in_array($id, $enrolledIds);
+            $isRegistered = in_array($id, $registeredIds);
+
+            if ($isEnrolled || $isRegistered) {
+                $course = Courses::find($id);
+                $alreadyExistNames[] = $course->title;
+            } else {
                 $saveNewId[] = $id;
             }
         }
 
         if (empty($saveNewId)) {
-            return back()->with('warning', 'Student is already enrolled in all selected modules.');
+            return back()->with('warning', 'Student is already enrolled or registered for all selected modules: ' . implode(', ', $alreadyExistNames));
         }
 
         $calculateAllPrices = Courses::whereIn('id', $saveNewId)->sum('price');
-        $existingReg = Registration::where('email', $request->email)->first();
 
         if ($existingReg) {
-            $currentCourses = $existingReg->selected_courses ?? [];
-            $mergedCourses = array_unique(array_merge($currentCourses, $saveNewId));
+            $mergedCourses = array_unique(array_merge($registeredIds, $saveNewId));
             
             $existingReg->update([
                 'name' => $request->name,
@@ -423,7 +432,11 @@ public function manualRegistration(Request $request)
             ]);
         }
 
-        return redirect()->back()->with('success', 'Manual entry created successfully. You can now Review & Approve it.');
+        $msg = 'Manual entry updated. ';
+        if (!empty($alreadyExistNames)) {
+            $msg .= 'Note: ' . implode(', ', $alreadyExistNames) . ' were skipped as they were already in the system.';
+        }
+        return redirect()->back()->with('success', $msg);
     } catch (\Exception $e) {
         return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
     }
