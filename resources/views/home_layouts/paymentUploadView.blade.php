@@ -10,6 +10,55 @@
     box-shadow: 0 4px 24px rgba(0,0,0,.08);
     overflow: hidden;
 }
+.pu-payment-info {
+    background: #F8FAFF;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #E2E8F0;
+}
+.pu-payment-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #4F46E5;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.pu-method-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+@media (min-width: 480px) {
+    .pu-method-grid { grid-template-columns: 1fr 1fr; }
+}
+.pu-method-item {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #EDF2F7;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.pu-method-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+.pu-method-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1E293B;
+}
+.pu-bank-full {
+    grid-column: 1 / -1;
+}
 .pu-card-head {
     background: linear-gradient(135deg,#4F46E5,#7C3AED);
     padding: 2rem 2rem 1.5rem; text-align: center;
@@ -104,6 +153,40 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+
+    <div class="pu-payment-info">
+        <div class="pu-payment-title"><i class="bi bi-bank2"></i> Payment Account Details</div>
+        <div class="pu-method-grid">
+            @if(isset($systemSettings['payment_easypaisa']))
+            <div class="pu-method-item" style="border-left: 4px solid #4F46E5;">
+                <span class="pu-method-label">EasyPaisa</span>
+                <span class="pu-method-value">{{ $systemSettings['payment_easypaisa'] }}</span>
+            </div>
+            @endif
+
+            @if(isset($systemSettings['payment_jazzcash']))
+            <div class="pu-method-item" style="border-left: 4px solid #EF4444;">
+                <span class="pu-method-label">JazzCash</span>
+                <span class="pu-method-value">{{ $systemSettings['payment_jazzcash'] }}</span>
+            </div>
+            @endif
+
+            @if(isset($systemSettings['payment_bank_name']))
+            <div class="pu-method-item pu-bank-full" style="border-left: 4px solid #10B981;">
+                <span class="pu-method-label">Bank Account</span>
+                <div class="d-flex flex-wrap gap-x-4 gap-y-1">
+                    <div style="font-size: 0.85rem;"><span class="text-muted">Bank:</span> <strong>{{ $systemSettings['payment_bank_name'] }}</strong></div>
+                    @if(isset($systemSettings['payment_bank_title']))
+                    <div style="font-size: 0.85rem;"><span class="text-muted">Title:</span> <strong>{{ $systemSettings['payment_bank_title'] }}</strong></div>
+                    @endif
+                    @if(isset($systemSettings['payment_bank_number']))
+                    <div style="font-size: 0.85rem;"><span class="text-muted">A/C:</span> <strong>{{ $systemSettings['payment_bank_number'] }}</strong></div>
+                    @endif
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
 
     <div class="pu-card">
 

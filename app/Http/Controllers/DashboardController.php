@@ -286,14 +286,22 @@ public function adminApproveStudent(Request $request, $id)
 
         if (!$isExistingUser) {
             // New account — send full credentials with password
+            $emailSent = true;
             try {
                 Mail::to($reg->email)->send(new StudentApprovedMail(
                     $reg->name, $reg->email, $plainPassword, $enrolledCourseNames
                 ));
             } catch (\Exception $e) {
-                \Log::warning('Approval email failed for ' . $reg->email . ': ' . $e->getMessage());
+                $emailSent = false;
+                \Log::error('Approval email failed for ' . $reg->email . ': ' . $e->getMessage());
             }
-            $msg = "{$reg->name} approved and enrolled in " . count($approvedIds) . " module(s). Login credentials sent by email.";
+
+            if ($emailSent) {
+                $msg = "{$reg->name} approved and enrolled. Login credentials sent to {$reg->email}.";
+            } else {
+                $msg = "{$reg->name} approved, but the welcome EMAIL FAILED to send. Please check your mail settings and logs.";
+                return redirect()->back()->with('warning', $msg);
+            }
         } else {
             // Existing account — enroll only, no password resent
             $msg = "{$reg->name} enrolled in " . count($approvedIds) . " additional module(s). Account already exists — credentials NOT resent.";

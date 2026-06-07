@@ -145,7 +145,9 @@
     @foreach($trackReg as $reg)
     @php
         $courseIds     = array_map('intval', $reg->selected_courses ?? []);
-        $enrolledCount = count(array_intersect($enrolledIds, $courseIds));
+        // Convert enrolledIds to array if it's a collection or non-array
+        $cleanEnrolled = is_array($enrolledIds) ? $enrolledIds : (is_object($enrolledIds) ? $enrolledIds->toArray() : []);
+        $enrolledCount = count(array_intersect($cleanEnrolled, $courseIds));
         $pendingCount  = count($courseIds) - $enrolledCount;
         $hasSlip       = $reg->slips->isNotEmpty();
         $allDone       = $enrolledCount > 0 && $enrolledCount >= count($courseIds);

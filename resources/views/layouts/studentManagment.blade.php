@@ -45,7 +45,8 @@
             $hasSlip       = $reg->slips->isNotEmpty();
             $courseIds     = array_map('intval', $reg->selected_courses ?? []);
             $courseCount   = count($courseIds);
-            $enrolledIds   = $enrolledByEmail[$reg->email] ?? [];
+            $enrolledMap   = $enrolledByEmail[$reg->email] ?? collect();
+            $enrolledIds   = $enrolledMap->keys()->toArray();
             $enrolledCount = count(array_intersect($enrolledIds, $courseIds));
             $hasAccount    = array_key_exists($reg->email, $enrolledByEmail->toArray());
             $allEnrolled   = $courseCount > 0 && $enrolledCount >= $courseCount;
