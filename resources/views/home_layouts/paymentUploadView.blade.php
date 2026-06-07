@@ -197,6 +197,15 @@
         </div>
 
         <div class="pu-card-body">
+            {{-- NEW: Quick Track Link for students who want to see history first --}}
+            <div style="background: #FFFBEB; border: 1px solid #FEF3C7; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                <div style="color: #D97706; font-size: 1.2rem;"><i class="bi bi-clock-history"></i></div>
+                <div style="flex: 1;">
+                    <p style="margin: 0; font-size: 0.82rem; font-weight: 700; color: #92400E;">Need to see previous uploads?</p>
+                    <a href="{{ route('home') }}#track" style="font-size: 0.75rem; color: #4F46E5; font-weight: 600; text-decoration: underline;">Track your status & view history here</a>
+                </div>
+            </div>
+
             <form action="{{ route('payment.submit') }}" method="POST" enctype="multipart/form-data" id="pu-form">
                 @csrf
 

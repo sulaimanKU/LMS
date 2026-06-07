@@ -219,22 +219,36 @@
         </div>
 
         {{-- Payment slips --}}
-        <div class="tr-section">
-            <p class="tr-section-title"><i class="bi bi-receipt me-1"></i>Payment Slips ({{ $reg->slips->count() }})</p>
-            @forelse($reg->slips->sortBy('created_at') as $i => $slip)
-            <div class="tr-slip-row">
-                <span class="tr-slip-num">Slip {{ $loop->iteration }}</span>
-                <span class="tr-slip-date"><i class="bi bi-calendar3 me-1"></i>{{ $slip->created_at->format('d M Y, h:i A') }}</span>
-                <span class="tr-slip-badge {{ $slip->status === 'approved' ? 'tr-slip-approved' : 'tr-slip-pending' }}">
-                    {{ ucfirst($slip->status) }}
-                </span>
-                <a href="{{ asset('storage/' . $slip->file_path) }}" target="_blank" class="tr-slip-view">
-                    <i class="bi bi-eye"></i> View
-                </a>
+        <div class="tr-section" style="background: #F8FAFF; border-radius: 12px; padding: 1.25rem;">
+            <p class="tr-section-title" style="color: #4F46E5; border-bottom: 2px solid #E2E8F0; padding-bottom: 0.5rem;">
+                <i class="bi bi-clock-history me-1"></i>Payment History ({{ $reg->slips->count() }} receipts)
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+                @forelse($reg->slips->sortByDesc('created_at') as $i => $slip)
+                <div class="tr-slip-row" style="background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span class="tr-slip-num" style="background: #EEF2FF; color: #4F46E5;">#{{ $loop->count - $loop->index }}</span>
+                        <div>
+                            <span class="tr-slip-date" style="display: block; font-weight: 700; color: #1E293B;">{{ $slip->created_at->format('d M Y') }}</span>
+                            <span style="font-size: 0.7rem; color: #64748B;">{{ $slip->created_at->format('h:i A') }}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span class="tr-slip-badge {{ $slip->status === 'approved' ? 'tr-slip-approved' : 'tr-slip-pending' }}">
+                            {{ ucfirst($slip->status) }}
+                        </span>
+                        <a href="{{ asset('storage/' . $slip->file_path) }}" target="_blank" class="tr-slip-view" style="padding: 0.4rem 0.8rem;">
+                            <i class="bi bi-eye"></i> View Receipt
+                        </a>
+                    </div>
+                </div>
+                @empty
+                <div style="text-align: center; padding: 1rem;">
+                    <i class="bi bi-receipt text-muted opacity-25" style="font-size: 2rem;"></i>
+                    <p style="font-size:.8rem;color:#94A3B8;margin:0.5rem 0 0;">No receipts found in our database.</p>
+                </div>
+                @endforelse
             </div>
-            @empty
-            <p style="font-size:.8rem;color:#CBD5E1;margin:0;">No payment slip uploaded yet.</p>
-            @endforelse
         </div>
 
         {{-- Action prompt --}}
