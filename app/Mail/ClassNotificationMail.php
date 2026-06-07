@@ -17,7 +17,8 @@ class ClassNotificationMail extends Mailable
         public string $subjectText,
         public string $messageBody,
         public string $moduleTitle,
-        public ?string $classDate = null
+        public ?string $classDate = null,
+        public ?string $meetingLink = null
     ) {}
 
     public function envelope(): Envelope

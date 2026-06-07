@@ -12,7 +12,7 @@ class HomeController
 {
     public function home_index() {
         $stats = [
-            'students' => User::role('student')->count(),
+            'students' => \Illuminate\Support\Facades\DB::table('enrollments')->distinct('user_id')->count('user_id'),
             'courses' => Courses::where('status', 'active')->count(),
             'teachers' => Teacher::count(),
             'satisfaction' => 98, // You can make this dynamic if you have a reviews table

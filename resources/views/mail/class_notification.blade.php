@@ -30,12 +30,21 @@
             </p>
           </div>
 
-          @if($classDate)
+          @if($classDate || $meetingLink)
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:30px;">
             <tr>
-              <td style="background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:10px;padding:15px;text-align:center;">
-                <p style="margin:0 0 5px;font-size:11px;font-weight:800;text-transform:uppercase;color:#94A3B8;letter-spacing:1px;">Scheduled For</p>
-                <p style="margin:0;font-size:18px;font-weight:800;color:#1E293B;">{{ $classDate }}</p>
+              <td style="background:#F8FAFF;border:1.5px solid #E2E8F0;border-radius:10px;padding:25px;text-align:center;">
+                @if($classDate)
+                    <p style="margin:0 0 5px;font-size:11px;font-weight:800;text-transform:uppercase;color:#94A3B8;letter-spacing:1px;">Scheduled For</p>
+                    <p style="margin:0 0 15px;font-size:18px;font-weight:800;color:#1E293B;">{{ $classDate }}</p>
+                @endif
+
+                @if($meetingLink)
+                    <a href="{{ $meetingLink }}" style="display:inline-block;padding:12px 30px;background:#4F46E5;color:#FFFFFF;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;box-shadow:0 4px 10px rgba(79,70,229,0.25);">
+                        Join Meeting / View Link
+                    </a>
+                    <p style="margin:10px 0 0;font-size:11px;color:#94A3B8;word-break:break-all;">{{ $meetingLink }}</p>
+                @endif
               </td>
             </tr>
           </table>

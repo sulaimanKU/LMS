@@ -454,7 +454,8 @@ class TeacherController
             'student_ids' => 'required|array|min:1',
             'subject'     => 'required|string|max:255',
             'message'     => 'required|string',
-            'class_date'  => 'nullable|string'
+            'class_date'  => 'nullable|string',
+            'meeting_link' => 'nullable|url'
         ]);
 
         $module = Courses::findOrFail($request->module_id);
@@ -470,7 +471,8 @@ class TeacherController
                     $request->subject,
                     $request->message,
                     $module->title,
-                    $request->class_date
+                    $request->class_date,
+                    $request->meeting_link
                 ));
                 $successCount++;
             } catch (\Exception $e) {

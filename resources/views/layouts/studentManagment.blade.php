@@ -1010,6 +1010,10 @@ document.addEventListener('DOMContentLoaded', function () {
                             <label class="form-label small fw-bold text-muted">CLASS DATE (OPTIONAL)</label>
                             <input type="date" name="class_date" class="form-control bg-light border-0">
                         </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">MEETING LINK (OPTIONAL)</label>
+                            <input type="url" name="meeting_link" class="form-control bg-light border-0" placeholder="https://zoom.us/j/...">
+                        </div>
                         
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted">EMAIL SUBJECT / TOPIC</label>
