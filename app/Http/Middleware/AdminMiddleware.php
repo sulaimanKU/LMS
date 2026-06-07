@@ -25,7 +25,14 @@ class AdminMiddleware
     $user = Auth::user();
 
     if (!$user->hasRole($role)) {
-        return redirect()->route('dashboard')->with('error', "Access Denied: You do not have $role privileges.");
+        if ($user->hasRole('admin')) {
+            return redirect()->route('dashboard')->with('error', "Access Denied.");
+        } elseif ($user->hasRole('teacher')) {
+            return redirect()->route('teacher.main')->with('error', "Access Denied.");
+        } elseif ($user->hasRole('student')) {
+            return redirect()->route('student.main')->with('error', "Access Denied.");
+        }
+        return redirect('/')->with('error', "Access Denied.");
     }
 
     return $next($request);

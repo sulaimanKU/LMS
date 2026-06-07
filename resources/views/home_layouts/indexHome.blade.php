@@ -19,7 +19,7 @@
     /* ── Premium Aurora Hero ── */
     .hero-premium {
         background-color: var(--slate-900);
-        background-image: 
+        background-image:
             radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
             radial-gradient(circle at 90% 80%, rgba(79, 70, 229, 0.15) 0%, transparent 40%);
         padding: 8rem 0 7rem;
@@ -38,12 +38,12 @@
         text-transform: uppercase; letter-spacing: 1.5px; color: #A5B4FC; margin-bottom: 2rem;
         backdrop-filter: blur(10px);
     }
-    .hero-h1 { 
-        font-size: clamp(2.8rem, 6vw, 4.5rem); font-weight: 800; margin-bottom: 1.5rem; line-height: 1; 
+    .hero-h1 {
+        font-size: clamp(2.8rem, 6vw, 4.5rem); font-weight: 800; margin-bottom: 1.5rem; line-height: 1;
         background: linear-gradient(to bottom, #FFFFFF 40%, #94A3B8 100%);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .hero-h1 span { 
+    .hero-h1 span {
         background: linear-gradient(135deg, #818CF8 0%, #6366F1 100%);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
@@ -139,20 +139,20 @@
 {{-- ── Hero Section ── --}}
 <section class="hero-premium">
     <div class="container text-center">
-        <div class="badge-premium">
+        <div class="badge-premium animate__animated animate__fadeInDown">
             <i class="bi bi-shield-check"></i> Globally Trusted Learning Platform
         </div>
-        <h1 class="hero-h1">
+        <h1 class="hero-h1 animate__animated animate__zoomIn">
             @if(isset($systemSettings['site_hero_title']))
                 {!! nl2br(e($systemSettings['site_hero_title'])) !!}
             @else
                 Master Your Future.<br><span>Excel Globally.</span>
             @endif
         </h1>
-        <p class="hero-p">
+        <p class="hero-p animate__animated animate__fadeInUp animate__delay-1s">
             {{ $systemSettings['site_hero_subtitle'] ?? 'Experience next-generation academic training with expert mentors and industry-standard research modules.' }}
         </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <div class="d-flex gap-3 justify-content-center flex-wrap animate__animated animate__fadeInUp animate__delay-2s">
             <a href="{{ route('register') }}" class="btn-brand-primary">
                 Get Started Today <i class="bi bi-arrow-right"></i>
             </a>
@@ -173,7 +173,7 @@
             <button class="poster-modal-close" onclick="closePosterModal()">&times;</button>
             <div class="poster-modal-body">
                 @if(isset($systemSettings['home_poster_title']) && $systemSettings['home_poster_title'] != '')
-                    <h3 class="poster-popup-title">{{ $systemSettings['home_poster_title'] }}</h3>
+                    <h3 class="poster-popup-title animate__animated animate__bounceInDown animate__delay-1s">{{ $systemSettings['home_poster_title'] }}</h3>
                 @endif
                 <a href="{{ asset('storage/'.$systemSettings['home_poster']) }}" download="Academy-Offer" class="poster-popup-link">
                     <img src="{{ asset('storage/'.$systemSettings['home_poster']) }}" alt="Special Offer">
@@ -189,17 +189,17 @@
     <section class="py-5 poster-main-section">
         <div class="container">
             <div class="row align-items-center g-5">
-                <div class="col-lg-6 animate__animated animate__fadeInLeft">
-                    <span class="offer-badge">Limited Time Offer</span>
-                    <h2 class="display-5 fw-bold mb-4 text-dark">
+                <div class="col-lg-6">
+                    <span class="offer-badge pulse-offer animate__animated animate__rubberBand">Limited Time Offer</span>
+                    <h2 class="display-5 fw-bold mb-4 attractive-text animate__animated animate__backInLeft">
                         {{ $systemSettings['home_poster_title'] ?? 'Exclusive Academic Opportunities' }}
                     </h2>
-                    <p class="lead text-muted mb-5">
+                    <p class="lead text-muted mb-5 animate__animated animate__fadeInLeft animate__delay-1s">
                         Don't miss out on our latest modules and special training programs. Download our official poster for full details on upcoming intakes and scholarship opportunities.
                     </p>
-                    <div class="d-flex gap-3">
-                        <a href="{{ asset('storage/'.$systemSettings['home_poster']) }}" download="Academy-Poster" class="btn-poster-download">
-                            <i class="bi bi-download"></i> Download Poster
+                    <div class="d-flex gap-3 flex-wrap animate__animated animate__fadeInUp animate__delay-2s">
+                        <a href="{{ asset('storage/'.$systemSettings['home_poster']) }}" download="Academy-Poster" class="btn-poster-download floating-btn">
+                            <i class="bi bi-download me-2"></i> Download Poster
                         </a>
                         <a href="{{ route('courses.index') }}" class="btn-poster-explore">
                             Explore All Modules
@@ -207,10 +207,10 @@
                     </div>
                 </div>
                 <div class="col-lg-6 animate__animated animate__fadeInRight">
-                    <div class="poster-card-wrapper">
+                    <div class="poster-card-wrapper floating-poster">
                         <div class="poster-card-inner shadow-2xl">
-                            <img src="{{ asset('storage/'.$systemSettings['home_poster']) }}" class="img-fluid rounded-4" alt="Offer Poster">
-                            <div class="card-glass-effect">
+                            <img src="{{ asset('storage/'.$systemSettings['home_poster']) }}" class="img-fluid rounded-4 attractive-img" alt="Offer Poster">
+                            <div class="card-glass-effect shiny-effect">
                                 <i class="bi bi-star-fill text-warning me-2"></i> Featured Spotlight
                             </div>
                         </div>
@@ -221,6 +221,83 @@
     </section>
 
     <style>
+        /* ── Modern Attractive Animations ── */
+        @keyframes pulse-soft {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .pulse-offer {
+            animation: pulse-soft 2s infinite;
+            border: 2px solid var(--brand-indigo) !important;
+            background: rgba(99, 102, 241, 0.1) !important;
+            font-weight: 800 !important;
+        }
+
+        .floating-poster {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .floating-btn {
+            transition: all 0.3s ease;
+        }
+        .floating-btn:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4) !important;
+        }
+
+        @keyframes text-glow {
+            0% { text-shadow: 0 0 10px rgba(99, 102, 241, 0); }
+            50% { text-shadow: 0 0 25px rgba(99, 102, 241, 0.5); }
+            100% { text-shadow: 0 0 10px rgba(99, 102, 241, 0); }
+        }
+
+        .attractive-text {
+            background: linear-gradient(135deg, #0F172A 0%, #4F46E5 50%, #818CF8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
+            animation: text-glow 4s ease-in-out infinite;
+        }
+
+        .attractive-img {
+            border: 12px solid #fff;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .poster-card-inner:hover .attractive-img {
+            transform: scale(1.02);
+        }
+
+        .shiny-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .shiny-effect::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+            transform: skewX(-25deg);
+            animation: shine 4s infinite;
+        }
+
         /* Modal Styles */
         .poster-modal {
             display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%;
@@ -240,8 +317,15 @@
         .poster-modal-close:hover { background: rgba(0,0,0,0.6); }
         .poster-modal-body { padding: 0; position: relative; }
         .poster-popup-title {
-            position: absolute; top: 20px; left: 20px; right: 60px; color: #fff;
-            font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5;
+            position: absolute; top: 20px; left: 20px; right: 20px; 
+            color: #fff; font-weight: 800; z-index: 5;
+            padding: 15px 25px;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border-left: 5px solid var(--brand-indigo);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            font-size: 1.4rem;
         }
         .poster-popup-link { display: block; position: relative; overflow: hidden; }
         .poster-popup-link img { width: 100%; height: auto; display: block; transition: transform 0.5s; }
@@ -367,7 +451,7 @@
                         <p class="course-desc-premium">
                             {{ \Illuminate\Support\Str::limit(strip_tags($course->short_description), 100) }}
                         </p>
-                        
+
                         <div class="course-meta-premium">
                             <div class="meta-item-p"><i class="bi bi-clock"></i> {{ $course->duration }}</div>
                             <div class="meta-item-p"><i class="bi bi-people"></i> {{ $course->enrollments_count }}</div>
@@ -390,7 +474,7 @@
     <div class="container">
         <div class="mb-5 text-center">
             <span style="color: var(--brand-indigo); font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px;">Global Feedback</span>
-            <h2 class="fw-bold mt-2" style="font-size: 2.5rem; color: var(--slate-900);">Student Stories</h2>
+            <h2 class="fw-bold mt-2" style="font-size: 2.5rem; color: var(--slate-900);">Participants Stories</h2>
         </div>
 
         <div class="row g-4">
@@ -404,7 +488,7 @@
                         @endfor
                     </div>
                     <p class="testi-text-p">"{{ $review->content }}"</p>
-                    
+
                     <div class="testi-user">
                         @php
                             $names = explode(' ', $review->name);

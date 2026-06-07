@@ -11,6 +11,7 @@ class Assignment extends Model
     protected $table = 'assignments';
     protected $fillable = [
         'teacher_id',
+        'module_id',
         'online_class_id',
         'title',
         'description',
@@ -28,6 +29,11 @@ class Assignment extends Model
     public function teacher()
     {
         return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    public function module()
+    {
+        return $this->belongsTo(Courses::class, 'module_id');
     }
 
 

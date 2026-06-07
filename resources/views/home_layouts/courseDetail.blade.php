@@ -3,26 +3,35 @@
 @section('content')
 <style>
     .cd-hero {
-        background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
-        padding: 5rem 0 4rem;
+        background: linear-gradient(165deg, #0F172A 0%, #1E1B4B 100%);
+        padding: 6rem 0 5rem;
         color: #fff;
         position: relative;
         overflow: hidden;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .cd-hero::before {
         content: ""; position: absolute; inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        background-image: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                          radial-gradient(circle at 80% 70%, rgba(79, 70, 229, 0.1) 0%, transparent 50%);
     }
     .cd-cat {
-        display: inline-block; padding: 6px 16px; background: rgba(99, 102, 241, 0.2);
-        border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
-        font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-        margin-bottom: 1.5rem; backdrop-filter: blur(4px);
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 8px 18px; background: rgba(99, 102, 241, 0.15);
+        border: 1.5px solid rgba(129, 140, 248, 0.4); border-radius: 50px;
+        font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+        margin-bottom: 2rem; backdrop-filter: blur(10px);
+        color: #A5B4FC;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
-    .cd-title { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; margin-bottom: 1.5rem; line-height: 1.1; }
-    .cd-meta-row { display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 2rem; }
-    .cd-meta-item { display: flex; align-items: center; gap: 10px; font-size: 1rem; color: #C7D2FE; }
-    .cd-meta-item i { color: #fff; font-size: 1.2rem; }
+    .cd-title { 
+        font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 800; margin-bottom: 1.5rem; line-height: 1.1; 
+        background: linear-gradient(to bottom, #FFFFFF 60%, #94A3B8 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .cd-meta-row { display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 2.5rem; }
+    .cd-meta-item { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #94A3B8; font-weight: 600; }
+    .cd-meta-item i { color: #818CF8; font-size: 1.1rem; }
 
     .cd-card {
         background: #fff; border-radius: 20px; border: 1px solid #E5E7EB;

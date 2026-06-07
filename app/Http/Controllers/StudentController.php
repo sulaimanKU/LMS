@@ -59,10 +59,26 @@ class StudentController
             ->orderBy('submitted_at', 'desc')
             ->take(4)->get();
 
+        // Latest Lessons from Enrolled Modules
+        $latestLessons = \App\Models\Lesson::whereIn('module_id', $enrolledModuleIds)
+            ->with(['module'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Latest Resources (PDFs, docs) from Enrolled Modules
+        $latestResources = \App\Models\LessonResource::whereHas('lesson', function($q) use ($enrolledModuleIds) {
+                $q->whereIn('module_id', $enrolledModuleIds);
+            })
+            ->with(['lesson.module'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         return view('dashboard.studdent', compact(
             'user', 'enrollments', 'courseCount',
             'attendanceCount', 'pendingCount', 'overdueCount', 'submissionsCount',
-            'liveClass', 'upcomingClasses', 'recentSubmissions'
+            'liveClass', 'upcomingClasses', 'recentSubmissions', 'latestLessons', 'latestResources'
         ));
     }
     public function enrolledCourses()
@@ -144,15 +160,12 @@ class StudentController
         $enrolledModuleIds = Enrollment::where('user_id', $user->id)
             ->pluck('module_id');
 
-
-
         $userId = $user->id;
         $assignments = Assignment::with([
-            'onlineClass',
+            'module',
             'submissions' => fn($q) => $q->where('user_id', $userId),
-        ])->whereHas('onlineClass', function ($query) use ($enrolledModuleIds) {
-            $query->whereIn('module_id', $enrolledModuleIds);
-        })->orderBy('due_date', 'asc')->get();
+        ])->whereIn('module_id', $enrolledModuleIds)
+          ->orderBy('due_date', 'asc')->get();
 
         return view('studentLayouts.assigmentsUploadView', compact('assignments'));
     }
@@ -161,15 +174,16 @@ class StudentController
     {
         $request->validate([
             'assignment_id'   => 'required|exists:assignments,id',
-            'submission_file' => 'required|file|mimes:pdf,docx,doc,zip|max:10240',
+            'submission_file' => 'required|file|mimes:pdf,docx,doc,zip,jpg,jpeg,png,ppt,pptx|max:10240',
         ]);
 
         $userId     = auth()->id();
-        $assignment = Assignment::with('onlineClass')->findOrFail($request->assignment_id);
+        $assignment = Assignment::findOrFail($request->assignment_id);
 
         // Ensure the assignment belongs to a module the student is enrolled in
-        $enrolledModuleIds = Enrollment::where('user_id', $userId)->pluck('module_id');
-        if (!$assignment->onlineClass || !$enrolledModuleIds->contains($assignment->onlineClass->module_id)) {
+        $enrolledModuleIds = Enrollment::where('user_id', $userId)->pluck('module_id')->toArray();
+        
+        if (!in_array($assignment->module_id, $enrolledModuleIds)) {
             return back()->withErrors(['assignment_id' => 'You are not enrolled in the module for this assignment.']);
         }
 

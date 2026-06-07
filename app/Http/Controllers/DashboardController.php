@@ -24,7 +24,8 @@ class DashboardController
 
     public function dashboard_index()
     {
-        $totalStudents      = User::role('student')->count();
+        // Total unique people who are enrolled in at least one module
+        $totalStudents      = DB::table('enrollments')->distinct('user_id')->count('user_id');
         $totalTeachers      = Teacher::count();
         $totalCourses       = Courses::count();
         $pendingCount       = Registration::where('status', 'pending')->count();
@@ -184,6 +185,11 @@ public function teacherUpdate(Request $request, $id)
         'linkedin_url'   => $request->linkedin_url,
     ]);
 
+    // Update assigned modules if provided
+    if ($request->has('course_id')) {
+        $teacher->courses()->sync($request->course_id);
+    }
+
     // Sync the linked user name/email too
     if ($teacher->user_id) {
         User::where('id', $teacher->user_id)->update([
@@ -221,18 +227,17 @@ public function teacherDelete($id)
 
 public function teacherAssignCourse(Request $request, $id)
 {
-    $request->validate(['course_id' => 'required|integer|exists:modules,id']);
+    $request->validate([
+        'course_ids'   => 'required|array|min:1',
+        'course_ids.*' => 'integer|exists:modules,id'
+    ]);
 
     $teacher = Teacher::findOrFail($id);
-    $alreadyAssigned = $teacher->courses()->where('module_id', $request->course_id)->exists();
+    
+    // Sync replaces all existing assignments with the new ones provided
+    $teacher->courses()->sync($request->course_ids);
 
-    if ($alreadyAssigned) {
-        return redirect()->back()->with('error', 'This module is already assigned to ' . $teacher->name . '.');
-    }
-
-    $teacher->courses()->attach($request->course_id);
-
-    return redirect()->back()->with('success', 'Module assigned to ' . $teacher->name . ' successfully!');
+    return redirect()->back()->with('success', 'Modules updated for ' . $teacher->name . ' successfully!');
 }
 
 public function studentManagment(Request $request)

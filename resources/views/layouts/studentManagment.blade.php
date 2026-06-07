@@ -43,9 +43,14 @@
                 </p>
             </div>
             
-            <button class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#manualEntryModal">
-                <i class="fa-solid fa-user-plus me-2"></i>Add New Student
-            </button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary shadow-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#notifyStudentsModal">
+                    <i class="fa-solid fa-envelope me-2"></i>Send Notice
+                </button>
+                <button class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#manualEntryModal">
+                    <i class="fa-solid fa-user-plus me-2"></i>Add New Student
+                </button>
+            </div>
         </div>
 
         {{-- Status filter tabs (server-side) --}}
@@ -231,8 +236,22 @@
                             <i class="fa-solid fa-circle-plus me-1"></i>Add Remaining Courses
                         </button>
                     @elseif($partial)
-                        <button class="sm-action-btn sm-waiting" disabled>
-                            <i class="fa-solid fa-clock me-1"></i>Awaiting Slip for Rest
+                        {{-- Partial enrollment but NO NEW SLIP — allow manual add --}}
+                        <button class="sm-action-btn sm-add-btn"
+                                style="background: linear-gradient(135deg, #64748b, #475569);"
+                                data-bs-toggle="modal" data-bs-target="#reviewModal"
+                                data-id="{{ $reg->id }}"
+                                data-name="{{ $reg->name }}"
+                                data-email="{{ $reg->email }}"
+                                data-phone="{{ $reg->phone }}"
+                                data-institution="{{ $reg->institution }}"
+                                data-amount="{{ $reg->total_amount }}"
+                                data-slips="{{ $allSlipsJson }}"
+                                data-courses="{{ json_encode($courseObjects) }}"
+                                data-enrolled-ids="{{ json_encode(array_values($enrolledIds)) }}"
+                                data-already-enrolled="{{ json_encode($alreadyEnrolledTitles) }}"
+                                data-has-account="true">
+                            <i class="fa-solid fa-user-plus me-1"></i>Manual Add (No Slip)
                         </button>
                     @elseif($hasSlip)
                         <button class="sm-action-btn sm-approve-btn"
@@ -966,4 +985,124 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
 </div>
 
+{{-- NOTIFY STUDENTS MODAL --}}
+<div class="modal fade" id="notifyStudentsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-primary text-white" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2"></i>Send Class Notification</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('class.notification.send') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">TARGET MODULE</label>
+                            <select class="form-select bg-light border-0" name="module_id" id="notify_module_id" required>
+                                <option value="" selected disabled>Select Course...</option>
+                                @foreach($allCourses as $id => $course)
+                                    <option value="{{ $id }}">{{ $course->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">CLASS DATE (OPTIONAL)</label>
+                            <input type="date" name="class_date" class="form-control bg-light border-0">
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">EMAIL SUBJECT / TOPIC</label>
+                            <input type="text" name="subject" class="form-control bg-light border-0" required placeholder="e.g. Tomorrow's Class Link & Prep">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">MESSAGE BODY</label>
+                            <textarea name="message" class="form-control bg-light border-0" rows="5" required placeholder="Write your announcement here..."></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label small fw-bold text-muted mb-0">SELECT RECIPIENTS</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="selectAllStudents">
+                                    <label class="form-check-label small fw-bold" for="selectAllStudents">Select All</label>
+                                </div>
+                            </div>
+                            <div id="students_list_container" class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                                <p class="text-muted small text-center mb-0 py-3">Please select a module first to see students.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm" id="sendNotificationBtn" disabled>
+                        <i class="fas fa-paper-plane me-2"></i>Send Email to Selected
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const moduleSelect = document.getElementById('notify_module_id');
+    const studentContainer = document.getElementById('students_list_container');
+    const selectAllCheckbox = document.getElementById('selectAllStudents');
+    const sendBtn = document.getElementById('sendNotificationBtn');
+
+    if (moduleSelect) {
+        moduleSelect.addEventListener('change', function() {
+            const moduleId = this.value;
+            studentContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
+            
+            fetch(`/teacher/module/${moduleId}/students`)
+                .then(res => {
+                    if(!res.ok) throw new Error('Server returned an error');
+                    return res.json();
+                })
+                .then(students => {
+                    if(students.length === 0) {
+                        studentContainer.innerHTML = '<p class="text-muted small text-center mb-0 py-3">No students enrolled in this module yet.</p>';
+                        sendBtn.disabled = true;
+                    } else {
+                        let html = '<div class="row g-2">';
+                        students.forEach(s => {
+                            html += `
+                                <div class="col-md-6">
+                                    <div class="form-check p-2 rounded bg-white border">
+                                        <input class="form-check-input student-checkbox ms-1" type="checkbox" name="student_ids[]" value="${s.id}" id="std${s.id}">
+                                        <label class="form-check-label small d-block ms-4" for="std${s.id}">
+                                            <span class="fw-bold d-block">${s.name}</span>
+                                            <span class="text-muted" style="font-size: 0.7rem;">${s.email}</span>
+                                        </label>
+                                    </div>
+                                </div>`;
+                        });
+                        html += '</div>';
+                        studentContainer.innerHTML = html;
+                        sendBtn.disabled = false;
+                        
+                        // Reset select all
+                        selectAllCheckbox.checked = false;
+                    }
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    studentContainer.innerHTML = '<p class="text-danger small text-center mb-0 py-3">Error loading students. Please try again or check logs.</p>';
+                    sendBtn.disabled = true;
+                });
+        });
+    }
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+    }
+});
+</script>
 @endsection

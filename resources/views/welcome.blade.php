@@ -194,7 +194,17 @@
 
             <div class="d-flex align-items-center gap-2">
                 @auth
-                    <a href="{{ url('/dashboard') }}" class="btn-nav-register">Dashboard</a>
+                    @php
+                        $dashboardUrl = url('/dashboard'); // Default
+                        if(auth()->user()->hasRole('admin')) {
+                            $dashboardUrl = route('dashboard');
+                        } elseif(auth()->user()->hasRole('teacher')) {
+                            $dashboardUrl = route('teacher.main');
+                        } elseif(auth()->user()->hasRole('student')) {
+                            $dashboardUrl = route('student.main');
+                        }
+                    @endphp
+                    <a href="{{ $dashboardUrl }}" class="btn-nav-register">Dashboard</a>
                 @else
                     <a href="{{ route('login') }}" class="btn-nav-login">Login</a>
                     <a href="{{ route('register') }}" class="btn-nav-register">Join Academy</a>

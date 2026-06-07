@@ -100,9 +100,9 @@
                     </div>
                 </div>
 
-                {{-- title + class --}}
+                {{-- title + module --}}
                 <p class="su-card-title">{{ $a->title }}</p>
-                <p class="su-card-class"><i class="fa-solid fa-video me-1"></i>{{ $a->onlineClass?->title ?? '—' }}</p>
+                <p class="su-card-class"><i class="fa-solid fa-layer-group me-1"></i>{{ $a->module?->title ?? '—' }}</p>
 
                 @if($a->description)
                     <p class="su-card-desc">{{ Str::limit($a->description, 70) }}</p>
@@ -185,8 +185,8 @@
                     </div>
                     <div class="su-field">
                         <label class="su-label">Upload Your Work <span class="su-req">*</span></label>
-                        <input type="file" name="submission_file" class="su-input" accept=".pdf,.doc,.docx,.zip" required>
-                        <p class="su-file-hint">Accepted: PDF, DOC, DOCX, ZIP</p>
+                        <input type="file" name="submission_file" class="su-input" accept=".pdf,.doc,.docx,.zip,.jpg,.jpeg,.png,.ppt,.pptx" required>
+                        <p class="su-file-hint">Accepted: PDF, Word, ZIP, Images, PPT</p>
                     </div>
                     <div class="su-field">
                         <label class="su-label">Note to Teacher <span class="su-opt">optional</span></label>

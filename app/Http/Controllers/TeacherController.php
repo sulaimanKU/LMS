@@ -10,6 +10,7 @@ use App\Models\LessonResource;
 use App\Models\OnlineClass;
 use App\Models\Submission;
 use App\Models\Teacher;
+use App\Models\User;
 use Exception;
 
 use Illuminate\Http\Request;
@@ -43,9 +44,9 @@ class TeacherController
 
         $coursesCount = $courses->count();
 
-        $moduleIds = $courses->pluck('id');
+        $assignedModuleIds = $courses->pluck('id');
 
-        $studentsCount = \App\Models\Enrollment::whereIn('module_id', $moduleIds)
+        $studentsCount = \App\Models\Enrollment::whereIn('module_id', $assignedModuleIds)
             ->distinct('user_id')->count('user_id');
 
         // Each "course" record IS a module — attach extra display fields
@@ -67,13 +68,13 @@ class TeacherController
             ->orderBy('class_date')->orderBy('start_time')
             ->take(5)->get();
 
-        $totalAssignments = Assignment::where('teacher_id', $user->id)->count();
+        $totalAssignments = Assignment::whereIn('module_id', $assignedModuleIds)->count();
 
-        $pendingGrading = Submission::whereHas('assignment', fn($q) => $q->where('teacher_id', $user->id))
+        $pendingGrading = Submission::whereHas('assignment', fn($q) => $q->whereIn('module_id', $assignedModuleIds))
             ->where('status', 'pending')->count();
 
-        $recentSubs = Submission::with(['user', 'assignment'])
-            ->whereHas('assignment', fn($q) => $q->where('teacher_id', $user->id))
+        $recentSubs = Submission::with(['user', 'assignment.module'])
+            ->whereHas('assignment', fn($q) => $q->whereIn('module_id', $assignedModuleIds))
             ->orderBy('submitted_at', 'desc')
             ->take(5)->get();
     }
@@ -90,13 +91,14 @@ class TeacherController
     {
         OnlineClass::autoExpireLive();
 
-        $teacher = auth()->user()->teacher;
-        //    dd($teacher);
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
+        
         if (!$teacher) {
-            return redirect()->back()->with('error', 'only teacher can access this page');
+            return redirect()->back()->with('error', 'Only assigned teachers can access this page.');
         }
 
-        $teacher_courses = $teacher->courses;
+        $teacher_courses = $teacher->courses()->get();
         $scheduled_classes = $teacher->onlineClasses()
             ->with('module')
             ->orderBy('id', 'desc')
@@ -120,24 +122,27 @@ class TeacherController
             'description'      => 'nullable|string|max:500',
         ]);
 
-        $teacher_id = auth()->user()->teacher->id;
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
+
+        if (!$teacher) {
+            return redirect()->back()->with('error', 'Teacher profile not found. Please contact admin.');
+        }
 
         OnlineClass::create([
-
-            'module_id' => $validated['module_id'],
-            'teacher_id' => $teacher_id,
-            'title' => $validated['title'],
-            'class_date' => $validated['class_date'],
-            'start_time' => $validated['start_time'],
-            'meeting_link' => $validated['meeting_link'],
-            'duration' => $validated['duration'],
-            'meeting_id' => $validated['meeting_id'],
+            'module_id'        => $validated['module_id'],
+            'teacher_id'       => $teacher->id,
+            'title'            => $validated['title'],
+            'class_date'       => $validated['class_date'],
+            'start_time'       => $validated['start_time'],
+            'meeting_link'     => $validated['meeting_link'],
+            'duration'         => $validated['duration'],
+            'meeting_id'       => $validated['meeting_id'],
             'meeting_password' => $validated['meeting_password'],
-            'description' => $validated['description']
-
+            'description'      => $validated['description']
         ]);
 
-        return redirect()->back()->with('success', 'Class created Successfully');
+        return redirect()->back()->with('success', 'Class created successfully!');
     }
 
     public function teacherOnline_classesUpdateStatus(Request $request, $id)
@@ -168,7 +173,12 @@ class TeacherController
         $onlineClass->update(['status' => $newStatus]);
 
         if ($newStatus === 'live') {
-            event(new \App\Events\ClassStarted($onlineClass));
+            try {
+                event(new \App\Events\ClassStarted($onlineClass));
+            } catch (\Exception $e) {
+                \Log::warning('Broadcasting failed for ClassStarted event: ' . $e->getMessage());
+                // We continue so the class status still updates even if real-time notifications fail
+            }
         }
         $messages = [
             'live'      => 'Success! The class is now live for students.',
@@ -211,27 +221,26 @@ class TeacherController
     }
 
     public function manageLessonsView()
-{
-    $teacher = auth()->user()->teacher;
+    {
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
 
-    if (!$teacher) {
-        dd('No teacher found');
-    }
+        if (!$teacher) {
+            return back()->with('error', 'Teacher profile not found.');
+        }
 
-    $myModules = $teacher->courses;
+        // Get all Module IDs assigned to this teacher
+        $myModules = $teacher->courses()->get();
+        $assignedModuleIds = $myModules->pluck('id')->toArray();
 
+        // Get all lessons belonging to those modules
+        $lessons = Lesson::whereIn('module_id', $assignedModuleIds)
+            ->with('module')
+            ->orderBy('order_number')
+            ->get();
 
-    $lessons = Lesson::with('module')
-        ->where('teacher_id', $teacher->id)
-        ->get();
-
-
-    if ($myModules->isNotEmpty()) {
         return view('teacherLayouts.manageLessonsView', compact('myModules', 'lessons'));
     }
-
-    return redirect()->back()->with('error', 'Something went wrong.');
-}
 
     public function teacherLessonsStore(Request $request)
     {
@@ -281,15 +290,42 @@ class TeacherController
 
     public function recordedLeacture()
     {
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
 
-        return view('teacherLayouts.recordedLeacture');
+        if (!$teacher) {
+            return back()->with('error', 'Teacher profile not found.');
+        }
+
+        // Get all Module IDs assigned to this teacher
+        $assignedModuleIds = $teacher->courses()->pluck('modules.id')->toArray();
+
+        // Fetch lessons that have a video URL (recorded lectures)
+        $recordedLessons = Lesson::whereIn('module_id', $assignedModuleIds)
+            ->whereNotNull('documnet_path')
+            ->with('module')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $myModules = $teacher->courses()->get();
+
+        return view('teacherLayouts.recordedLeacture', compact('recordedLessons', 'myModules'));
     }
     public function stdGradeUpload()
     {
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
+        
+        if (!$teacher) {
+            return back()->with('error', 'Teacher profile not found.');
+        }
 
-        return view('teacherLayouts.stdGradeUpload');
+        // Get modules assigned to this teacher
+        $myModules = $teacher->courses()->get();
+
+        return view('teacherLayouts.stdGradeUpload', compact('myModules'));
     }
-    public function assignmentReviews()
+    public function assignmentReviews(Request $request)
     {
         $user    = auth()->user();
         $teacher = Teacher::where('user_id', $user->id)->first();
@@ -298,22 +334,33 @@ class TeacherController
             return back()->with('error', 'Teacher profile not found.');
         }
 
-        $myAssignments = Assignment::where('teacher_id', $teacher->user_id)
-            ->with('onlineClass')
+        // Get all Module IDs assigned to this teacher
+        $assignedModuleIds = $teacher->courses()->pluck('modules.id')->toArray();
+
+        // Get all assignments for these modules
+        $myAssignments = Assignment::whereIn('module_id', $assignedModuleIds)
+            ->with(['module', 'teacher'])
             ->withCount('submissions')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $studentSubmissions = Submission::whereHas('assignment', function ($q) use ($teacher) {
-                $q->where('teacher_id', $teacher->user_id);
+        // Get submissions - Filter by assignment_id if provided
+        $submissionQuery = Submission::whereHas('assignment', function ($q) use ($assignedModuleIds) {
+                $q->whereIn('module_id', $assignedModuleIds);
             })
-            ->with(['user', 'assignment'])
-            ->orderBy('submitted_at', 'desc')
-            ->get();
+            ->with(['user', 'assignment.module'])
+            ->orderBy('submitted_at', 'desc');
 
-        $classes = OnlineClass::where('teacher_id', $teacher->id)->get();
+        if ($request->has('assignment_id')) {
+            $submissionQuery->where('assignment_id', $request->assignment_id);
+        }
 
-        return view('teacherLayouts.assignmentReviews', compact('myAssignments', 'studentSubmissions', 'classes'));
+        $studentSubmissions = $submissionQuery->get();
+
+        $classes = OnlineClass::whereIn('module_id', $assignedModuleIds)->get();
+        $myModules = $teacher->courses()->get();
+
+        return view('teacherLayouts.assignmentReviews', compact('myAssignments', 'studentSubmissions', 'classes', 'myModules'));
     }
 
 
@@ -338,14 +385,29 @@ class TeacherController
     }
     public function uploadMaterialsIndex()
     {
-        $teacher = auth()->user()->teacher;
-        $lessons = Lesson::where('teacher_id', $teacher->id)
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
+        
+        if (!$teacher) {
+            return back()->with('error', 'Teacher profile not found.');
+        }
+
+        // Get all Module IDs assigned to this teacher
+        $myModules = $teacher->courses()->get();
+        $assignedModuleIds = $myModules->pluck('id')->toArray();
+
+        // Get all lessons belonging to those modules
+        $lessons = Lesson::whereIn('module_id', $assignedModuleIds)
             ->with('module')
+            ->orderBy('created_at', 'desc')
             ->get();
+
         $resources = LessonResource::with(['lesson.module'])
             ->whereIn('lesson_id', $lessons->pluck('id'))
+            ->orderBy('created_at', 'desc')
             ->get();
-        return view('teacherLayouts.uploadMaterialsIndex', compact('lessons', 'resources'));
+
+        return view('teacherLayouts.uploadMaterialsIndex', compact('lessons', 'resources', 'myModules'));
     }
 
 
@@ -353,7 +415,7 @@ class TeacherController
     {
         $validate = $request->validate([
             'title' => 'required',
-            'file' => 'required|file|mimes:pdf,doc,docx,zip,ppt,pptx'
+            'file' => 'required|file|mimes:pdf,doc,docx,zip,ppt,pptx,jpg,jpeg,png'
         ]);
 
         try {
@@ -376,12 +438,60 @@ class TeacherController
         }
     }
 
+    public function getModuleStudents($moduleId)
+    {
+        $students = User::whereHas('enrolledModules', function($q) use ($moduleId) {
+            $q->where('modules.id', $moduleId);
+        })->get(['id', 'name', 'email']);
+
+        return response()->json($students);
+    }
+
+    public function sendClassNotification(Request $request)
+    {
+        $request->validate([
+            'module_id'   => 'required|exists:modules,id',
+            'student_ids' => 'required|array|min:1',
+            'subject'     => 'required|string|max:255',
+            'message'     => 'required|string',
+            'class_date'  => 'nullable|string'
+        ]);
+
+        $module = Courses::findOrFail($request->module_id);
+        $students = User::whereIn('id', $request->student_ids)->get();
+
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach ($students as $student) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($student->email)->send(new \App\Mail\ClassNotificationMail(
+                    $student->name,
+                    $request->subject,
+                    $request->message,
+                    $module->title,
+                    $request->class_date
+                ));
+                $successCount++;
+            } catch (\Exception $e) {
+                \Log::error("Class Notification failed for {$student->email}: " . $e->getMessage());
+                $failCount++;
+            }
+        }
+
+        if ($failCount > 0) {
+            return back()->with('warning', "Notification sent to {$successCount} students, but failed for {$failCount}. Check logs for details.");
+        }
+
+        return back()->with('success', "Notification sent successfully to {$successCount} students!");
+    }
+
     public function teacherResourceDelete($id)
     {
         $resourceDel = LessonResource::findorFail($id);
 
         $teacher = auth()->user()->teacher;
-        $moduleId = $teacher->courses->pluck('id')->toArray();
+        $moduleId = $teacher->courses->pluck('modules.id')->toArray();
         if (!in_array($resourceDel->lesson->module_id, $moduleId)) {
             return redirect()->back()->with('error', 'Unauthorized action.');
         }

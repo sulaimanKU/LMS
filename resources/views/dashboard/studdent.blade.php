@@ -85,7 +85,78 @@
 
         {{-- Left: Enrolled Courses --}}
         <div class="sd-card sd-card-wide">
-            <div class="sd-card-head">
+            {{-- Latest Lessons --}}
+            <div style="padding: 1.25rem; border-bottom: 1.5px solid #F1F5F9; background: #fff;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold" style="font-size: .84rem; color: #1E293B;">
+                        <i class="fa-solid fa-play-circle me-2 text-danger"></i>Latest Learning Materials
+                    </span>
+                    <a href="{{ route('learning.materials.view') }}" class="sd-link">View all</a>
+                </div>
+                
+                <div class="sd-lessons-list">
+                    @forelse($latestLessons as $lesson)
+                    <div class="sd-lesson-item">
+                        <div class="sd-lesson-icon">
+                            <i class="fa-solid fa-file-video"></i>
+                        </div>
+                        <div class="sd-lesson-info">
+                            <p class="sd-lesson-name">{{ $lesson->title }}</p>
+                            <p class="sd-lesson-meta">
+                                <span><i class="fa-solid fa-book me-1"></i>{{ $lesson->module?->title }}</span>
+                                <span class="ms-2"><i class="fa-solid fa-calendar-day me-1"></i>{{ $lesson->created_at->format('d M') }}</span>
+                            </p>
+                        </div>
+                        <a href="{{ route('learning.materials.view') }}?module={{ $lesson->module_id }}" class="sd-lesson-play">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </div>
+                    @empty
+                    <div class="text-center py-3">
+                        <p class="text-muted small mb-0">No lessons uploaded recently.</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- Latest Resources (PDFs/Files) --}}
+            <div style="padding: 1.25rem; border-bottom: 1.5px solid #F1F5F9; background: #fff;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold" style="font-size: .84rem; color: #1E293B;">
+                        <i class="fa-solid fa-file-pdf me-2 text-primary"></i>Recent Study Resources
+                    </span>
+                </div>
+                
+                <div class="sd-lessons-list">
+                    @forelse($latestResources as $res)
+                    <div class="sd-lesson-item" style="border-left: 4px solid #4F46E5;">
+                        <div class="sd-lesson-icon" style="background: #EEF2FF; color: #4F46E5;">
+                            @php
+                                $ext = pathinfo($res->file_path, PATHINFO_EXTENSION);
+                                $icon = $ext == 'pdf' ? 'fa-file-pdf' : 'fa-file-lines';
+                            @endphp
+                            <i class="fa-solid {{ $icon }}"></i>
+                        </div>
+                        <div class="sd-lesson-info">
+                            <p class="sd-lesson-name">{{ $res->title }}</p>
+                            <p class="sd-lesson-meta">
+                                <span><i class="fa-solid fa-layer-group me-1"></i>{{ $res->lesson?->title }}</span>
+                                <span class="ms-2 text-uppercase fw-bold" style="font-size: 0.6rem;">{{ $ext }}</span>
+                            </p>
+                        </div>
+                        <a href="{{ asset('storage/'.$res->file_path) }}" target="_blank" class="sd-lesson-play" style="color: #10B981; border-color: #D1FAE5;">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                    </div>
+                    @empty
+                    <div class="text-center py-2">
+                        <p class="text-muted small mb-0">No new documents uploaded.</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="sd-card-head" style="margin-top: 0.5rem; border-top: 1.5px solid #F1F5F9;">
                 <span><i class="fa-solid fa-book-open me-2 text-primary"></i>My Enrolled Modules</span>
                 <a href="{{ route('enrolledCourses.view') }}" class="sd-link">View all</a>
             </div>
@@ -325,6 +396,17 @@
 .sd-sub-date  { font-size:.7rem; color:#94A3B8; margin:.15rem 0 0; }
 .sd-grade-pill   { background:#D1FAE5; color:#065F46; padding:.18rem .6rem; border-radius:50px; font-size:.72rem; font-weight:800; white-space:nowrap; }
 .sd-pending-pill { background:#FEF3C7; color:#92400E; padding:.18rem .6rem; border-radius:50px; font-size:.7rem; font-weight:700; white-space:nowrap; }
+
+/* Lesson List */
+.sd-lessons-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.sd-lesson-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.75rem; border-radius: 12px; background: #F8FAFF; border: 1px solid #EDF2F7; transition: all 0.2s; }
+.sd-lesson-item:hover { background: #fff; border-color: #4F46E5; transform: translateX(3px); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+.sd-lesson-icon { width: 34px; height: 34px; border-radius: 8px; background: #fee2e2; color: #DC2626; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+.sd-lesson-info { flex: 1; min-width: 0; }
+.sd-lesson-name { font-size: 0.82rem; font-weight: 700; color: #1E293B; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-lesson-meta { display: flex; align-items: center; font-size: 0.68rem; color: #64748B; margin-top: 0.1rem; }
+.sd-lesson-play { width: 26px; height: 26px; border-radius: 50%; background: #fff; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border: 1px solid #E2E8F0; text-decoration: none; transition: all 0.2s; }
+.sd-lesson-play:hover { background: #4F46E5; color: #fff; border-color: #4F46E5; }
 
 /* Empty state */
 .sd-card-empty { text-align:center; padding:2.5rem 1rem; color:#CBD5E1; }

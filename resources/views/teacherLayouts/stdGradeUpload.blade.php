@@ -125,31 +125,34 @@
 
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="form-label-custom">Select Class/Batch</label>
-                        <a href="#" class="template-link">
+                        <label class="form-label-custom">Select Module/Course</label>
+                        <a href="#" class="template-link" title="Download sample CSV format">
                             <i class="fa-solid fa-file-excel"></i> Get Template
                         </a>
                     </div>
-                    <select class="form-select input-pro">
-                        <option selected disabled>Which batch is this for?</option>
-                        <option>Computer Science - Batch A</option>
-                        <option>Web Development - Batch B</option>
+                    <select class="form-select input-pro" name="module_id" required>
+                        <option selected disabled>Which module is this for?</option>
+                        @foreach($myModules as $mod)
+                            <option value="{{ $mod->id }}">{{ $mod->title }}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label-custom">Category</label>
+                    <label class="form-label-custom">Import Category</label>
                     <div class="row g-2">
                         <div class="col-6">
-                            <input type="radio" class="btn-check" name="dataType" id="marks" checked>
-                            <label class="btn btn-outline-primary w-100 fw-bold py-3 rounded-3" for="marks">
-                                <i class="fa-solid fa-graduation-cap me-2"></i>Marks
+                            <input type="radio" class="btn-check" name="dataType" id="marks" value="marks" checked>
+                            <label class="btn btn-outline-primary w-100 fw-bold py-3 rounded-4" for="marks">
+                                <i class="fa-solid fa-graduation-cap d-block mb-1 fs-5"></i>
+                                <span style="font-size: 0.75rem;">Exam Marks</span>
                             </label>
                         </div>
                         <div class="col-6">
-                            <input type="radio" class="btn-check" name="dataType" id="attendance">
-                            <label class="btn btn-outline-primary w-100 fw-bold py-3 rounded-3" for="attendance">
-                                <i class="fa-solid fa-calendar-check me-2"></i>Attendance
+                            <input type="radio" class="btn-check" name="dataType" id="attendance" value="attendance">
+                            <label class="btn btn-outline-primary w-100 fw-bold py-3 rounded-4" for="attendance">
+                                <i class="fa-solid fa-calendar-check d-block mb-1 fs-5"></i>
+                                <span style="font-size: 0.75rem;">Attendance</span>
                             </label>
                         </div>
                     </div>
@@ -158,21 +161,21 @@
                 <div class="mb-5">
                     <label class="form-label-custom">Upload Spreadsheet (CSV/XLSX)</label>
                     <div class="file-drop-area">
-                        <i class="fa-solid fa-file-import fs-2 text-muted mb-2"></i>
-                        <input type="file" class="form-control" id="bulkFile" required>
-                        <p class="small text-muted mt-2 mb-0">Ensure Student IDs are correct to prevent errors.</p>
+                        <i class="fa-solid fa-cloud-arrow-up fs-2 text-primary opacity-50 mb-2"></i>
+                        <input type="file" name="spreadsheet" class="form-control" id="bulkFile" accept=".csv, .xlsx, .xls" required>
+                        <p class="small text-muted mt-2 mb-0">Max size 5MB. Ensure Email column matches student records.</p>
                     </div>
                 </div>
 
                 <button type="submit" class="btn-upload-now shadow-sm">
-                    <i class="fa-solid fa-circle-check fs-5"></i>
+                    <i class="fa-solid fa-bolt fs-5"></i>
                     Process and Save Data
                 </button>
             </form>
         </div>
 
         <div class="text-center mt-4">
-            <a href="" class="text-muted small text-decoration-none fw-bold">
+            <a href="{{ route('teacher.main') }}" class="text-muted small text-decoration-none fw-bold">
                 <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
             </a>
         </div>

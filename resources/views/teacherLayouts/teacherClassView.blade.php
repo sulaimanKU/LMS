@@ -53,6 +53,23 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 15px;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <div>
+                    <strong>Validation Error!</strong>
+                    <ul class="mb-0 ps-3 mt-1" style="font-size: 0.85rem;">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     @if(session('warning'))
         <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 15px;">
             <div class="d-flex align-items-center">
@@ -68,12 +85,15 @@
 <div class="main-content-area container-fluid">
     {{-- Responsive Header --}}
     <div class="row align-items-center mb-4 g-3">
-        <div class="col-12 col-sm-7 col-md-8">
+        <div class="col-12 col-sm-6 col-md-7">
             <h2 class="fw-bold text-dark mb-0">Online Class Manager</h2>
             <p class="text-muted small mb-0">Manage your virtual teaching sessions</p>
         </div>
-        <div class="col-12 col-sm-5 col-md-4 text-sm-end">
-            <button class="btn btn-primary w-100 w-sm-auto shadow-sm" data-bs-toggle="modal" data-bs-target="#createClassModal">
+        <div class="col-12 col-sm-6 col-md-5 text-sm-end d-flex gap-2 justify-content-sm-end">
+            <button class="btn btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#notifyStudentsModal">
+                <i class="fas fa-envelope me-1"></i> Send Notice
+            </button>
+            <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#createClassModal">
                 <i class="fas fa-video me-1"></i> New Class
             </button>
         </div>
@@ -271,4 +291,120 @@
         </div>
     </div>
 </div>
+{{-- NOTIFY STUDENTS MODAL --}}
+<div class="modal fade" id="notifyStudentsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-primary text-white" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2"></i>Send Class Notification</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('class.notification.send') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">TARGET MODULE</label>
+                            <select class="form-select bg-light border-0" name="module_id" id="notify_module_id" required>
+                                <option value="" selected disabled>Select Course...</option>
+                                @foreach($teacher_courses as $course)
+                                    <option value="{{ $course->id }}">{{ $course->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">CLASS DATE (OPTIONAL)</label>
+                            <input type="date" name="class_date" class="form-control bg-light border-0">
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">EMAIL SUBJECT / TOPIC</label>
+                            <input type="text" name="subject" class="form-control bg-light border-0" required placeholder="e.g. Tomorrow's Class Link & Prep">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">MESSAGE BODY</label>
+                            <textarea name="message" class="form-control bg-light border-0" rows="5" required placeholder="Write your announcement here..."></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label small fw-bold text-muted mb-0">SELECT RECIPIENTS</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="selectAllStudents">
+                                    <label class="form-check-label small fw-bold" for="selectAllStudents">Select All</label>
+                                </div>
+                            </div>
+                            <div id="students_list_container" class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                                <p class="text-muted small text-center mb-0 py-3">Please select a module first to see students.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm" id="sendNotificationBtn" disabled>
+                        <i class="fas fa-paper-plane me-2"></i>Send Email to Selected
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const moduleSelect = document.getElementById('notify_module_id');
+    const studentContainer = document.getElementById('students_list_container');
+    const selectAllCheckbox = document.getElementById('selectAllStudents');
+    const sendBtn = document.getElementById('sendNotificationBtn');
+
+    moduleSelect.addEventListener('change', function() {
+        const moduleId = this.value;
+        studentContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
+        
+        fetch(`/teacher/module/${moduleId}/students`)
+            .then(res => {
+                if(!res.ok) throw new Error('Server returned an error');
+                return res.json();
+            })
+            .then(students => {
+                if(students.length === 0) {
+                    studentContainer.innerHTML = '<p class="text-muted small text-center mb-0 py-3">No students enrolled in this module yet.</p>';
+                    sendBtn.disabled = true;
+                } else {
+                    let html = '<div class="row g-2">';
+                    students.forEach(s => {
+                        html += `
+                            <div class="col-md-6">
+                                <div class="form-check p-2 rounded bg-white border">
+                                    <input class="form-check-input student-checkbox ms-1" type="checkbox" name="student_ids[]" value="${s.id}" id="std${s.id}">
+                                    <label class="form-check-label small d-block ms-4" for="std${s.id}">
+                                        <span class="fw-bold d-block">${s.name}</span>
+                                        <span class="text-muted" style="font-size: 0.7rem;">${s.email}</span>
+                                    </label>
+                                </div>
+                            </div>`;
+                    });
+                    html += '</div>';
+                    studentContainer.innerHTML = html;
+                    sendBtn.disabled = false;
+                    
+                    // Reset select all
+                    selectAllCheckbox.checked = false;
+                }
+            })
+            .catch(err => {
+                console.error('Fetch error:', err);
+                studentContainer.innerHTML = '<p class="text-danger small text-center mb-0 py-3">Error loading students. Please try again or check logs.</p>';
+                sendBtn.disabled = true;
+            });
+    });
+
+    selectAllCheckbox.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.student-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+});
+</script>
 @endsection

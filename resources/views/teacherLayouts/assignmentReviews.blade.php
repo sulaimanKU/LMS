@@ -49,13 +49,16 @@
     </div>
 
     {{-- ── Tabs ── --}}
+    @php
+        $activeTab = request()->has('assignment_id') ? 'submissions' : 'posted';
+    @endphp
     <div class="ar-tab-bar">
         <div class="ar-tabs">
-            <button class="ar-tab active" data-target="tab-posted">
+            <button class="ar-tab {{ $activeTab === 'posted' ? 'active' : '' }}" data-target="tab-posted">
                 <i class="fa-solid fa-upload me-2"></i>My Uploads
                 <span class="ar-tab-count">{{ $myAssignments->count() }}</span>
             </button>
-            <button class="ar-tab" data-target="tab-submissions">
+            <button class="ar-tab {{ $activeTab === 'submissions' ? 'active' : '' }}" data-target="tab-submissions">
                 <i class="fa-solid fa-inbox me-2"></i>Student Submissions
                 @if($studentSubmissions->where('status','pending')->count() > 0)
                     <span class="ar-tab-count ar-tab-count-warn">{{ $studentSubmissions->where('status','pending')->count() }}</span>
@@ -65,7 +68,7 @@
     </div>
 
     {{-- ── Tab: My Uploads ── --}}
-    <div class="ar-tab-panel active" id="tab-posted">
+    <div class="ar-tab-panel {{ $activeTab === 'posted' ? 'active' : '' }}" id="tab-posted">
         @forelse($myAssignments as $a)
         @php $overdue = now()->gt($a->due_date); @endphp
         <div class="ar-assign-row">
@@ -76,7 +79,7 @@
                 <div class="ar-assign-info">
                     <p class="ar-assign-title">{{ $a->title }}</p>
                     <p class="ar-assign-meta">
-                        <span><i class="fa-solid fa-video me-1"></i>{{ $a->onlineClass?->title ?? 'Deleted class' }}</span>
+                        <span><i class="fa-solid fa-layer-group me-1"></i>{{ $a->module?->title ?? 'Deleted Module' }}</span>
                         <span><i class="fa-solid fa-calendar me-1"></i>Due: <strong class="{{ $overdue ? 'text-danger' : '' }}">{{ \Carbon\Carbon::parse($a->due_date)->format('d M Y, h:i A') }}</strong></span>
                         <span><i class="fa-solid fa-star me-1"></i>{{ $a->total_points }} pts</span>
                     </p>
@@ -91,11 +94,11 @@
                 </span>
                 @if($a->file_path)
                     <a href="{{ asset('storage/'.$a->file_path) }}" target="_blank" class="ar-btn-file">
-                        <i class="fa-solid fa-paperclip me-1"></i>File
+                        <i class="fa-solid fa-paperclip me-1"></i>Material
                     </a>
                 @endif
                 <form action="{{ route('teacher.assignments.destroy', $a->id) }}" method="POST"
-                      onsubmit="return confirm('Delete \'{{ addslashes($a->title) }}\'?')">
+                      onsubmit="return confirm('Delete \'{{ addslashes($a->title) }}\'? This will also delete all student submissions for this task.')">
                     @csrf @method('DELETE')
                     <button type="submit" class="ar-btn-delete" title="Delete assignment">
                         <i class="fa-solid fa-trash"></i>
@@ -112,7 +115,13 @@
     </div>
 
     {{-- ── Tab: Student Submissions ── --}}
-    <div class="ar-tab-panel" id="tab-submissions">
+    <div class="ar-tab-panel {{ $activeTab === 'submissions' ? 'active' : '' }}" id="tab-submissions">
+        @if(request()->has('assignment_id') && $studentSubmissions->isNotEmpty())
+            <div class="alert alert-info border-0 shadow-sm mx-3 mt-3 mb-0 py-2 d-flex justify-content-between align-items-center">
+                <span class="small fw-bold"><i class="fa-solid fa-filter me-2"></i>Showing submissions for: {{ $studentSubmissions->first()->assignment->title }}</span>
+                <a href="{{ route('assignmentReviews.view') }}" class="btn btn-sm btn-link text-primary text-decoration-none py-0 small">Clear Filter</a>
+            </div>
+        @endif
         @forelse($studentSubmissions as $sub)
         @php
             $isLate   = $sub->submitted_at && $sub->assignment && $sub->submitted_at->gt($sub->assignment->due_date);
@@ -122,8 +131,11 @@
             <div class="ar-sub-avatar">{{ strtoupper(substr($sub->user?->name ?? 'S', 0, 1)) }}</div>
             <div class="ar-sub-info">
                 <p class="ar-sub-student">{{ $sub->user?->name ?? '—' }}</p>
-                <p class="ar-sub-assign">{{ $sub->assignment?->title ?? '—' }}</p>
-                <p class="ar-sub-meta">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-light text-primary border" style="font-size: .65rem;">{{ $sub->assignment?->module?->title ?? 'N/A' }}</span>
+                    <p class="ar-sub-assign mb-0">{{ $sub->assignment?->title ?? '—' }}</p>
+                </div>
+                <p class="ar-sub-meta mt-1">
                     <span><i class="fa-solid fa-clock me-1"></i>{{ $sub->submitted_at ? $sub->submitted_at->format('d M, h:i A') : '—' }}</span>
                     @if($isLate)<span class="ar-late-tag">Late</span>@endif
                 </p>
@@ -159,7 +171,7 @@
             <div class="ar-modal-hdr">
                 <div>
                     <h5 class="ar-modal-title"><i class="fa-solid fa-file-lines me-2"></i>Post New Assignment</h5>
-                    <p class="ar-modal-sub">Students in the selected class will receive this</p>
+                    <p class="ar-modal-sub">Assignment will be visible to all students in the module</p>
                 </div>
                 <button type="button" class="ar-modal-close" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -167,15 +179,15 @@
                 @csrf
                 <div class="ar-modal-body">
                     <div class="ar-field">
-                        <label class="ar-label">Class <span class="ar-req">*</span></label>
-                        <select name="online_class_id" class="ar-input" required>
-                            <option value="">Select your class…</option>
-                            @foreach($classes as $cls)
-                                <option value="{{ $cls->id }}">{{ $cls->title }}</option>
+                        <label class="ar-label">Target Module <span class="ar-req">*</span></label>
+                        <select name="module_id" class="ar-input" required>
+                            <option value="" disabled selected>Select a module...</option>
+                            @foreach($myModules as $mod)
+                                <option value="{{ $mod->id }}">{{ $mod->title }}</option>
                             @endforeach
                         </select>
-                        @if($classes->isEmpty())
-                            <p class="ar-field-hint">You have no scheduled classes yet.</p>
+                        @if($myModules->isEmpty())
+                            <p class="ar-field-hint">You have no modules assigned yet.</p>
                         @endif
                     </div>
                     <div class="ar-field">
@@ -197,13 +209,13 @@
                         <textarea name="description" class="ar-input" rows="2" placeholder="Describe what students should submit…"></textarea>
                     </div>
                     <div class="ar-field">
-                        <label class="ar-label">Attachment <span class="ar-opt">PDF / DOCX / ZIP — max 5 MB</span></label>
-                        <input type="file" name="file" class="ar-input" accept=".pdf,.docx,.zip">
+                        <label class="ar-label">Attachment <span class="ar-opt">PDF, JPG, PPT, ZIP — max 5 MB</span></label>
+                        <input type="file" name="file" class="ar-input" accept=".pdf,.doc,.docx,.zip,.jpg,.jpeg,.png,.ppt,.pptx">
                     </div>
                 </div>
                 <div class="ar-modal-foot">
                     <button type="button" class="ar-btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="ar-btn-post"><i class="fa-solid fa-paper-plane me-2"></i>Publish to Students</button>
+                    <button type="submit" class="ar-btn-post"><i class="fa-solid fa-paper-plane me-2"></i>Publish Assignment</button>
                 </div>
             </form>
         </div>

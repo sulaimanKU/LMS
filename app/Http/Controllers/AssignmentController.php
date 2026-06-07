@@ -11,7 +11,7 @@ class AssignmentController
 {
     public function assignment_index()
     {
-        $assignments = Assignment::with(['onlineClass.module', 'teacher'])
+        $assignments = Assignment::with(['module', 'teacher'])
             ->withCount([
                 'submissions',
                 'submissions as pending_count' => fn($q) => $q->where('status', 'pending'),
@@ -29,31 +29,29 @@ class AssignmentController
             'assignments', 'totalAssignments', 'totalSubmissions', 'pendingGrading', 'graded'
         ));
     }
-  public function index() {
-    $user = auth()->user();
-    $teacherRecord = Teacher::where('user_id', $user->id)->first();
+    public function index() {
+        $user = auth()->user();
+        $teacherRecord = Teacher::where('user_id', $user->id)->first();
 
-    if (!$teacherRecord) {
-        return view('teacherLayouts.assignmentsIndex', [
-            'classes' => collect(),
-            'assignments' => collect()
-        ]);
+        if (!$teacherRecord) {
+            return view('teacherLayouts.assignmentsIndex', [
+                'myModules' => collect(),
+                'assignments' => collect()
+            ]);
+        }
+
+        // Get all Modules assigned to this teacher
+        $myModules = $teacherRecord->courses()->get();
+        $assignedModuleIds = $myModules->pluck('id')->toArray();
+
+        $assignments = Assignment::with(['module', 'teacher'])
+                        ->withCount('submissions')
+                        ->whereIn('module_id', $assignedModuleIds)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        return view('teacherLayouts.assignmentsIndex', compact('myModules','assignments'));
     }
-
-
-    $classes = OnlineClass::where('teacher_id', $teacherRecord->id)->get();
-
-
-    // dd($classes);
-
-    $assignments = Assignment::with('onlineClass')
-                    ->withCount('submissions')
-                    ->where('teacher_id', $user->id)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-
-    return view('teacherLayouts.assignmentsIndex', compact('classes','assignments'));
-}
     public function destroy($id)
     {
         $assignment = Assignment::where('id', $id)
@@ -67,9 +65,9 @@ class AssignmentController
     public function teacherAssignmentsStore(Request $request)
     {
         $request->validate([
-        'online_class_id' => 'required',
+        'module_id' => 'required|exists:modules,id',
         'title' => 'required|string|max:255',
-        'file' => 'nullable|mimes:pdf,docx,zip|max:5120', // Max 5MB
+        'file' => 'nullable|mimes:pdf,docx,zip,jpg,jpeg,png,ppt,pptx|max:5120', // Max 5MB
         'due_date' => 'required|after:now',
         'total_points' => 'required|integer|min:1',
     ]);
@@ -82,7 +80,7 @@ class AssignmentController
 
     Assignment::create([
         'teacher_id' => auth()->id(),
-        'online_class_id' => $request->online_class_id,
+        'module_id' => $request->module_id,
         'title' => $request->title,
         'description' => $request->description,
         'file_path' => $filePath,

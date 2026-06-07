@@ -111,7 +111,8 @@
                                         data-bs-target="#assignCourseModal"
                                         data-teacher-id="{{ $teacher->id }}"
                                         data-teacher-name="{{ $teacher->name }}"
-                                        title="Assign module">
+                                        data-current-courses="{{ json_encode($teacher->courses->pluck('id')) }}"
+                                        title="Assign modules">
                                     <i class="fa-solid fa-link"></i>
                                 </button>
                                 {{-- Edit --}}
@@ -126,6 +127,7 @@
                                         data-bio="{{ $teacher->bio }}"
                                         data-specialization="{{ $teacher->specialization }}"
                                         data-linkedin="{{ $teacher->linkedin_url }}"
+                                        data-courses="{{ json_encode($teacher->courses->pluck('id')) }}"
                                         title="Edit teacher">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
@@ -293,18 +295,22 @@
                 @csrf
                 @method('POST')
                 <div class="tm-modal-body">
-                    <label class="tm-label">Select Module <span class="text-danger">*</span></label>
-                    <select name="course_id" class="tm-input" required>
-                        <option value="" disabled selected>Choose a module...</option>
+                    <label class="tm-label">Select Modules <span class="text-danger">*</span></label>
+                    <div class="tm-course-grid" id="assignCourseList">
                         @foreach($courses as $course)
-                            <option value="{{ $course->id }}">{{ $course->title }}</option>
+                            <label class="tm-course-check">
+                                <input type="checkbox" name="course_ids[]" value="{{ $course->id }}" id="assignCourse{{ $course->id }}">
+                                <span class="tm-course-check-box"><i class="fa-solid fa-check"></i></span>
+                                <span class="tm-course-check-label">{{ $course->title }}</span>
+                            </label>
                         @endforeach
-                    </select>
+                    </div>
+                    <small class="text-muted mt-2 d-block" style="font-size: 0.7rem;">Tick all modules this teacher should conduct. Unticking will remove them.</small>
                 </div>
                 <div class="tm-modal-footer">
                     <button type="button" class="tm-btn-cancel" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="tm-btn-submit">
-                        <i class="fa-solid fa-link me-2"></i>Assign Module
+                        <i class="fa-solid fa-link me-2"></i>Update Assignments
                     </button>
                 </div>
             </form>
@@ -600,9 +606,22 @@ document.addEventListener('DOMContentLoaded', function () {
     if (assignModal) {
         assignModal.addEventListener('show.bs.modal', function (e) {
             const btn = e.relatedTarget;
-            assignModal.querySelector('#assignModalSubtitle').textContent = 'Assigning to: ' + btn.dataset.teacherName;
+            const currentCourses = JSON.parse(btn.dataset.currentCourses || '[]');
+            
+            assignModal.querySelector('#assignModalSubtitle').textContent = 'Managing: ' + btn.dataset.teacherName;
             assignModal.querySelector('#assignCourseForm').action =
                 '/admin/teacher/' + btn.dataset.teacherId + '/assign-course';
+                
+            // Uncheck all first
+            assignModal.querySelectorAll('#assignCourseList input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            // Check current ones
+            currentCourses.forEach(id => {
+                const cb = assignModal.querySelector('#assignCourse' + id);
+                if (cb) cb.checked = true;
+            });
         });
     }
 
@@ -611,6 +630,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (editModal) {
         editModal.addEventListener('show.bs.modal', function (e) {
             const btn = e.relatedTarget;
+            const currentCourses = JSON.parse(btn.dataset.courses || '[]');
+            
             editModal.querySelector('#edit_name').value        = btn.dataset.name        || '';
             editModal.querySelector('#edit_email').value       = btn.dataset.email       || '';
             editModal.querySelector('#edit_designation').value = btn.dataset.designation || '';
@@ -620,6 +641,15 @@ document.addEventListener('DOMContentLoaded', function () {
             editModal.querySelector('#edit_linkedin').value        = btn.dataset.linkedin        || '';
             editModal.querySelector('#editTeacherForm').action =
                 '/admin/teacher/' + btn.dataset.id + '/update';
+                
+            // Handle courses pre-ticking
+            editModal.querySelectorAll('#edit_course_list input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            currentCourses.forEach(id => {
+                const cb = editModal.querySelector('#editMod' + id);
+                if (cb) cb.checked = true;
+            });
         });
     }
 
@@ -760,6 +790,18 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="tm-input-wrap">
                                 <i class="fa-brands fa-linkedin tm-input-icon"></i>
                                 <input type="url" id="edit_linkedin" name="linkedin_url" class="tm-input" placeholder="https://linkedin.com/in/...">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="tm-label">Assigned Modules</label>
+                            <div class="tm-course-grid" id="edit_course_list">
+                                @foreach($courses as $course)
+                                    <label class="tm-course-check">
+                                        <input type="checkbox" name="course_id[]" value="{{ $course->id }}" id="editMod{{ $course->id }}">
+                                        <span class="tm-course-check-box"><i class="fa-solid fa-check"></i></span>
+                                        <span class="tm-course-check-label">{{ $course->title }}</span>
+                                    </label>
+                                @endforeach
                             </div>
                         </div>
                         <div class="col-12">

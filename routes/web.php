@@ -88,6 +88,15 @@ Route::get('/login', [RegisterController::class, 'loginView'])->name('login');
 Route::post('/submitLogin', [RegisterController::class, 'submitLogin'])->name('login.submit');
 Route::post('/logout', [RegisterController::class, 'logout'])->name('logout');
 
+// Smart Dashboard Redirect
+Route::get('/dashboard', function() {
+    $user = auth()->user();
+    if ($user->hasRole('admin'))   return redirect()->route('dashboard');
+    if ($user->hasRole('teacher')) return redirect()->route('teacher.main');
+    if ($user->hasRole('student')) return redirect()->route('student.main');
+    return redirect('/');
+})->middleware(['auth']);
+
 
 
 
@@ -181,6 +190,8 @@ Route::prefix('teacher')->middleware(['auth'])->group(function () {
   });
   Route::get('classes',[TeacherController::class,'teacherClassView'])->name('teacherClass.view');
   Route::get('manage/lessons',[TeacherController::class,'manageLessonsView'])->name('manageLessons.view');
+  Route::get('module/{moduleId}/students', [TeacherController::class, 'getModuleStudents'])->name('module.students');
+  Route::post('class-notification/send', [TeacherController::class, 'sendClassNotification'])->name('class.notification.send');
   Route::post('teacher/lessons/store',[TeacherController::class,'teacherLessonsStore'])->name('teacher.lessons.store');
   Route::delete('teacher/lessons/destroy/{id}',[TeacherController::class,'teacherLessonsDestroy'])->name('teacher.lessons.destroy');
   Route::put('lessons/update/{id}',[TeacherController::class,'teacherLessonsUpdate'])->name('teacher.lessons.update');
