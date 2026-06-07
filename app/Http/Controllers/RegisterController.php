@@ -62,16 +62,36 @@ class RegisterController
             }
             $calculateAllPrices = Courses::whereIn('id', $saveNewId)->sum('price');
 
-            $registerNow = Registration::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'institution' => $request->institution,
-                'research_area' => $request->research_area,
-                'selected_courses' => $saveNewId,
-                'total_amount' => $calculateAllPrices,
+            // Find existing registration to merge or create new
+            $existingReg = Registration::where('email', $request->email)->first();
 
-            ]);
+            if ($existingReg) {
+                // Merge courses
+                $currentCourses = $existingReg->selected_courses ?? [];
+                $mergedCourses = array_unique(array_merge($currentCourses, $saveNewId));
+                
+                $existingReg->update([
+                    'name' => $request->name,
+                    'phone' => $request->phone,
+                    'institution' => $request->institution,
+                    'research_area' => $request->research_area,
+                    'selected_courses' => $mergedCourses,
+                    'total_amount' => $existingReg->total_amount + $calculateAllPrices,
+                    'status' => 'pending' // Reset to pending for new modules
+                ]);
+                $registerNow = $existingReg;
+            } else {
+                $registerNow = Registration::create([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'institution' => $request->institution,
+                    'research_area' => $request->research_area,
+                    'selected_courses' => $saveNewId,
+                    'total_amount' => $calculateAllPrices,
+                    'status' => 'pending'
+                ]);
+            }
 
             if (!empty($alreadyExistId)) {
 
