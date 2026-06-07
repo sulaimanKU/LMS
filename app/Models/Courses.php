@@ -26,6 +26,11 @@ class Courses extends Model
         return $this->hasMany(\App\Models\Enrollment::class, 'module_id');
     }
 
+    public function enrolledUsers()
+    {
+        return $this->belongsToMany(User::class, 'enrollments', 'module_id', 'user_id');
+    }
+
     public function teacher()
     {
         return $this->belongsToMany(Teacher::class, 'teacher_modules', 'module_id', 'teacher_id');

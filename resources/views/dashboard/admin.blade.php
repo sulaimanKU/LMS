@@ -96,7 +96,7 @@
                     <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-0" style="background:transparent; border-bottom: 1px solid #F1F5F9 !important;">
                         <div style="flex: 1; min-width: 0;">
                             <span class="fw-bold d-block text-truncate" style="font-size: .82rem;">{{ $course->title }}</span>
-                            <small class="text-muted" style="font-size: .65rem;">{{ $course->teacher->name ?? 'No teacher' }}</small>
+                            <small class="text-muted" style="font-size: .65rem;">{{ $course->teacher->first()->name ?? 'No teacher' }}</small>
                         </div>
                         <div class="text-end ms-3">
                             <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary" style="font-size: .75rem; font-weight: 800;">
