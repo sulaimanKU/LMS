@@ -13,27 +13,27 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
+        $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@lms.com',
             'password' => Hash::make('12345678'), // Password 1 to 8
-            'role' => 'admin',
         ]);
+        $admin->assignRole('admin');
 
         // 2. Create Student User
-        User::create([
+        $student = User::create([
             'name' => 'Student User',
             'email' => 'student@lms.com',
             'password' => Hash::make('12345678'), // Password 1 to 8
-            'role' => 'student',
         ]);
+        $student->assignRole('student');
 
         // 3. Optional: Create Teacher User
-        User::create([
+        $teacher = User::create([
             'name' => 'Teacher User',
             'email' => 'teacher@lms.com',
             'password' => Hash::make('12345678'),
-            'role' => 'teacher',
         ]);
+        $teacher->assignRole('teacher');
     }
 }

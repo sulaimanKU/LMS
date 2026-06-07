@@ -77,6 +77,11 @@ class DashboardController
             'password' => Hash::make('12345678'),
         ]);
 
+        // Ensure the teacher role exists
+        if (!\Spatie\Permission\Models\Role::where('name', 'teacher')->exists()) {
+            \Spatie\Permission\Models\Role::create(['name' => 'teacher', 'guard_name' => 'web']);
+        }
+
         $user->assignRole('teacher');
 
         $file_name = null;
@@ -270,6 +275,11 @@ public function adminApproveStudent(Request $request, $id)
             ['name' => $reg->name, 'password' => Hash::make($plainPassword)]
         );
 
+        // Ensure the student role exists
+        if (!\Spatie\Permission\Models\Role::where('name', 'student')->exists()) {
+            \Spatie\Permission\Models\Role::create(['name' => 'student', 'guard_name' => 'web']);
+        }
+
         if (!$user->hasRole('student')) {
             $user->assignRole('student');
         }
@@ -358,6 +368,11 @@ public function systemAdminStore(Request $request)
         'email'    => $request->email,
         'password' => Hash::make($request->password),
     ]);
+
+    // Ensure the admin role exists
+    if (!\Spatie\Permission\Models\Role::where('name', 'admin')->exists()) {
+        \Spatie\Permission\Models\Role::create(['name' => 'admin', 'guard_name' => 'web']);
+    }
 
     $user->assignRole('admin');
 
