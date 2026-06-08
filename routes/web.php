@@ -178,16 +178,6 @@ Route::get('fees', [FeeController::class, 'fee_view'])->name('fee.view');
 Route::prefix('teacher')->middleware(['auth'])->group(function () {
         Route::get('/teacher/dashboard', [TeacherController::class, 'teacherMain'])->name('teacher.main');
 
-
-    Route::middleware(['permission:manage-students'])->group(function() {
-        Route::get('/student-management', [DashboardController::class, 'studentManagment'])
-             ->name('teacher.student.managment');
-    });
- Route::middleware(['permission:role-manage'])->group(function() {
- Route::get('/admin/rolesOrPermissions', [DashboardController::class, 'roleOrPermissionsView'])->name('teacher.role');
-    Route::post('/roles/created', [RolesController::class, 'store'])->name('teacher.roles.store');
-
-  });
   Route::get('classes',[TeacherController::class,'teacherClassView'])->name('teacherClass.view');
   Route::get('manage/lessons',[TeacherController::class,'manageLessonsView'])->name('manageLessons.view');
   Route::get('module/{moduleId}/students', [TeacherController::class, 'getModuleStudents'])->name('module.students');

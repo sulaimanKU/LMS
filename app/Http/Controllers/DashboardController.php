@@ -516,10 +516,6 @@ public function roleOrPermissionsView ()
 
 public function updateEnrollmentStatus(Request $request)
 {
-    if (!auth()->user()->can('manage-enrollments')) {
-        abort(403, 'Unauthorized action.');
-    }
-
     $request->validate([
         'email' => 'required|email|exists:users,email',
         'module_id' => 'required|exists:modules,id',
@@ -537,10 +533,6 @@ public function updateEnrollmentStatus(Request $request)
 
 public function adminUpdateUserPassword(Request $request)
 {
-    if (!auth()->user()->can('manage-user-passwords')) {
-        abort(403, 'Unauthorized action.');
-    }
-
     $request->validate([
         'email' => 'required|email|exists:users,email',
         'password' => 'required|string|min:8|confirmed',

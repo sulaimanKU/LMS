@@ -191,7 +191,7 @@ textarea.cm-input { resize: vertical; min-height: 80px; }
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($lessons as $lesson)
+                    @foreach ($lessons as $lesson)
                         <tr>
                             <td class="ps-4"><span class="cm-order-num">{{ $lesson->order_number }}</span></td>
                             <td>
@@ -239,14 +239,7 @@ textarea.cm-input { resize: vertical; min-height: 80px; }
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-5">
-                                <div class="opacity-25 mb-3"><i class="fas fa-folder-open fa-3x"></i></div>
-                                <p class="text-muted small mb-0">No lessons found. Start by adding a new lesson to your courses!</p>
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -372,7 +365,14 @@ textarea.cm-input { resize: vertical; min-height: 80px; }
                 pageLength: 10,
                 ordering: true,
                 responsive: true,
-                language: { search: '', searchPlaceholder: 'Search lessons...' }
+                columnDefs: [
+                    { orderable: false, targets: 5 } // Disable ordering on Actions column
+                ],
+                language: { 
+                    search: '', 
+                    searchPlaceholder: 'Search lessons...',
+                    emptyTable: 'No lessons found. Start by adding a new lesson to your courses!'
+                }
             });
         }
 

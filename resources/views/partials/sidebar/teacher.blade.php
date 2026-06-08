@@ -128,31 +128,6 @@
 
             </ul>
 
-            {{-- ── Permissions (conditional) ── --}}
-            @canany(['manage-students', 'role-manage'])
-            <p class="sb-section-label"><span class="sb-label">Access</span></p>
-            <ul class="sb-list">
-                @can('manage-students')
-                <li>
-                    <a href="{{ route('teacher.student.managment') }}" title="Students"
-                       class="sb-link {{ request()->routeIs('teacher.student.managment') ? 'sb-active' : '' }}">
-                        <span class="sb-icon"><i class="fa-solid fa-user-graduate"></i></span>
-                        <span class="sb-label">Students</span>
-                    </a>
-                </li>
-                @endcan
-                @can('role-manage')
-                <li>
-                    <a href="{{ route('teacher.role') }}" title="Roles"
-                       class="sb-link {{ request()->routeIs('teacher.role') ? 'sb-active' : '' }}">
-                        <span class="sb-icon"><i class="fa-solid fa-user-shield"></i></span>
-                        <span class="sb-label">Roles</span>
-                    </a>
-                </li>
-                @endcan
-            </ul>
-            @endcanany
-
             {{-- ── System ── --}}
             <p class="sb-section-label"><span class="sb-label">System</span></p>
             <ul class="sb-list">
