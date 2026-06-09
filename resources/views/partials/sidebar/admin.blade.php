@@ -1,9 +1,7 @@
-<div id="appWrapper" class="app">
-
-    {{-- ═══════════════════════════════════════════
-         SIDEBAR
-    ═══════════════════════════════════════════ --}}
-    <aside id="sidebar" class="sidebar">
+{{-- ═══════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════ --}}
+<aside id="sidebar" class="sidebar">
 
         {{-- Brand --}}
         <div class="sb-brand">
@@ -15,7 +13,7 @@
                 @endif
             </div>
             <span class="sb-brand-text">{{ $systemSettings['site_title'] ?? 'MyLMS' }}</span>
-            <button id="sidebarCollapseBtn" class="sb-collapse-btn" id="sidebarCollapseBtn" title="Collapse sidebar">
+            <button id="sidebarCollapseBtn" class="sb-collapse-btn" title="Collapse sidebar">
                 <i class="fa-solid fa-angles-left"></i>
             </button>
         </div>
@@ -46,13 +44,13 @@
             <ul class="sb-list">
 
                 <li class="sb-has-sub">
-                    <button class="sb-link sb-toggle {{ request()->routeIs('teacher.*','admin.student.*','manage.role.*','admin.role','roles.permissions.*','admin.system.admins') ? 'sb-open' : '' }}"
+                    <button class="sb-link sb-toggle {{ request()->routeIs('teacher.*','admin.student.*','admin.certificates.management','manage.role.*','admin.role','roles.permissions.*','admin.system.admins') ? 'sb-open' : '' }}"
                             data-target="#subUsers">
                         <span class="sb-icon"><i class="fa-solid fa-users"></i></span>
                         <span class="sb-label">User Management</span>
                         <i class="fa-solid fa-chevron-right sb-arrow"></i>
                     </button>
-                    <ul class="sb-sub {{ request()->routeIs('teacher.*','admin.student.*','manage.role.*','admin.role','roles.permissions.*','admin.system.admins') ? 'show' : '' }}" id="subUsers">
+                    <ul class="sb-sub {{ request()->routeIs('teacher.*','admin.student.*','admin.certificates.management','manage.role.*','admin.role','roles.permissions.*','admin.system.admins') ? 'show' : '' }}" id="subUsers">
                         <li>
                             <a href="{{ route('manage.role.view') }}"
                                class="sb-sub-link {{ request()->routeIs('manage.role.view') ? 'sb-sub-active' : '' }}">
@@ -60,15 +58,21 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('teacher.Mangment.View') }}"
-                               class="sb-sub-link {{ request()->routeIs('teacher.Mangment.View') ? 'sb-sub-active' : '' }}">
+                            <a href="{{ route('teacher.Management.View') }}"
+                               class="sb-sub-link {{ request()->routeIs('teacher.Management.View') ? 'sb-sub-active' : '' }}">
                                 <i class="fa-solid fa-chalkboard-user"></i>Teachers
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.student.managment') }}"
-                               class="sb-sub-link {{ request()->routeIs('admin.student.managment') ? 'sb-sub-active' : '' }}">
+                            <a href="{{ route('admin.student.management') }}"
+                               class="sb-sub-link {{ request()->routeIs('admin.student.management') ? 'sb-sub-active' : '' }}">
                                 <i class="fa-solid fa-user-graduate"></i>Students
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.certificates.management') }}"
+                               class="sb-sub-link {{ request()->routeIs('admin.certificates.management') ? 'sb-sub-active' : '' }}">
+                                <i class="fa-solid fa-award"></i>Certificates
                             </a>
                         </li>
                         <li>
@@ -234,7 +238,7 @@
     ═══════════════════════════════════════════ --}}
     <header class="app-header" role="banner">
         <div class="header-left">
-            <button id="mobileMenuBtn" class="hdr-icon-btn d-lg-none" type="button" aria-label="Open menu">
+            <button id="mobileMenuBtn" class="hdr-icon-btn d-xl-none" type="button" aria-label="Open menu">
                 <i class="fa-solid fa-bars"></i>
             </button>
             <div class="search-input">
@@ -288,5 +292,4 @@
         </div>
     </header>
 
-    {{-- Mobile overlay --}}
-    <div id="sidebarOverlay" class="sb-overlay"></div>
+

@@ -1,7 +1,5 @@
-<div id="appWrapper" class="app">
-
-    {{-- ═══════════════ SIDEBAR ═══════════════ --}}
-    <aside id="sidebar" class="sidebar">
+{{-- ═══════════════ SIDEBAR ═══════════════ --}}
+<aside id="sidebar" class="sidebar">
 
         {{-- Brand --}}
         <div class="sb-brand">
@@ -75,6 +73,14 @@
                     </a>
                 </li>
 
+                <li>
+                    <a href="{{ route('student.certificates.view') }}" title="My Certificates"
+                       class="sb-link {{ request()->routeIs('student.certificates.view') ? 'sb-active' : '' }}">
+                        <span class="sb-icon"><i class="fa-solid fa-award"></i></span>
+                        <span class="sb-label">My Certificates</span>
+                    </a>
+                </li>
+
             </ul>
 
             {{-- ── System ── --}}
@@ -115,7 +121,7 @@
     {{-- ═══════════════ HEADER ═══════════════ --}}
     <header class="app-header" role="banner">
         <div class="header-left">
-            <button id="mobileMenuBtn" class="hdr-icon-btn d-lg-none" type="button" aria-label="Open menu">
+            <button id="mobileMenuBtn" class="hdr-icon-btn d-xl-none" type="button" aria-label="Open menu">
                 <i class="fa-solid fa-bars"></i>
             </button>
             <div class="search-input">
@@ -169,5 +175,4 @@
         </div>
     </header>
 
-    {{-- Mobile overlay --}}
-    <div id="sidebarOverlay" class="sb-overlay"></div>
+

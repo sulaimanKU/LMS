@@ -45,6 +45,11 @@ public function submissions()
     return $this->hasMany(Submission::class, 'user_id');
 }
 
+public function certificates()
+{
+    return $this->hasMany(Certificate::class, 'user_id');
+}
+
     /**
      * The attributes that should be hidden for serialization.
      *

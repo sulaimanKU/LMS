@@ -53,11 +53,29 @@
             </div>
         </div>
 
-        {{-- Status filter tabs (server-side) --}}
-        <div class="sm-tab-group">
-            <a class="sm-tab {{ $filter === 'all'      ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'all',      'page' => 1]) }}">All</a>
-            <a class="sm-tab {{ $filter === 'pending'  ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'pending',  'page' => 1]) }}">Pending</a>
-            <a class="sm-tab {{ $filter === 'approved' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'approved', 'page' => 1]) }}">Approved</a>
+        {{-- Status filter tabs and Search --}}
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-3 w-100">
+            <div class="sm-tab-group">
+                <a class="sm-tab {{ $filter === 'all'      ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'all',      'page' => 1]) }}">All</a>
+                <a class="sm-tab {{ $filter === 'pending'  ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'pending',  'page' => 1]) }}">Pending</a>
+                <a class="sm-tab {{ $filter === 'approved' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'approved', 'page' => 1]) }}">Approved</a>
+            </div>
+
+            <form action="{{ route('admin.student.management') }}" method="GET" class="d-flex gap-2">
+                @if($filter !== 'all')
+                    <input type="hidden" name="filter" value="{{ $filter }}">
+                @endif
+                <div class="input-group shadow-sm" style="max-width: 300px; border-radius: 10px; overflow: hidden;">
+                    <span class="input-group-text bg-white border-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="text" name="search" class="form-control border-0" placeholder="Search students..." value="{{ $search ?? '' }}" style="font-size: .85rem;">
+                    @if($search)
+                        <a href="{{ route('admin.student.management', ['filter' => $filter]) }}" class="btn btn-white border-0 text-muted d-flex align-items-center">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                    @endif
+                    <button class="btn btn-primary px-3" type="submit">Search</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -94,6 +112,9 @@
                     <p class="sm-name">{{ $reg->name }}</p>
                     <p class="sm-email">{{ $reg->email }}</p>
                     <p class="sm-meta">{{ $reg->phone }} &nbsp;·&nbsp; {{ $reg->institution }}</p>
+                    <p class="sm-meta mt-1 text-primary fw-bold" style="font-size: 0.65rem;">
+                        <i class="fa-solid fa-clock me-1"></i>Applied {{ $reg->created_at->diffForHumans() }}
+                    </p>
                 </div>
                 <div class="ms-auto">
                     @if($allEnrolled)
@@ -306,7 +327,12 @@
         @empty
         <div class="sm-empty">
             <i class="fa-solid fa-users-slash"></i>
-            <p>No registrations found.</p>
+            @if($search)
+                <p>No students found matching "<strong>{{ $search }}</strong>".</p>
+                <a href="{{ route('admin.student.management', ['filter' => $filter]) }}" class="btn btn-link btn-sm mt-2">Clear search</a>
+            @else
+                <p>No registrations found.</p>
+            @endif
         </div>
         @endforelse
     </div>
@@ -1109,4 +1135,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+{{-- ═══════════════════════════════════════════
+     MODAL — Assign Certificate
+═══════════════════════════════════════════ --}}
 @endsection

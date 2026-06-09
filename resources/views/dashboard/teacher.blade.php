@@ -147,25 +147,45 @@
             </div>
 
             @forelse($assignedModules as $mod)
-            <div class="td-mod-row">
-                <div class="td-mod-icon">
-                    <i class="fa-solid fa-cube"></i>
+            <div class="td-mod-wrapper">
+                <div class="td-mod-row">
+                    <div class="td-mod-icon">
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <div class="td-mod-info">
+                        <p class="td-mod-title">{{ $mod->title }}</p>
+                        <p class="td-mod-meta">
+                            <span><i class="fa-solid fa-tag me-1"></i>{{ $mod->category ?? '—' }}</span>
+                            <span><i class="fa-solid fa-users me-1"></i>{{ $mod->students_count }} student{{ $mod->students_count !== 1 ? 's' : '' }}</span>
+                            <span><i class="fa-solid fa-clock me-1"></i>{{ $mod->duration ?? '—' }}</span>
+                        </p>
+                    </div>
+                    <div class="td-mod-right">
+                        <span class="td-mod-status td-mod-status-{{ $mod->status ?? 'active' }}">
+                            {{ ucfirst($mod->status ?? 'Active') }}
+                        </span>
+                    </div>
                 </div>
-                <div class="td-mod-info">
-                    <p class="td-mod-title">{{ $mod->title }}</p>
-                    <p class="td-mod-meta">
-                        <span><i class="fa-solid fa-tag me-1"></i>{{ $mod->category ?? '—' }}</span>
-                        <span><i class="fa-solid fa-users me-1"></i>{{ $mod->students_count }} student{{ $mod->students_count !== 1 ? 's' : '' }}</span>
-                        <span><i class="fa-solid fa-clock me-1"></i>{{ $mod->duration ?? '—' }}</span>
-                        @if(!empty($mod->short_description))
-                            <span><i class="fa-solid fa-align-left me-1"></i>{{ Str::limit($mod->short_description, 60) }}</span>
-                        @endif
-                    </p>
-                </div>
-                <div class="td-mod-right">
-                    <span class="td-mod-status td-mod-status-{{ $mod->status ?? 'active' }}">
-                        {{ ucfirst($mod->status ?? 'Active') }}
-                    </span>
+
+                {{-- Enrolled Students for this module --}}
+                <div class="td-mod-students">
+                    @if($mod->enrolled_students->isNotEmpty())
+                        <div class="td-student-list">
+                            @foreach($mod->enrolled_students as $std)
+                                <div class="td-student-chip" title="{{ $std->email }}">
+                                    <div class="td-student-avatar-sm">
+                                        {{ strtoupper(substr($std->name, 0, 1)) }}
+                                    </div>
+                                    <span>{{ $std->name }}</span>
+                                </div>
+                            @endforeach
+                            @if($mod->students_count > 5)
+                                <span class="td-student-more">+{{ $mod->students_count - 5 }} more</span>
+                            @endif
+                        </div>
+                    @else
+                        <p class="td-no-students">No students enrolled yet.</p>
+                    @endif
                 </div>
             </div>
             @empty
@@ -308,12 +328,13 @@
 .td-card-foot { padding:.6rem 1.25rem; border-top:1px solid #F8FAFF; text-align:right; }
 
 /* ── Assigned Modules ── */
+.td-mod-wrapper { border-bottom:1px solid #F8FAFF; }
+.td-mod-wrapper:last-child { border-bottom:none; }
 .td-mod-row {
     display:flex; align-items:center; gap:.9rem;
-    padding:.85rem 1.25rem; border-bottom:1px solid #F8FAFF;
+    padding:.85rem 1.25rem .4rem;
     transition:background .15s;
 }
-.td-mod-row:last-child { border-bottom:none; }
 .td-mod-row:hover { background:#FAFBFF; }
 .td-mod-icon {
     width:40px; height:40px; border-radius:10px; flex-shrink:0;
@@ -340,6 +361,23 @@
 .td-mod-status-pending {
     background:#FEF3C7; color:#92400E;
 }
+
+/* Students list inside module */
+.td-mod-students { padding: 0 1.25rem .85rem 4.15rem; }
+.td-student-list { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+.td-student-chip {
+    display:inline-flex; align-items:center; gap:.4rem;
+    background:#F1F5F9; padding:.2rem .5rem .2rem .2rem;
+    border-radius:50px; font-size:.7rem; font-weight:600; color:#475569;
+}
+.td-student-avatar-sm {
+    width:20px; height:20px; border-radius:50%;
+    background:#4F46E5; color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.6rem; font-weight:800;
+}
+.td-student-more { font-size:.7rem; font-weight:700; color:#94A3B8; margin-left:.2rem; }
+.td-no-students { font-size:.72rem; color:#94A3B8; margin:0; font-style:italic; }
 
 /* Quick Links */
 .td-quick { display:grid; grid-template-columns:repeat(4,1fr); gap:.75rem; margin-top:0; }

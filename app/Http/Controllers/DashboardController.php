@@ -62,7 +62,7 @@ class DashboardController
     }
 
 
-    public function teacherMangmentView()
+    public function teacherManagementView()
     {
         $courses  = Courses::orderBy('title')->get();
         $teachers = Teacher::with('courses')->get();
@@ -185,10 +185,8 @@ public function teacherUpdate(Request $request, $id)
         'linkedin_url'   => $request->linkedin_url,
     ]);
 
-    // Update assigned modules if provided
-    if ($request->has('course_id')) {
-        $teacher->courses()->sync($request->course_id);
-    }
+    // Always sync modules, even if none provided (effectively unassigns all if empty)
+    $teacher->courses()->sync($request->course_id ?? []);
 
     // Sync the linked user name/email too
     if ($teacher->user_id) {
@@ -228,37 +226,91 @@ public function teacherDelete($id)
 public function teacherAssignCourse(Request $request, $id)
 {
     $request->validate([
-        'course_ids'   => 'required|array|min:1',
+        'course_ids'   => 'nullable|array',
         'course_ids.*' => 'integer|exists:modules,id'
     ]);
 
     $teacher = Teacher::findOrFail($id);
     
-    // Sync replaces all existing assignments with the new ones provided
-    $teacher->courses()->sync($request->course_ids);
+    // Sync replaces all existing assignments with the new ones provided (unassigns if empty)
+    $teacher->courses()->sync($request->course_ids ?? []);
 
     return redirect()->back()->with('success', 'Modules updated for ' . $teacher->name . ' successfully!');
 }
 
-public function studentManagment(Request $request)
+public function studentManagement(Request $request)
 {
     $filter = $request->get('filter', 'all');
-    $query  = Registration::with('slips')->latest();
+    $search = $request->get('search');
+    
+    $query = Registration::with('slips')->latest();
+    
     if ($filter !== 'all') {
         $query->where('status', $filter);
     }
+    
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('email', 'LIKE', "%{$search}%")
+              ->orWhere('phone', 'LIKE', "%{$search}%")
+              ->orWhere('institution', 'LIKE', "%{$search}%");
+        });
+    }
+    
     $registrations = $query->paginate(9)->withQueryString();
     $allCourses    = Courses::orderBy('title')->get()->keyBy('id');
 
     // For each registration email, find which module IDs are actually enrolled with their status
     $emails = $registrations->pluck('email')->unique()->filter();
-    $enrolledByEmail = User::whereIn('email', $emails)
-        ->with('enrolledModules')
+    $enrolledUsers = User::whereIn('email', $emails)
+        ->with(['enrolledModules', 'certificates'])
         ->get()
-        ->keyBy('email')
-        ->map(fn($u) => $u->enrolledModules->keyBy('id'));
+        ->keyBy('email');
+        
+    $enrolledByEmail = $enrolledUsers->map(fn($u) => $u->enrolledModules->keyBy('id'));
 
-    return view('layouts.studentManagment', compact('registrations', 'allCourses', 'filter', 'enrolledByEmail'));
+    return view('layouts.studentManagment', compact('registrations', 'allCourses', 'filter', 'enrolledByEmail', 'enrolledUsers', 'search'));
+}
+
+public function assignCertificate(Request $request)
+{
+    $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'module_id' => 'required|exists:modules,id',
+        'certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+    ]);
+
+    $path = $request->file('certificate')->store('certificates', 'public');
+
+    \App\Models\Certificate::updateOrCreate(
+        ['user_id' => $request->user_id, 'module_id' => $request->module_id],
+        ['certificate_path' => $path]
+    );
+
+    return redirect()->back()->with('success', 'Certificate assigned successfully.');
+}
+
+public function certificatesManagement(Request $request)
+{
+    $allModules = Courses::orderBy('title')->get();
+    $selectedModuleId = $request->get('module_id');
+    
+    $students = collect();
+    if ($selectedModuleId) {
+        $students = User::whereHas('enrolledModules', function($q) use ($selectedModuleId) {
+            $q->where('modules.id', $selectedModuleId);
+        })->with([
+            'enrolledModules' => function($q) use ($selectedModuleId) {
+                $q->where('modules.id', $selectedModuleId);
+            },
+            'certificates' => function($q) use ($selectedModuleId) {
+                $q->where('module_id', $selectedModuleId);
+            }
+        ])->get();
+    }
+
+    return view('layouts.certificatesManagment', compact('allModules', 'selectedModuleId', 'students'));
 }
 
 public function adminApproveStudent(Request $request, $id)

@@ -104,12 +104,14 @@ Route::get('/dashboard', function() {
 // <!-- <---------------- AdminDashboard Page Route----------------->
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard_index'])->name('dashboard');
-    Route::get('teacher/Managment', [DashboardController::class, 'teacherMangmentView'])->name('teacher.Mangment.View');
+    Route::get('teacher/Management', [DashboardController::class, 'teacherManagementView'])->name('teacher.Management.View');
     Route::post('register/teacher', [DashboardController::class, 'teacherRegister'])->name('regester.teacher');
     Route::post('teacher/{id}/assign-course', [DashboardController::class, 'teacherAssignCourse'])->name('teacher.assign.course');
     Route::put('teacher/{id}/update', [DashboardController::class, 'teacherUpdate'])->name('teacher.update');
     Route::delete('teacher/{id}/delete', [DashboardController::class, 'teacherDelete'])->name('teacher.delete');
-    Route::get('/student/managment', [DashboardController::class, 'studentManagment'])->name('admin.student.managment');
+    Route::get('/student/management', [DashboardController::class, 'studentManagement'])->name('admin.student.management');
+    Route::get('/certificates/management', [DashboardController::class, 'certificatesManagement'])->name('admin.certificates.management');
+    Route::post('/student/certificate', [DashboardController::class, 'assignCertificate'])->name('admin.student.certificate');
     Route::post('approve/{id}/student', [DashboardController::class, 'adminApproveStudent'])->name('admin.approve.student');
     Route::delete('delete-registration/{id}', [DashboardController::class, 'deleteRegistration'])->name('admin.registration.delete');
     Route::post('manual-registration', [DashboardController::class, 'manualRegistration'])->name('admin.registration.manual');
@@ -179,6 +181,7 @@ Route::prefix('teacher')->middleware(['auth'])->group(function () {
         Route::get('/teacher/dashboard', [TeacherController::class, 'teacherMain'])->name('teacher.main');
 
   Route::get('classes',[TeacherController::class,'teacherClassView'])->name('teacherClass.view');
+  Route::get('my-students', [TeacherController::class, 'teacherStudentsView'])->name('teacher.students.view');
   Route::get('manage/lessons',[TeacherController::class,'manageLessonsView'])->name('manageLessons.view');
   Route::get('module/{moduleId}/students', [TeacherController::class, 'getModuleStudents'])->name('module.students');
   Route::post('class-notification/send', [TeacherController::class, 'sendClassNotification'])->name('class.notification.send');
@@ -213,6 +216,7 @@ Route::prefix('student')->middleware(['student:student'])->group(function () {
     Route::get('assigments/upload',[StudentController::class,'assigmentsUploadView'])->name('assigments.upload.view');
     Route::post('/student/assignment/submit', [StudentController::class, 'storeSubmission'])->name('student.submissions.store');
     Route::post('/student/review/submit', [StudentController::class, 'storeReview'])->name('student.review.submit');
+    Route::get('/my-certificates', [StudentController::class, 'certificatesView'])->name('student.certificates.view');
 });
 
 // Temporary route to clear cache on live server

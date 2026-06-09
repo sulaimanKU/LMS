@@ -371,10 +371,13 @@ html, body {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,.5);
-    backdrop-filter: blur(2px);
     z-index: 199;
 }
 .sb-overlay.show { display: block; }
+
+@media (min-width: 1200px) {
+    .sb-overlay { display: none !important; }
+}
 
 /* ================================================================
    HEADER

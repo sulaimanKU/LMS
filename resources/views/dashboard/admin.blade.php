@@ -15,7 +15,7 @@
             <h5 class="dash-title">Dashboard</h5>
             <p class="dash-subtitle">Welcome back, {{ auth()->user()->name }}</p>
         </div>
-        <a href="{{ route('admin.student.managment') }}" class="dash-action-btn">
+        <a href="{{ route('admin.student.management') }}" class="dash-action-btn">
             <i class="fa-solid fa-user-plus me-1"></i> Review Registrations
             @if($pendingCount > 0)
                 <span class="dash-badge">{{ $pendingCount }}</span>
@@ -34,7 +34,7 @@
                 <p class="dstat-label">Total Students</p>
                 <h3 class="dstat-num">{{ $totalStudents }}</h3>
             </div>
-            <a href="{{ route('admin.student.managment') }}" class="dstat-link">View Accounts <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            <a href="{{ route('admin.student.management') }}" class="dstat-link">View Accounts <i class="fa-solid fa-arrow-right ms-1"></i></a>
         </div>
 
         <div class="dstat-card" style="--accent-h:#10B981; --accent-s:#ECFDF5;">
@@ -67,7 +67,7 @@
                 <p class="dstat-label">Pending Approvals</p>
                 <h3 class="dstat-num">{{ $pendingCount }}</h3>
             </div>
-            <a href="{{ route('admin.student.managment') }}?filter=pending" class="dstat-link">Review Slips <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            <a href="{{ route('admin.student.management') }}?filter=pending" class="dstat-link">Review Slips <i class="fa-solid fa-arrow-right ms-1"></i></a>
         </div>
 
     </div>
@@ -117,7 +117,7 @@
     <div class="dash-card mt-4">
         <div class="dash-card-header">
             <span class="dash-card-title"><i class="fa-solid fa-list-check me-2 text-primary"></i>Recent Registrations</span>
-            <a href="{{ route('admin.student.managment') }}" class="dash-view-all">View all</a>
+            <a href="{{ route('admin.student.management') }}" class="dash-view-all">View all</a>
         </div>
         <div class="dash-card-body p-0">
             <div class="table-responsive">
@@ -337,7 +337,7 @@
 }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 <script>
 (function () {
     const months = @json($months);
@@ -378,3 +378,23 @@
 </script>
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Explicitly hide the sidebar overlay if we are on desktop
+    if (window.innerWidth >= 1200) {
+        const overlay = document.getElementById('sidebarOverlay');
+        if (overlay) {
+            overlay.classList.remove('show');
+            overlay.style.display = 'none';
+        }
+        document.body.style.overflow = '';
+        
+        // Remove any stray Bootstrap modal backdrops
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(b => b.remove());
+    }
+});
+</script>
+@endpush

@@ -48,8 +48,15 @@ document.addEventListener('DOMContentLoaded', function () {
     if (overlay)    overlay.addEventListener('click', closeSidebar);
 
     window.addEventListener('resize', function () {
-        if (window.innerWidth >= 1200) closeSidebar();
+        if (window.innerWidth >= 1200) {
+            closeSidebar();
+        }
     });
+
+    // Initial check on load
+    if (window.innerWidth >= 1200) {
+        closeSidebar();
+    }
 
     // ── Submenu toggles ──
     document.querySelectorAll('.sb-toggle').forEach(function (btn) {

@@ -230,4 +230,15 @@ class StudentController
 
         return back()->with('success', 'Thank you for your feedback! Your testimonial is now live.');
     }
+
+    public function certificatesView()
+    {
+        $user = auth()->user();
+        
+        $certificates = \App\Models\Certificate::with('module.teacher')
+            ->where('user_id', $user->id)
+            ->get();
+            
+        return view('studentLayouts.certificatesView', compact('certificates'));
+    }
 }

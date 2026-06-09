@@ -47,23 +47,31 @@ class TeacherController
         $assignedModuleIds = $courses->pluck('id');
 
         $studentsCount = \App\Models\Enrollment::whereIn('module_id', $assignedModuleIds)
+            ->where('status', 'active')
             ->distinct('user_id')->count('user_id');
 
         // Each "course" record IS a module — attach extra display fields
         $assignedModules = $courses->map(function ($module) {
             $module->course_title   = $module->title; // same record, no parent
             $module->students_count = \App\Models\Enrollment::where('module_id', $module->id)
+                                        ->where('status', 'active')
                                         ->distinct('user_id')->count('user_id');
+            // Include actual student records for the dashboard
+            $module->enrolled_students = $module->enrolledUsers()
+                                        ->wherePivot('status', 'active')
+                                        ->take(5)->get(); // Show up to 5 on dash
             return $module;
         });
 
         $liveClasses = OnlineClass::with('module')
             ->where('teacher_id', $teacher->id)
+            ->whereIn('module_id', $assignedModuleIds)
             ->where('status', 'live')
             ->get();
 
         $upcomingClasses = OnlineClass::with('module')
             ->where('teacher_id', $teacher->id)
+            ->whereIn('module_id', $assignedModuleIds)
             ->where('status', 'upcoming')
             ->orderBy('class_date')->orderBy('start_time')
             ->take(5)->get();
@@ -99,13 +107,67 @@ class TeacherController
         }
 
         $teacher_courses = $teacher->courses()->get();
+        $assignedModuleIds = $teacher_courses->pluck('id');
+
         $scheduled_classes = $teacher->onlineClasses()
+            ->whereIn('module_id', $assignedModuleIds)
             ->with('module')
             ->orderBy('id', 'desc')
             ->get();
 
 
         return view('teacherLayouts.teacherClassView', compact('teacher_courses', 'scheduled_classes'));
+    }
+
+    public function teacherStudentsView(Request $request)
+    {
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
+
+        if (!$teacher) {
+            return back()->with('error', 'Teacher profile not found.');
+        }
+
+        $search = trim($request->get('search'));
+        $selectedModule = $request->get('module_id');
+
+        // Get modules assigned to this teacher
+        $assignedModules = $teacher->courses()->get();
+        $assignedModuleIds = $assignedModules->pluck('id')->toArray();
+
+        // Fetch students for these modules, filtered by status='active'
+        // We ensure we only get users who are enrolled in the teacher's modules
+        $studentsQuery = User::whereHas('enrolledModules', function($q) use ($assignedModuleIds, $selectedModule) {
+            $q->whereIn('modules.id', $assignedModuleIds)
+              ->where('enrollments.status', 'active');
+            
+            if ($selectedModule) {
+                $q->where('modules.id', $selectedModule);
+            }
+        });
+
+        // Search criteria
+        if ($search) {
+            $studentsQuery->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('phone', 'LIKE', "%{$search}%")
+                  ->orWhere('address', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Eager load only the relevant modules for the teacher
+        // If a specific module is selected, only load that one for display
+        $students = $studentsQuery->with(['enrolledModules' => function($q) use ($assignedModuleIds, $selectedModule) {
+            $q->whereIn('modules.id', $assignedModuleIds)
+              ->where('enrollments.status', 'active');
+            
+            if ($selectedModule) {
+                $q->where('modules.id', $selectedModule);
+            }
+        }])->latest()->paginate(15)->withQueryString();
+
+        return view('teacherLayouts.teacherStudentsView', compact('assignedModules', 'students', 'search', 'selectedModule'));
     }
 
     public function teacherOnline_classesStore(Request $request)
@@ -270,18 +332,21 @@ class TeacherController
             return back()->with('error', 'Teacher profile not found.');
         }
 
+        $teacher_courses = $teacher->courses()->get();
+        $assignedModuleIds = $teacher_courses->pluck('id');
+
         $liveClasses = OnlineClass::with('module')
             ->where('teacher_id', $teacher->id)
+            ->whereIn('module_id', $assignedModuleIds)
             ->where('status', 'live')
             ->get();
 
         $upcomingClasses = OnlineClass::with('module')
             ->where('teacher_id', $teacher->id)
+            ->whereIn('module_id', $assignedModuleIds)
             ->where('status', 'upcoming')
             ->orderBy('class_date')->orderBy('start_time')
             ->get();
-
-        $teacher_courses = $teacher->courses()->get();
 
         return view('teacherLayouts.createOnlineClass', compact(
             'liveClasses', 'upcomingClasses', 'teacher_courses'

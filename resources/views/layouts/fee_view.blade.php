@@ -62,7 +62,7 @@
                                     <span class="badge bg-{{ $statusClass }}-subtle text-{{ $statusClass }} px-2 py-1">{{ ucfirst($tx->status) }}</span>
                                 </td>
                                 <td class="text-end pe-3">
-                                    <a href="{{ route('admin.student.managment') }}" class="btn btn-light btn-sm"><i class="bi bi-eye"></i></a>
+                                    <a href="{{ route('admin.student.management') }}" class="btn btn-light btn-sm"><i class="bi bi-eye"></i></a>
                                 </td>
                             </tr>
                             @empty

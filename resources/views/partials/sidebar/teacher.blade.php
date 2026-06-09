@@ -1,7 +1,5 @@
-<div id="appWrapper" class="app">
-
-    {{-- ═══════════════ SIDEBAR ═══════════════ --}}
-    <aside id="sidebar" class="sidebar">
+{{-- ═══════════════ SIDEBAR ═══════════════ --}}
+<aside id="sidebar" class="sidebar">
 
         {{-- Brand --}}
         <div class="sb-brand">
@@ -48,6 +46,14 @@
                        class="sb-link {{ request()->routeIs('teacherClass.view') ? 'sb-active' : '' }}">
                         <span class="sb-icon"><i class="fa-solid fa-chalkboard"></i></span>
                         <span class="sb-label">My Classes</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('teacher.students.view') }}" title="My Students"
+                       class="sb-link {{ request()->routeIs('teacher.students.view') ? 'sb-active' : '' }}">
+                        <span class="sb-icon"><i class="fa-solid fa-user-graduate"></i></span>
+                        <span class="sb-label">My Students</span>
                     </a>
                 </li>
 
@@ -166,7 +172,7 @@
     {{-- ═══════════════ HEADER ═══════════════ --}}
     <header class="app-header" role="banner">
         <div class="header-left">
-            <button id="mobileMenuBtn" class="hdr-icon-btn d-lg-none" type="button" aria-label="Open menu">
+            <button id="mobileMenuBtn" class="hdr-icon-btn d-xl-none" type="button" aria-label="Open menu">
                 <i class="fa-solid fa-bars"></i>
             </button>
             <div class="search-input">
@@ -220,5 +226,4 @@
         </div>
     </header>
 
-    {{-- Mobile overlay --}}
-    <div id="sidebarOverlay" class="sb-overlay"></div>
+
