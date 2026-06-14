@@ -351,6 +351,12 @@ document.addEventListener('DOMContentLoaded', function () {
         recalc();
     });
 
+    form.addEventListener('submit', function () {
+        const btn = form.querySelector('.btn-reg-submit');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Registering...';
+    });
+
     // Initialize
     recalc();
 });
