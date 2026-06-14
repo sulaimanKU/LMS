@@ -110,6 +110,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::put('teacher/{id}/update', [DashboardController::class, 'teacherUpdate'])->name('teacher.update');
     Route::delete('teacher/{id}/delete', [DashboardController::class, 'teacherDelete'])->name('teacher.delete');
     Route::get('/student/management', [DashboardController::class, 'studentManagement'])->name('admin.student.management');
+    Route::get('/student/{id}/details', [DashboardController::class, 'studentDetails'])->name('admin.student.details');
     Route::get('/certificates/management', [DashboardController::class, 'certificatesManagement'])->name('admin.certificates.management');
     Route::post('/student/certificate', [DashboardController::class, 'assignCertificate'])->name('admin.student.certificate');
     Route::post('approve/{id}/student', [DashboardController::class, 'adminApproveStudent'])->name('admin.approve.student');

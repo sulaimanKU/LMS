@@ -273,6 +273,18 @@ public function studentManagement(Request $request)
     return view('layouts.studentManagment', compact('registrations', 'allCourses', 'filter', 'enrolledByEmail', 'enrolledUsers', 'search'));
 }
 
+public function studentDetails($id)
+{
+    $registration = Registration::with('slips')->findOrFail($id);
+    $courseIds = $registration->selected_courses ?? [];
+    $courses = Courses::whereIn('id', $courseIds)->get();
+    
+    $user = User::where('email', $registration->email)->first();
+    $enrolledModules = $user ? $user->enrolledModules : collect();
+
+    return view('layouts.studentDetails', compact('registration', 'courses', 'enrolledModules'));
+}
+
 public function assignCertificate(Request $request)
 {
     $request->validate([

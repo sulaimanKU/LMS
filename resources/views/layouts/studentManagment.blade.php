@@ -217,6 +217,9 @@
                     ])->values()->toJson();
                 @endphp
                 <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <a href="{{ route('admin.student.details', $reg->id) }}" class="sm-slip-btn" title="View all student details">
+                        <i class="fa-solid fa-circle-info me-1"></i>Details
+                    </a>
                     @if($hasAccount)
                         <button class="sm-slip-btn" style="background: #F1F5F9; color: #475569; border-color: #E2E8F0;"
                                 data-bs-toggle="modal" data-bs-target="#passwordModal"
@@ -613,7 +616,7 @@
 .sm-pagination { margin-top: 1.5rem; display: flex; justify-content: center; }
 .sm-pagination .pagination { margin: 0; }
 .sm-pagination .page-link { color: #4F46E5; border-color: #E2E8F0; font-size: .82rem; }
-.sm-pagination .page-item.active .page-link { background: #4F46E5; border-color: #4F46E5; }
+.sm-pagination .page-item.active .page-link { background: #4F46E5; border-color: #4F46E5; color: #fff !important; }
 
 /* ── Modal ── */
 .sm-modal { border: none; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.12); }
