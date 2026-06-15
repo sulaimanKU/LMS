@@ -68,11 +68,46 @@
         </div>
     </div>
 
-    {{-- ── Filter tabs ── --}}
-    <div class="cr-tabs">
-        <a class="cr-tab {{ $filter === 'all'      ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'all',      'page' => 1]) }}">All ({{ $totalCourses }})</a>
-        <a class="cr-tab {{ $filter === 'active'   ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'active',   'page' => 1]) }}">Active ({{ $activeCourses }})</a>
-        <a class="cr-tab {{ $filter === 'inactive' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'inactive', 'page' => 1]) }}">Inactive ({{ $inactiveCourses }})</a>
+    {{-- ── Filter & Search Row ── --}}
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        {{-- Tabs --}}
+        <div class="cr-tabs">
+            <a class="cr-tab {{ $filter === 'all' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'all', 'page' => 1]) }}">All Courses ({{ $totalCourses }})</a>
+            <a class="cr-tab {{ $filter === 'active' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'active', 'page' => 1]) }}">Active ({{ $activeCourses }})</a>
+            <a class="cr-tab {{ $filter === 'inactive' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'inactive', 'page' => 1]) }}">Inactive ({{ $inactiveCourses }})</a>
+        </div>
+
+        {{-- Filters & Search --}}
+        <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
+            {{-- Category Filter --}}
+            <form action="{{ route('course.index') }}" method="GET" class="m-0">
+                @if($filter !== 'all') <input type="hidden" name="filter" value="{{ $filter }}"> @endif
+                @if($search) <input type="hidden" name="search" value="{{ $search }}"> @endif
+                <select name="category" class="form-select form-select-sm rounded-pill px-3 shadow-none border-0" style="background:#fff; font-size:.8rem; min-width:140px;" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat }}" {{ $category === $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                    @endforeach
+                </select>
+            </form>
+
+            {{-- Search Form --}}
+            <form action="{{ route('course.index') }}" method="GET" class="cr-search-form m-0">
+                @if($category) <input type="hidden" name="category" value="{{ $category }}"> @endif
+                @if($filter !== 'all') <input type="hidden" name="filter" value="{{ $filter }}"> @endif
+                
+                <div class="cr-search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Search courses..." class="cr-search-input">
+                    @if($search)
+                        <a href="{{ route('course.index', array_filter(['filter' => $filter, 'category' => $category])) }}" class="cr-search-clear">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                    @endif
+                    <button type="submit" class="cr-search-btn">Search</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     {{-- ── Course grid ── --}}
@@ -108,7 +143,9 @@
 
             {{-- Card body --}}
             <div class="cr-card-body">
-                <span class="cr-category-pill">{{ $course->category }}</span>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="cr-category-pill">{{ $course->category }}</span>
+                </div>
 
                 <h6 class="cr-card-title">{{ $course->title }}</h6>
                 @if($course->short_description)
@@ -191,6 +228,31 @@
 .cr-tab { padding: .32rem .9rem; border-radius: 7px; font-size: .8rem; font-weight: 600; color: #64748B; text-decoration: none; transition: all .15s; }
 .cr-tab.active { background: #fff; color: #4F46E5; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
 .cr-tab:hover:not(.active) { background: rgba(255,255,255,.6); }
+
+/* ── Search Box ── */
+.cr-search-form { flex: 1; max-width: 450px; }
+.cr-search-box {
+    position: relative; display: flex; align-items: center;
+    background: #fff; border: 1.5px solid #E2E8F0; border-radius: 12px;
+    padding: 2px 2px 2px 15px; transition: all .2s;
+}
+.cr-search-box:focus-within { border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,.1); }
+.cr-search-box i { color: #94A3B8; font-size: .85rem; }
+.cr-search-input {
+    border: none; background: transparent; padding: 8px 10px;
+    font-size: .85rem; color: #1E293B; width: 100%; outline: none;
+}
+.cr-search-clear {
+    display: flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%; color: #94A3B8 !important;
+    margin-right: 5px; transition: all .2s;
+}
+.cr-search-clear:hover { background: #F1F5F9; color: #64748B !important; }
+.cr-search-btn {
+    background: #4F46E5; color: #fff; border: none; border-radius: 10px;
+    padding: 6px 15px; font-size: .8rem; font-weight: 600; transition: all .2s;
+}
+.cr-search-btn:hover { background: #4338CA; }
 
 /* ── Grid ── */
 .cr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }

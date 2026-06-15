@@ -10,6 +10,7 @@ class Courses extends Model
 
     protected $fillable = [
         'teacher_id',
+        'workshop_number',
         'title',
         'slug',
         'details',

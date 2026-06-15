@@ -11,11 +11,34 @@ class CoursesController
 {
     public function courses_index(Request $request)
     {
-        $filter = $request->get('filter', 'all');
+        $filter   = $request->get('filter', 'all');
+        $search   = $request->get('search');
+        $category = $request->get('category');
 
-        $query = Courses::with(['teacher'])
-            ->withCount(['lessons', 'enrollments']);
+        // Base query for regular courses
+        $baseQuery = Courses::where('category', '!=', 'Workshop');
 
+        // Apply category filter to base if present
+        if ($category) {
+            $baseQuery->where('category', $category);
+        }
+
+        // Apply search to base if present
+        if ($search) {
+            $baseQuery->where(function($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                  ->orWhere('short_description', 'LIKE', "%{$search}%")
+                  ->orWhere('details', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Clone for stats before applying status filter
+        $totalCourses    = (clone $baseQuery)->count();
+        $activeCourses   = (clone $baseQuery)->where('status', 'active')->count();
+        $inactiveCourses = (clone $baseQuery)->where('status', 'inactive')->count();
+
+        // Now apply status filter for the main list
+        $query = (clone $baseQuery)->with(['teacher'])->withCount(['lessons', 'enrollments']);
         if ($filter === 'active') {
             $query->where('status', 'active');
         } elseif ($filter === 'inactive') {
@@ -25,13 +48,17 @@ class CoursesController
         $courses  = $query->orderBy('title')->paginate(12)->withQueryString();
         $teachers = Teacher::orderBy('name')->get();
 
-        $totalCourses   = Courses::count();
-        $activeCourses  = Courses::where('status', 'active')->count();
-        $inactiveCourses = Courses::where('status', 'inactive')->count();
-        $totalEnrolled  = \DB::table('enrollments')->whereIn('status', ['active', 'completed'])->count();
+        // Distinct categories for the dropdown
+        $categories = Courses::where('category', '!=', 'Workshop')->distinct()->pluck('category');
+
+        // Total enrolled for the entire regular course section (independent of status/category filter usually)
+        $totalEnrolled   = \DB::table('enrollments')
+            ->whereIn('module_id', Courses::where('category', '!=', 'Workshop')->pluck('id'))
+            ->whereIn('status', ['active', 'completed'])
+            ->count();
 
         return view('layouts.courses.index', compact(
-            'courses', 'teachers', 'filter',
+            'courses', 'teachers', 'filter', 'search', 'category', 'categories',
             'totalCourses', 'activeCourses', 'inactiveCourses', 'totalEnrolled'
         ));
     }
@@ -60,6 +87,7 @@ class CoursesController
     {
         $request->validate([
             'title'             => 'required|string|max:255|unique:modules,title',
+            'workshop_number'   => 'nullable|integer',
             'category'          => 'required|string|max:100',
             'price'             => 'required|numeric|min:0',
             'duration'          => 'nullable|string|max:100',
@@ -76,6 +104,7 @@ class CoursesController
 
         Courses::create([
             'title'             => $request->title,
+            'workshop_number'   => $request->workshop_number,
             'slug'              => Str::slug($request->title) . '-' . time(),
             'category'          => $request->category,
             'price'             => $request->price,
@@ -95,6 +124,7 @@ class CoursesController
 
         $request->validate([
             'title'             => 'required|string|max:255|unique:modules,title,' . $id,
+            'workshop_number'   => 'nullable|integer',
             'category'          => 'required|string|max:100',
             'price'             => 'required|numeric|min:0',
             'duration'          => 'nullable|string|max:100',
@@ -106,6 +136,7 @@ class CoursesController
 
         $data = [
             'title'             => $request->title,
+            'workshop_number'   => $request->workshop_number,
             'slug'              => Str::slug($request->title),
             'category'          => $request->category,
             'price'             => $request->price,

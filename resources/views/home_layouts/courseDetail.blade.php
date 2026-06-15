@@ -90,7 +90,12 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
-                <span class="cd-cat">{{ $course->category }}</span>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <span class="cd-cat mb-0">{{ $course->category }}</span>
+                    @if($course->workshop_number)
+                        <span class="badge bg-primary rounded-pill px-3 py-2" style="font-size: 0.8rem; font-weight: 700;">Workshop #{{ $course->workshop_number }}</span>
+                    @endif
+                </div>
                 <h1 class="cd-title">{{ $course->title }}</h1>
                 <p class="lead opacity-75">{{ $course->short_description }}</p>
                 

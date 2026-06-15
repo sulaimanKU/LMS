@@ -141,9 +141,17 @@
 
                 <li>
                     <a href="{{ route('course.index') }}"
-                       class="sb-link {{ request()->routeIs('course.index') ? 'sb-active' : '' }}">
+                       class="sb-link {{ request()->routeIs('course.index') && !request('category') ? 'sb-active' : '' }}">
                         <span class="sb-icon"><i class="fa-solid fa-book"></i></span>
                         <span class="sb-label">Courses</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('workshops.index') }}"
+                       class="sb-link {{ request()->routeIs('workshops.*') ? 'sb-active' : '' }}">
+                        <span class="sb-icon"><i class="fa-solid fa-person-chalkboard"></i></span>
+                        <span class="sb-label">Workshops</span>
                     </a>
                 </li>
 

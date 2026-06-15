@@ -29,10 +29,14 @@
             <div class="card-body p-4 p-md-5">
                 
                 <div class="row g-4">
-                    {{-- Title --}}
-                    <div class="col-12">
+                    {{-- Title & Workshop Number --}}
+                    <div class="col-md-9">
                         <label class="cr-label">Course Title <span class="text-danger">*</span></label>
                         <input type="text" name="title" class="cr-input shadow-none" placeholder="e.g. Advanced Quantum Physics" required value="{{ old('title') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="cr-label">Workshop # <span class="text-muted small">(Optional)</span></label>
+                        <input type="number" name="workshop_number" class="cr-input shadow-none" placeholder="1" value="{{ old('workshop_number') }}">
                     </div>
 
                     {{-- Category & Status --}}

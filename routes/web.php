@@ -169,6 +169,14 @@ Route::get('courses/{id}', [CoursesController::class, 'show'])->name('course.sho
 Route::post('courses/store', [CoursesController::class, 'store'])->name('course.store');
 Route::put('courses/{id}/update', [CoursesController::class, 'update'])->name('course.update');
 Route::delete('courses/{id}/delete', [CoursesController::class, 'destroy'])->name('course.destroy');
+
+// Dedicated Workshops Section
+Route::get('workshops', [\App\Http\Controllers\WorkshopsController::class, 'index'])->name('workshops.index');
+Route::get('workshops/create', [\App\Http\Controllers\WorkshopsController::class, 'create'])->name('workshops.create');
+Route::post('workshops/store', [\App\Http\Controllers\WorkshopsController::class, 'store'])->name('workshops.store');
+Route::get('workshops/{id}/edit', [\App\Http\Controllers\WorkshopsController::class, 'edit'])->name('workshops.edit');
+Route::put('workshops/{id}/update', [\App\Http\Controllers\WorkshopsController::class, 'update'])->name('workshops.update');
+Route::delete('workshops/{id}/delete', [\App\Http\Controllers\WorkshopsController::class, 'destroy'])->name('workshops.destroy');
 Route::get('assignments', [AssignmentController::class, 'assignment_index'])->name('assignments');
 Route::get('timetable', [TimetableController::class, 'index_timetable'])->name('time.table');
 Route::get('create/timetable', [TimetableController::class, 'create_timetable_view'])->name('create.timetable.view');
