@@ -383,11 +383,23 @@ public function adminEnrollStudentCourse(Request $request)
         $selectedModuleId = $request->get('module_id');
         $search = trim($request->get('search', ''));
 
-        $query = User::whereHas('enrolledModules', function($q) use ($selectedModuleId) {
-            if ($selectedModuleId) {
-                $q->where('modules.id', $selectedModuleId);
-            }
-        });
+        // Query all users who are students or have enrolled modules
+        $query = User::query();
+
+        if ($selectedModuleId) {
+            $query->where(function($q) use ($selectedModuleId) {
+                $q->whereHas('enrolledModules', function($m) use ($selectedModuleId) {
+                    $m->where('modules.id', $selectedModuleId);
+                });
+            });
+        } else {
+            $query->where(function($q) {
+                $q->whereHas('enrolledModules')
+                  ->orWhereHas('roles', function($r) {
+                      $r->where('name', 'student');
+                  });
+            });
+        }
 
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
@@ -396,20 +408,39 @@ public function adminEnrollStudentCourse(Request $request)
             });
         }
 
-        $users = $query->with([
-            'enrolledModules' => function($q) use ($selectedModuleId) {
-                if ($selectedModuleId) {
-                    $q->where('modules.id', $selectedModuleId);
-                }
-            },
+        $allMatchingUsers = $query->with([
+            'enrolledModules',
             'certificates'
-        ])->paginate(15)->withQueryString();
+        ])->get();
+
+        $emails = $allMatchingUsers->pluck('email')->unique()->filter();
+        $registrations = \App\Models\Registration::whereIn('email', $emails)->get()->keyBy('email');
 
         $enrollmentList = collect();
-        foreach ($users as $user) {
-            foreach ($user->enrolledModules as $module) {
+        foreach ($allMatchingUsers as $user) {
+            $reg = $registrations->get($user->email);
+            $modulesToLoop = $user->enrolledModules;
+
+            // If selectedModuleId filter is active, filter user's enrolled modules
+            if ($selectedModuleId) {
+                $modulesToLoop = $modulesToLoop->where('id', $selectedModuleId);
+            }
+
+            // Fallback: If student has no pivot modules but has selected_courses in registration
+            if ($modulesToLoop->isEmpty() && $reg && !empty($reg->selected_courses)) {
+                $regCourseIds = array_map('intval', $reg->selected_courses);
+                if ($selectedModuleId) {
+                    if (in_array((int)$selectedModuleId, $regCourseIds)) {
+                        $modulesToLoop = Courses::where('id', $selectedModuleId)->get();
+                    }
+                } else {
+                    $modulesToLoop = Courses::whereIn('id', $regCourseIds)->get();
+                }
+            }
+
+            foreach ($modulesToLoop as $module) {
                 $cert = $user->certificates->firstWhere('module_id', $module->id);
-                $status = $module->pivot->status ?? 'active';
+                $status = isset($module->pivot) ? ($module->pivot->status ?? 'active') : 'active';
                 $enrollmentList->push((object)[
                     'student'     => $user,
                     'module'      => $module,
@@ -419,10 +450,24 @@ public function adminEnrollStudentCourse(Request $request)
             }
         }
 
+        // Global DB KPI Stats
         $totalRecords   = $enrollmentList->count();
         $issuedCount    = $enrollmentList->filter(fn($i) => $i->certificate !== null)->count();
         $pendingCount   = $totalRecords - $issuedCount;
         $completedCount = $enrollmentList->filter(fn($i) => $i->status === 'completed')->count();
+
+        // Paginate the final enrollmentList collection cleanly
+        $perPage = 25;
+        $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        $paginatedItems = $enrollmentList->slice(($page - 1) * $perPage, $perPage)->values();
+        
+        $users = new \Illuminate\Pagination\LengthAwarePaginator(
+            $paginatedItems,
+            $enrollmentList->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
 
         return view('layouts.certificatesManagment', compact(
             'allModules', 'selectedModuleId', 'search', 'users', 'enrollmentList',
