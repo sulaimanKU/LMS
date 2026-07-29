@@ -469,6 +469,7 @@ public function adminEnrollStudentCourse(Request $request)
         }
 
         // Precise Global KPI Statistics
+        $totalStudents  = $allEmails->count();
         $totalRecords   = $enrollmentList->count();
         $issuedCount    = $enrollmentList->filter(fn($i) => $i->certificate !== null)->count();
         $pendingCount   = $totalRecords - $issuedCount;
@@ -489,7 +490,7 @@ public function adminEnrollStudentCourse(Request $request)
 
         return view('layouts.certificatesManagment', compact(
             'allModules', 'selectedModuleId', 'search', 'users', 'enrollmentList',
-            'totalRecords', 'issuedCount', 'pendingCount', 'completedCount'
+            'totalStudents', 'totalRecords', 'issuedCount', 'pendingCount', 'completedCount'
         ));
     }
 

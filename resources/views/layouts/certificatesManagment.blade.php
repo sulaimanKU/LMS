@@ -49,11 +49,21 @@
     <div class="cm-stats-grid mb-4">
         <div class="cm-stat-box">
             <div class="cm-stat-icon-wrap bg-indigo-subtle text-indigo">
-                <i class="fa-solid fa-users"></i>
+                <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div class="cm-stat-content">
+                <span class="cm-stat-val">{{ $totalStudents ?? 0 }}</span>
+                <span class="cm-stat-lbl">Approved Students</span>
+            </div>
+        </div>
+
+        <div class="cm-stat-box">
+            <div class="cm-stat-icon-wrap bg-purple-subtle text-purple">
+                <i class="fa-solid fa-layer-group"></i>
             </div>
             <div class="cm-stat-content">
                 <span class="cm-stat-val">{{ $totalRecords ?? 0 }}</span>
-                <span class="cm-stat-lbl">Course Enrollments</span>
+                <span class="cm-stat-lbl">Course Allocations</span>
             </div>
         </div>
 
@@ -74,16 +84,6 @@
             <div class="cm-stat-content">
                 <span class="cm-stat-val">{{ $pendingCount ?? 0 }}</span>
                 <span class="cm-stat-lbl">Pending Certificates</span>
-            </div>
-        </div>
-
-        <div class="cm-stat-box">
-            <div class="cm-stat-icon-wrap bg-purple-subtle text-purple">
-                <i class="fa-solid fa-graduation-cap"></i>
-            </div>
-            <div class="cm-stat-content">
-                <span class="cm-stat-val">{{ $completedCount ?? 0 }}</span>
-                <span class="cm-stat-lbl">Completed Courses</span>
             </div>
         </div>
     </div>
@@ -136,7 +136,7 @@
                     <span class="text-muted small">Select any student below to upload or manage their certificate</span>
                 </div>
                 <span class="cm-badge-count">
-                    Total {{ $users->total() }} Record(s) — Showing {{ $users->count() }} on Page {{ $users->currentPage() }}
+                    {{ $totalStudents }} Approved Students ({{ $totalRecords }} Course Allocations) — Showing {{ $users->count() }} on Page {{ $users->currentPage() }}
                 </span>
             </div>
         </div>
