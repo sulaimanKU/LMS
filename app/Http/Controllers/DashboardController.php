@@ -45,21 +45,44 @@ class DashboardController
         $totalStudents    = $allStudentEmails->count();
 
         // 4. Calculate Total Course Allocations / Module Seats Filled
-        $totalEnrollmentsCount = 0;
-        foreach ($allStudentEmails as $email) {
-            $user = $usersByEmail->get($email);
-            $reg  = $regsByEmail->get($email);
+        $enrollmentKeys = collect();
 
-            $pivotCourseIds = $user ? $user->enrolledModules->pluck('id')->toArray() : [];
-            $regCourseIds   = $reg ? array_map('intval', $reg->selected_courses ?? []) : [];
-
-            $uniqueCourses  = array_unique(array_filter(array_merge($pivotCourseIds, $regCourseIds)));
-            $totalEnrollmentsCount += count($uniqueCourses);
+        // Add from DB enrollments table
+        $dbEnrollments = DB::table('enrollments')->get();
+        foreach ($dbEnrollments as $e) {
+            $enrollmentKeys->push("u_{$e->user_id}_m_{$e->module_id}");
         }
-        $totalEnrollments = $totalEnrollmentsCount;
 
-        // 5. Total Approved Revenue
-        $totalRevenue = Registration::where('status', 'approved')->sum('total_amount');
+        // Add from approved Registrations
+        foreach ($approvedRegs as $r) {
+            $email  = strtolower(trim($r->email));
+            $user   = $usersByEmail->get($email);
+            $uKey   = $user ? "u_{$user->id}" : "r_{$r->id}";
+            $courses = array_map('intval', $r->selected_courses ?? []);
+            foreach ($courses as $cid) {
+                if ($cid > 0) {
+                    $enrollmentKeys->push("{$uKey}_m_{$cid}");
+                }
+            }
+        }
+
+        $totalEnrollments = $enrollmentKeys->unique()->count();
+
+        // 5. Total Approved Revenue (With fallback calculation if total_amount is zero)
+        $allCoursesMap = Courses::all()->keyBy('id');
+        $totalRevenue  = $approvedRegs->sum(function($r) use ($allCoursesMap) {
+            if ((float)$r->total_amount > 0) {
+                return (float)$r->total_amount;
+            }
+            $cIds = array_map('intval', $r->selected_courses ?? []);
+            $sum = 0;
+            foreach ($cIds as $cid) {
+                if (isset($allCoursesMap[$cid])) {
+                    $sum += (float)$allCoursesMap[$cid]->price;
+                }
+            }
+            return $sum;
+        });
 
         // General Stats
         $totalTeachers       = Teacher::count();
