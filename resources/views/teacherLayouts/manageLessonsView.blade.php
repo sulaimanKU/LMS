@@ -1,165 +1,101 @@
 @extends('applayouts.app')
 
 @section('contents')
-<style>
-/* ── Page Wrapper ── */
-.cm-page { padding: 1.5rem; background: #F8FAFF; min-height: 100%; }
-
-/* ── Header ── */
-.cm-header {
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;
-}
-.cm-title    { font-size: 1.3rem; font-weight: 800; color: #1E293B; margin: 0; }
-.cm-subtitle { font-size: .82rem; color: #64748B; margin: .15rem 0 0; }
-
-.cm-btn-new {
-    display: inline-flex; align-items: center;
-    background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
-    border: none; border-radius: 12px; padding: .65rem 1.25rem;
-    font-size: .85rem; font-weight: 700; cursor: pointer;
-    box-shadow: 0 4px 12px rgba(79,70,229,.25); transition: all .2s;
-}
-.cm-btn-new:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,70,229,.35); color: #fff; }
-
-/* ── Module Cards ── */
-.cm-module-card {
-    background: #fff; border-radius: 16px; border: 1.5px solid #F1F5F9;
-    padding: 1.25rem; height: 100%; transition: all .2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,.02);
-}
-.cm-module-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border-color: #E2E8F0; }
-
-.cm-mod-tag {
-    font-size: .62rem; font-weight: 800; text-transform: uppercase;
-    color: #4F46E5; background: #EEF2FF; padding: .2rem .6rem; border-radius: 6px;
-}
-.cm-mod-title { font-size: .95rem; font-weight: 700; color: #1E293B; margin: .75rem 0 .5rem; }
-.cm-mod-desc  { font-size: .75rem; color: #64748B; line-height: 1.4; margin-bottom: 1.25rem; }
-
-.cm-mod-footer {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-top: auto; padding-top: 1rem; border-top: 1px solid #F8FAFF;
-}
-.cm-mod-duration { font-size: .7rem; font-weight: 600; color: #94A3B8; }
-.cm-mod-btn {
-    padding: .35rem .75rem; font-size: .72rem; font-weight: 700;
-    border-radius: 8px; border: 1.5px solid #4F46E5; background: #fff; color: #4F46E5;
-    transition: all .15s;
-}
-.cm-mod-btn:hover { background: #4F46E5; color: #fff; }
-
-/* ── Lessons Table ── */
-.cm-table-card {
-    background: #fff; border-radius: 20px; border: 1.5px solid #F1F5F9;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); overflow: hidden;
-}
-.cm-table-head {
-    padding: 1.25rem 1.5rem; border-bottom: 1.5px solid #F1F5F9;
-    display: flex; align-items: center; gap: .75rem;
-}
-.cm-table-title { font-size: .95rem; font-weight: 700; color: #1E293B; margin: 0; }
-
-.cm-table thead th {
-    background: #F8FAFF; font-size: .68rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .6px; color: #94A3B8; padding: 1rem 1.25rem; border-bottom: 1.5px solid #F1F5F9;
-}
-.cm-table tbody td { padding: 1.1rem 1.25rem; border-bottom: 1px solid #F8FAFF; vertical-align: middle; }
-.cm-table tbody tr:last-child td { border-bottom: none; }
-.cm-table tbody tr:hover { background: #FAFBFF; }
-
-.cm-order-num { font-size: .85rem; font-weight: 700; color: #94A3B8; }
-.cm-lesson-title { font-size: .9rem; font-weight: 700; color: #1E293B; margin: 0; }
-.cm-lesson-slug  { font-size: .68rem; color: #94A3B8; margin-top: .15rem; }
-
-.cm-badge-pill {
-    padding: .2rem .65rem; border-radius: 50px; font-size: .68rem; font-weight: 700;
-}
-.cm-badge-module { background: #EEF2FF; color: #4F46E5; border: 1px solid #E2E8F0; }
-.cm-badge-free   { background: #DCFCE7; color: #16A34A; }
-.cm-badge-paid   { background: #F1F5F9; color: #64748B; }
-
-/* ── Actions ── */
-.cm-action-group { display: flex; align-items: center; justify-content: flex-end; gap: .5rem; }
-.cm-btn-icon {
-    width: 34px; height: 34px; border-radius: 10px; border: 1.5px solid #E2E8F0;
-    background: #fff; color: #64748B; display: flex; align-items: center;
-    justify-content: center; font-size: .85rem; transition: all .15s;
-}
-.cm-btn-icon:hover { border-color: #4F46E5; color: #4F46E5; background: #F5F7FF; }
-.cm-btn-delete:hover { border-color: #EF4444; color: #EF4444; background: #FEF2F2; }
-
-/* ── Modals ── */
-.cm-modal { border: none; border-radius: 20px; overflow: hidden; }
-.cm-modal-hdr {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    padding: 1.5rem 1.75rem 1.25rem; background: linear-gradient(135deg, #4F46E5, #7C3AED);
-}
-.cm-modal-title { font-size: 1.1rem; font-weight: 700; color: #fff; margin: 0; }
-.cm-modal-sub   { font-size: .78rem; color: rgba(255,255,255,.8); margin: .25rem 0 0; }
-.cm-modal-close {
-    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
-    color: #fff; width: 32px; height: 32px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .9rem;
-}
-.cm-modal-body { padding: 1.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.1rem; }
-.cm-modal-foot { padding: 1.25rem 1.75rem 1.5rem; display: flex; justify-content: flex-end; gap: .75rem; border-top: 1px solid #F1F5F9; }
-
-.cm-label { font-size: .75rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; }
-.cm-input {
-    border: 1.5px solid #E2E8F0; border-radius: 12px; padding: .65rem .9rem;
-    font-size: .9rem; color: #1E293B; background: #F8FAFF; outline: none;
-    transition: all .2s; width: 100%;
-}
-.cm-input:focus { border-color: #4F46E5; background: #fff; box-shadow: 0 0 0 4px rgba(79,70,229,.1); }
-select.cm-input { cursor: pointer; }
-textarea.cm-input { resize: vertical; min-height: 80px; }
-
-.cm-btn-cancel { padding: .65rem 1.35rem; border: 1.5px solid #E2E8F0; border-radius: 12px; background: #fff; color: #64748B; font-size: .88rem; font-weight: 700; cursor: pointer; }
-.cm-btn-submit {
-    padding: .65rem 1.5rem; border: none; border-radius: 12px;
-    background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
-    font-size: .88rem; font-weight: 700; cursor: pointer;
-    display: inline-flex; align-items: center;
-    box-shadow: 0 4px 12px rgba(79,70,229,.25); transition: all 0.2s;
-}
-.cm-btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,70,229,.35); }
-</style>
-
-<div class="cm-page">
+<div class="ml-page">
 
     {{-- ── Alerts ── --}}
     @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4 rounded-3" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4 rounded-3" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> {{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
     {{-- ── Header ── --}}
-    <div class="cm-header">
-        <div>
-            <h5 class="cm-title">Curriculum Management</h5>
-            <p class="cm-subtitle">Build and organize lessons for your assigned modules.</p>
+    <div class="ml-header mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <div class="ml-header-badge"><i class="fa-solid fa-chalkboard me-1.5"></i> Curriculum Manager</div>
+                <h4 class="ml-title"><i class="fa-solid fa-layer-group text-indigo me-2"></i>Course Lessons & Content</h4>
+                <p class="ml-subtitle">Create and organize video lessons, reading materials, and curriculum order</p>
+            </div>
+            <div>
+                <button class="btn ml-btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#createLessonModal">
+                    <i class="fa-solid fa-plus me-1.5"></i>Create New Lesson
+                </button>
+            </div>
         </div>
-        <button class="cm-btn-new" data-bs-toggle="modal" data-bs-target="#createLessonModal">
-            <i class="fas fa-plus me-2"></i>Create New Lesson
-        </button>
     </div>
 
-    {{-- ── Teacher Modules ── --}}
+    {{-- ── Analytics KPI Stat Cards ── --}}
+    @php
+        $videoCount   = $lessons->whereNotNull('documnet_path')->count();
+        $previewCount = $lessons->where('is_preview', true)->count();
+    @endphp
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="ml-stat-card ml-stat-indigo">
+                <div class="ml-stat-icon"><i class="fa-solid fa-book"></i></div>
+                <div>
+                    <h3 class="ml-stat-num">{{ $myModules->count() }}</h3>
+                    <span class="ml-stat-lbl">Assigned Modules</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="ml-stat-card ml-stat-emerald">
+                <div class="ml-stat-icon"><i class="fa-solid fa-list-check"></i></div>
+                <div>
+                    <h3 class="ml-stat-num">{{ $lessons->count() }}</h3>
+                    <span class="ml-stat-lbl">Total Lessons</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="ml-stat-card ml-stat-amber">
+                <div class="ml-stat-icon"><i class="fa-solid fa-circle-play"></i></div>
+                <div>
+                    <h3 class="ml-stat-num">{{ $videoCount }}</h3>
+                    <span class="ml-stat-lbl">Video Lectures</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="ml-stat-card ml-stat-purple">
+                <div class="ml-stat-icon"><i class="fa-solid fa-eye"></i></div>
+                <div>
+                    <h3 class="ml-stat-num">{{ $previewCount }}</h3>
+                    <span class="ml-stat-lbl">Free Previews</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Teacher Assigned Modules Grid ── --}}
     @if($myModules->count() > 0)
-        <div class="row g-4 mb-5">
+        <div class="row g-3 mb-4">
             @foreach($myModules as $module)
                 <div class="col-xl-3 col-lg-4 col-md-6">
-                    <div class="cm-module-card">
-                        <span class="cm-mod-tag">Module</span>
-                        <h6 class="cm-mod-title text-truncate" title="{{ $module->title }}">{{ $module->title }}</h6>
-                        <p class="cm-mod-desc">{{ Str::limit($module->short_description ?? 'Build your course curriculum by adding structured lessons.', 85) }}</p>
-                        <div class="cm-mod-footer">
-                            <span class="cm-mod-duration"><i class="fa-regular fa-clock me-1"></i>{{ $module->duration ?? 'Ongoing' }}</span>
-                            <button class="cm-mod-btn" data-bs-toggle="modal" data-bs-target="#createLessonModal" data-module-id="{{ $module->id }}">
-                                <i class="fa-solid fa-circle-plus me-1"></i>Add Lesson
+                    <div class="ml-module-card">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="badge bg-indigo-light text-indigo border border-indigo-subtle" style="font-size:0.68rem; font-weight:700;">
+                                <i class="fa-solid fa-cube me-1"></i>MODULE
+                            </span>
+                            <span class="text-muted small" style="font-size:0.7rem;"><i class="fa-regular fa-clock me-1 text-amber"></i>{{ $module->duration ?? 'Self-paced' }}</span>
+                        </div>
+                        <h6 class="ml-mod-title text-truncate" title="{{ $module->title }}">{{ $module->title }}</h6>
+                        <p class="ml-mod-desc">{{ Str::limit($module->short_description ?? 'Build your course curriculum by adding structured lessons.', 75) }}</p>
+                        <div class="ml-mod-footer">
+                            <span class="text-muted small" style="font-size:0.72rem;"><i class="fa-solid fa-list-ul me-1 text-indigo"></i>{{ $lessons->where('module_id', $module->id)->count() }} lessons</span>
+                            <button class="btn btn-sm btn-light text-indigo border shadow-sm rounded-pill px-3 py-1" style="font-size:0.72rem; font-weight:700;"
+                                    data-bs-toggle="modal" data-bs-target="#createLessonModal" data-module-id="{{ $module->id }}">
+                                <i class="fa-solid fa-plus me-1"></i>Add Lesson
                             </button>
                         </div>
                     </div>
@@ -167,59 +103,72 @@ textarea.cm-input { resize: vertical; min-height: 80px; }
             @endforeach
         </div>
     @else
-        <div class="alert alert-warning mb-5 rounded-4 border-0 shadow-sm">
-            <i class="fa-solid fa-circle-exclamation me-2"></i> No modules assigned to your profile yet.
+        <div class="alert alert-warning mb-4 rounded-3 border-0 shadow-sm">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> No modules assigned to your teacher profile yet.
         </div>
     @endif
 
-    {{-- ── Lessons List ── --}}
-    <div class="cm-table-card">
-        <div class="cm-table-head">
-            <i class="fa-solid fa-layer-group text-primary"></i>
-            <h6 class="cm-table-title">Full Curriculum Overview</h6>
+    {{-- ── Curriculum Lessons Table Card ── --}}
+    <div class="ml-table-card mb-4">
+        <div class="ml-table-head d-flex align-items-center justify-content-between">
+            <span class="ml-table-title"><i class="fa-solid fa-layer-group me-2 text-indigo"></i>Full Curriculum & Lesson List</span>
+            <span class="badge bg-light text-dark border px-2.5 py-1.5 font-monospace" style="font-size:0.75rem;">
+                Total: {{ $lessons->count() }} Lessons
+            </span>
         </div>
+
         <div class="table-responsive">
-            <table class="table cm-table align-middle mb-0" id="lessonsTable">
+            <table class="table table-hover align-middle mb-0" id="lessonsTable">
                 <thead>
                     <tr>
-                        <th style="width: 50px;" class="ps-4">#</th>
-                        <th style="width: 25%;">Lesson Details</th>
-                        <th>Module</th>
-                        <th>Access</th>
-                        <th class="text-center">Video</th>
-                        <th class="text-end pe-4">Actions</th>
+                        <th class="ps-4 py-3" style="width: 60px;">Order</th>
+                        <th class="py-3" style="width: 30%;">Lesson Title & Slug</th>
+                        <th class="py-3">Associated Module</th>
+                        <th class="py-3">Access Level</th>
+                        <th class="text-center py-3">Video Link</th>
+                        <th class="text-end pe-4 py-3">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($lessons as $lesson)
+                    @forelse ($lessons as $lesson)
                         <tr>
-                            <td class="ps-4"><span class="cm-order-num">{{ $lesson->order_number }}</span></td>
-                            <td>
-                                <p class="cm-lesson-title">{{ $lesson->title }}</p>
-                                <p class="cm-lesson-slug">{{ $lesson->slug }}</p>
+                            <td class="ps-4 py-3">
+                                <span class="badge bg-light text-dark border font-monospace px-2.5 py-1.5" style="font-size:0.75rem; font-weight:700;">
+                                    #{{ $lesson->order_number }}
+                                </span>
                             </td>
-                            <td>
-                                <span class="cm-badge-pill cm-badge-module">{{ $lesson->module->title ?? 'N/A' }}</span>
+                            <td class="py-3">
+                                <span class="fw-bold text-dark d-block mb-0.5" style="font-size:0.9rem;">{{ $lesson->title }}</span>
+                                <span class="text-muted font-monospace" style="font-size:0.72rem;"><i class="fa-solid fa-link me-1 text-muted"></i>{{ $lesson->slug }}</span>
                             </td>
-                            <td>
+                            <td class="py-3">
+                                <span class="badge bg-indigo-light text-indigo border border-indigo-subtle px-2.5 py-1.5" style="font-size:0.72rem; font-weight:600;">
+                                    <i class="fa-solid fa-book-bookmark me-1 text-indigo"></i>{{ $lesson->module->title ?? 'N/A' }}
+                                </span>
+                            </td>
+                            <td class="py-3">
                                 @if ($lesson->is_preview)
-                                    <span class="cm-badge-pill cm-badge-free">Free Preview</span>
+                                    <span class="badge bg-emerald-light text-emerald px-2.5 py-1.5 rounded-pill" style="font-size:0.7rem; font-weight:700;">
+                                        <i class="fa-solid fa-unlock me-1"></i>Free Preview
+                                    </span>
                                 @else
-                                    <span class="cm-badge-pill cm-badge-paid">Enrolled Only</span>
+                                    <span class="badge bg-light text-muted border px-2.5 py-1.5 rounded-pill" style="font-size:0.7rem; font-weight:600;">
+                                        <i class="fa-solid fa-lock me-1"></i>Enrolled Only
+                                    </span>
                                 @endif
                             </td>
-                            <td class="text-center">
+                            <td class="text-center py-3">
                                 @if ($lesson->documnet_path)
-                                    <a href="{{ $lesson->documnet_path }}" target="_blank" class="text-danger fs-5" title="Watch Video">
-                                        <i class="fab fa-youtube"></i>
+                                    <a href="{{ $lesson->documnet_path }}" target="_blank" class="btn btn-sm btn-light text-danger border rounded-pill px-2.5 py-1" style="font-size:0.75rem;" title="Watch Video">
+                                        <i class="fa-brands fa-youtube me-1"></i>Watch
                                     </a>
                                 @else
-                                    <span class="text-muted opacity-25 small">—</span>
+                                    <span class="text-muted opacity-40 small">—</span>
                                 @endif
                             </td>
-                            <td class="text-end pe-4">
-                                <div class="cm-action-group">
-                                    <button type="button" class="cm-btn-icon edit-lesson-btn"
+                            <td class="text-end pe-4 py-3">
+                                <div class="d-inline-flex gap-1.5">
+                                    <button type="button" class="btn btn-sm btn-light text-indigo border edit-lesson-btn rounded-pill px-2.5 py-1" style="font-size:0.75rem;"
                                         data-id="{{ $lesson->id }}"
                                         data-title="{{ $lesson->title }}"
                                         data-short="{{ $lesson->short_text }}"
@@ -227,19 +176,31 @@ textarea.cm-input { resize: vertical; min-height: 80px; }
                                         data-video="{{ $lesson->documnet_path }}"
                                         data-content="{{ $lesson->full_content }}"
                                         data-module="{{ $lesson->module_id }}"
-                                        data-bs-toggle="modal" data-bs-target="#editLessonModal">
-                                        <i class="fas fa-pen-to-square"></i>
+                                        data-bs-toggle="modal" data-bs-target="#editLessonModal"
+                                        title="Edit Lesson">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i>Edit
                                     </button>
                                     <form action="{{ route('teacher.lessons.destroy', $lesson->id) }}" method="POST" class="d-inline">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="cm-btn-icon cm-btn-delete" onclick="return confirm('Permanently delete this lesson?')">
-                                            <i class="fas fa-trash-can"></i>
+                                        <button type="submit" class="btn btn-sm btn-light text-danger border rounded-pill px-2.5 py-1" style="font-size:0.75rem;" onclick="return confirm('Permanently delete this lesson?')" title="Delete Lesson">
+                                            <i class="fa-solid fa-trash-can"></i>
                                         </button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="fa-solid fa-layer-group text-muted opacity-25 mb-2" style="font-size:2.5rem;"></i>
+                                <h6 class="text-dark fw-bold mb-1">No Lessons Created Yet</h6>
+                                <p class="text-muted small mb-3">Start by adding lessons to your course modules above.</p>
+                                <button class="btn btn-sm btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#createLessonModal">
+                                    <i class="fa-solid fa-plus me-1"></i>Create First Lesson
+                                </button>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -247,110 +208,116 @@ textarea.cm-input { resize: vertical; min-height: 80px; }
 
 </div>
 
-{{-- ══ CREATE LESSON MODAL ══ --}}
-<div class="modal fade" id="createLessonModal" tabindex="-1" aria-hidden="true" style="z-index: 2050;">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px;">
-        <div class="modal-content cm-modal shadow-lg">
-            <div class="cm-modal-hdr">
-                <div>
-                    <h5 class="cm-modal-title"><i class="fa-solid fa-circle-plus me-2"></i>Add New Lesson</h5>
-                    <p class="cm-modal-sub">Create structured content for your module</p>
-                </div>
-                <button type="button" class="cm-modal-close" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+{{-- ── CREATE LESSON MODAL ── --}}
+<div class="modal fade" id="createLessonModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-dark text-white" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-plus me-2 text-indigo"></i>Create New Lesson</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('teacher.lessons.store') }}" method="POST">
                 @csrf
-                <div class="cm-modal-body">
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
-                        <div class="cm-field">
-                            <label class="cm-label">Target Module <span class="text-danger">*</span></label>
-                            <select name="module_id" id="create_module_id" class="cm-input" required>
-                                <option value="" selected disabled>Select Module</option>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold text-muted">TARGET MODULE / COURSE *</label>
+                            <select name="module_id" id="create_module_id" class="ml-input" required>
+                                <option value="" selected disabled>Select Course Module...</option>
                                 @foreach ($myModules as $module)
                                     <option value="{{ $module->id }}">{{ $module->title }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="cm-field">
-                            <label class="cm-label">Order # <span class="text-danger">*</span></label>
-                            <input type="number" name="order_number" class="cm-input" value="1" required>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">ORDER NUMBER *</label>
+                            <input type="number" name="order_number" class="ml-input" value="1" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">LESSON TITLE *</label>
+                            <input type="text" name="title" class="ml-input" placeholder="e.g. Introduction to Data Analytics Concepts" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">SHORT SUMMARY (OPTIONAL)</label>
+                            <input type="text" name="short_text" class="ml-input" placeholder="Brief overview of what students will learn in this lesson">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">VIDEO LINK (YOUTUBE / VIMEO / DRIVE)</label>
+                            <input type="url" name="documnet_path" class="ml-input" placeholder="https://youtube.com/watch?v=...">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">FULL LESSON CONTENT / NOTES</label>
+                            <textarea name="full_content" rows="4" class="ml-input" placeholder="Detailed lesson transcript, reading materials, or instructions..."></textarea>
                         </div>
                     </div>
-                    <div class="cm-field">
-                        <label class="cm-label">Lesson Title <span class="text-danger">*</span></label>
-                        <input type="text" name="title" class="cm-input" placeholder="e.g. Introduction to Variables" required>
-                    </div>
-                    <div class="cm-field">
-                        <label class="cm-label">Short Summary (Optional)</label>
-                        <input type="text" name="short_text" class="cm-input" placeholder="A brief overview of what students will learn">
-                    </div>
-                    <div class="cm-field">
-                        <label class="cm-label">Video URL (YouTube/Vimeo)</label>
-                        <input type="url" name="documnet_path" class="cm-input" placeholder="https://youtube.com/watch?v=...">
-                    </div>
-                    <div class="cm-field">
-                        <label class="cm-label">Full Content / Notes</label>
-                        <textarea name="full_content" rows="4" class="cm-input" placeholder="Detailed lesson text or transcript..."></textarea>
-                    </div>
                 </div>
-                <div class="cm-modal-foot">
-                    <button type="button" class="cm-btn-cancel" data-bs-dismiss="modal">Discard</button>
-                    <button type="submit" class="cm-btn-submit"><i class="fa-solid fa-cloud-arrow-up me-2"></i>Save Lesson</button>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Discard</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+                        <i class="fa-solid fa-plus me-1.5"></i>Save Lesson
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-{{-- ══ EDIT LESSON MODAL ══ --}}
-<div class="modal fade" id="editLessonModal" tabindex="-1" aria-hidden="true" style="z-index: 2050;">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px;">
-        <div class="modal-content cm-modal shadow-lg">
-            <div class="cm-modal-hdr">
-                <div>
-                    <h5 class="cm-modal-title"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Lesson</h5>
-                    <p class="cm-modal-sub">Update lesson details and configuration</p>
-                </div>
-                <button type="button" class="cm-modal-close" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+{{-- ── EDIT LESSON MODAL ── --}}
+<div class="modal fade" id="editLessonModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-primary text-white" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Lesson Content</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="editLessonForm" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="cm-modal-body">
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
-                        <div class="cm-field">
-                            <label class="cm-label">Module <span class="text-danger">*</span></label>
-                            <select name="module_id" id="edit_module_id" class="cm-input" required>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold text-muted">TARGET MODULE *</label>
+                            <select name="module_id" id="edit_module_id" class="ml-input" required>
                                 @foreach ($myModules as $module)
                                     <option value="{{ $module->id }}">{{ $module->title }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="cm-field">
-                            <label class="cm-label">Order # <span class="text-danger">*</span></label>
-                            <input type="number" name="order_number" id="edit_order_number" class="cm-input" required>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">ORDER NUMBER *</label>
+                            <input type="number" name="order_number" id="edit_order_number" class="ml-input" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">LESSON TITLE *</label>
+                            <input type="text" name="title" id="edit_title" class="ml-input" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">VIDEO LINK</label>
+                            <input type="url" name="documnet_path" id="edit_video_url" class="ml-input">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">SHORT SUMMARY</label>
+                            <input type="text" name="short_text" id="edit_short_text" class="ml-input">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">FULL LESSON CONTENT / NOTES</label>
+                            <textarea name="full_content" id="edit_full_content" rows="4" class="ml-input"></textarea>
                         </div>
                     </div>
-                    <div class="cm-field">
-                        <label class="cm-label">Lesson Title <span class="text-danger">*</span></label>
-                        <input type="text" name="title" id="edit_title" class="cm-input" required>
-                    </div>
-                    <div class="cm-field">
-                        <label class="cm-label">Video URL</label>
-                        <input type="url" name="documnet_path" id="edit_video_url" class="cm-input">
-                    </div>
-                    <div class="cm-field">
-                        <label class="cm-label">Short Description</label>
-                        <textarea name="short_text" id="edit_short_text" rows="2" class="cm-input"></textarea>
-                    </div>
-                    <div class="cm-field">
-                        <label class="cm-label">Full Content / Long Description</label>
-                        <textarea name="full_content" id="edit_full_content" rows="3" class="cm-input"></textarea>
-                    </div>
                 </div>
-                <div class="cm-modal-foot">
-                    <button type="button" class="cm-btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="cm-btn-submit"><i class="fa-solid fa-circle-check me-2"></i>Update Lesson</button>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+                        <i class="fa-solid fa-circle-check me-1.5"></i>Update Lesson
+                    </button>
                 </div>
             </form>
         </div>
@@ -359,52 +326,190 @@ textarea.cm-input { resize: vertical; min-height: 80px; }
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize DataTable specifically for this table to avoid conflicts
-        if ($.fn.DataTable && !$.fn.DataTable.isDataTable('#lessonsTable')) {
-            $('#lessonsTable').DataTable({
-                pageLength: 10,
-                ordering: true,
-                responsive: true,
-                columnDefs: [
-                    { orderable: false, targets: 5 } // Disable ordering on Actions column
-                ],
-                language: { 
-                    search: '', 
-                    searchPlaceholder: 'Search lessons...',
-                    emptyTable: 'No lessons found. Start by adding a new lesson to your courses!'
+        if (typeof $ !== 'undefined' && $.fn.DataTable) {
+            $.fn.dataTable.ext.errMode = 'none';
+            if ($('#lessonsTable tbody tr').length > 0 && !$('#lessonsTable tbody tr td[colspan]').length) {
+                if (!$.fn.DataTable.isDataTable('#lessonsTable')) {
+                    $('#lessonsTable').DataTable({
+                        pageLength: 10,
+                        ordering: true,
+                        responsive: true,
+                        columnDefs: [
+                            { orderable: false, targets: 5 }
+                        ],
+                        language: { 
+                            search: '', 
+                            searchPlaceholder: 'Search lessons...',
+                            emptyTable: 'No lessons found.'
+                        }
+                    });
                 }
-            });
+            }
         }
 
-        // Handle Edit Button Click
+
         const editBtns = document.querySelectorAll('.edit-lesson-btn');
         const editForm = document.getElementById('editLessonForm');
 
         editBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
-                editForm.action = `/teacher/lessons/update/${id}`;
+                if (editForm) {
+                    editForm.action = `/teacher/lessons/update/${id}`;
+                }
 
-                document.getElementById('edit_title').value = this.getAttribute('data-title');
-                document.getElementById('edit_short_text').value = this.getAttribute('data-short');
-                document.getElementById('edit_order_number').value = this.getAttribute('data-order');
-                document.getElementById('edit_video_url').value = this.getAttribute('data-video');
-                document.getElementById('edit_module_id').value = this.getAttribute('data-module');
-                document.getElementById('edit_full_content').value = this.getAttribute('data-content');
+                if (document.getElementById('edit_title')) document.getElementById('edit_title').value = this.getAttribute('data-title') || '';
+                if (document.getElementById('edit_short_text')) document.getElementById('edit_short_text').value = this.getAttribute('data-short') || '';
+                if (document.getElementById('edit_order_number')) document.getElementById('edit_order_number').value = this.getAttribute('data-order') || '';
+                if (document.getElementById('edit_video_url')) document.getElementById('edit_video_url').value = this.getAttribute('data-video') || '';
+                if (document.getElementById('edit_module_id')) document.getElementById('edit_module_id').value = this.getAttribute('data-module') || '';
+                if (document.getElementById('edit_full_content')) document.getElementById('edit_full_content').value = this.getAttribute('data-content') || '';
             });
         });
 
-        // Handle Add Lesson from Module Card
         const createModal = document.getElementById('createLessonModal');
         if (createModal) {
             createModal.addEventListener('show.bs.modal', function (e) {
                 const btn = e.relatedTarget;
-                const moduleId = btn.getAttribute('data-module-id');
-                if (moduleId) {
-                    document.getElementById('create_module_id').value = moduleId;
+                if (btn) {
+                    const moduleId = btn.getAttribute('data-module-id');
+                    if (moduleId && document.getElementById('create_module_id')) {
+                        document.getElementById('create_module_id').value = moduleId;
+                    }
                 }
             });
         }
     });
 </script>
+
+<style>
+/* ── Page Layout ── */
+.ml-page { padding: 1.5rem; background: #F8FAFF; min-height: 100%; font-family: inherit; }
+
+/* ── Header ── */
+.ml-header-badge {
+    display: inline-block;
+    background: #EEF2FF;
+    color: #4F46E5;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 0.2rem 0.65rem;
+    border-radius: 50px;
+    margin-bottom: 0.35rem;
+}
+.ml-title    { font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0; }
+.ml-subtitle { font-size: 0.82rem; color: #64748B; margin: 0.15rem 0 0; }
+
+.ml-btn-primary {
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.55rem 1.2rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.25);
+    transition: all 0.2s;
+}
+.ml-btn-primary:hover { transform: translateY(-1px); color: #fff; box-shadow: 0 6px 16px rgba(79,70,229,0.3); }
+
+/* ── Stat Cards ── */
+.ml-stat-card {
+    background: #fff;
+    border: 1.5px solid #F1F5F9;
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.ml-stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
+.ml-stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+.ml-stat-indigo .ml-stat-icon { background: #EEF2FF; color: #4F46E5; }
+.ml-stat-emerald .ml-stat-icon{ background: #ECFDF5; color: #10B981; }
+.ml-stat-amber .ml-stat-icon  { background: #FFFBEB; color: #F59E0B; }
+.ml-stat-purple .ml-stat-icon { background: #F3E8FF; color: #9333EA; }
+
+.ml-stat-num { font-size: 1.45rem; font-weight: 800; color: #0F172A; margin: 0; line-height: 1.1; }
+.ml-stat-lbl { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748B; margin-top: 0.2rem; display: block; }
+
+/* ── Module Cards ── */
+.ml-module-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1.5px solid #F1F5F9;
+    padding: 1.15rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.ml-module-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); border-color: #C7D2FE; }
+.ml-mod-title { font-size: 0.92rem; font-weight: 800; color: #0F172A; margin-bottom: 0.35rem; }
+.ml-mod-desc  { font-size: 0.76rem; color: #64748B; line-height: 1.4; margin-bottom: 1rem; }
+.ml-mod-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 0.75rem; border-top: 1.5px solid #F8FAFF; }
+
+/* ── Table Card ── */
+.ml-table-card {
+    background: #fff;
+    border: 1.5px solid #F1F5F9;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    overflow: hidden;
+}
+.ml-table-head {
+    padding: 1.1rem 1.25rem 0.85rem;
+    border-bottom: 1.5px solid #F1F5F9;
+}
+.ml-table-title { font-size: 0.9rem; font-weight: 800; color: #0F172A; }
+
+.table thead th {
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748B;
+    background-color: #F8FAFF;
+    border-bottom: 1.5px solid #EDF2F7;
+}
+
+/* Modals Inputs */
+.ml-input {
+    width: 100%;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.84rem;
+    border-radius: 10px;
+    border: 1.5px solid #E2E8F0;
+    background: #F8FAFF;
+    outline: none;
+    transition: all 0.2s;
+}
+.ml-input:focus {
+    background: #fff;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+/* Utility Colors */
+.bg-indigo-light { background: #EEF2FF; }
+.text-indigo     { color: #4F46E5; }
+.border-indigo-subtle { border-color: #C7D2FE !important; }
+.bg-emerald-light{ background: #ECFDF5; }
+.text-emerald    { color: #047857; }
+</style>
 @endsection
+

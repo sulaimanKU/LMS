@@ -11,14 +11,20 @@
 
 <script>
     $(document).ready(function() {
-        $('#userTable').DataTable({
-            "pageLength": 10,
-            "ordering": true,
-            "info": true,
-            "language": {
-                "search": "Search User:",
-                "emptyTable": "No users found in database"
-            }
-        });
+        if (typeof $.fn.dataTable !== 'undefined') {
+            $.fn.dataTable.ext.errMode = 'none';
+        }
+        if ($('#userTable').length > 0 && $.fn.DataTable && !$.fn.DataTable.isDataTable('#userTable')) {
+            $('#userTable').DataTable({
+                "pageLength": 10,
+                "ordering": true,
+                "info": true,
+                "language": {
+                    "search": "Search User:",
+                    "emptyTable": "No users found in database"
+                }
+            });
+        }
     });
 </script>
+
