@@ -412,7 +412,7 @@ public function adminEnrollStudentCourse(Request $request)
         $allUserIds = $studentUsers->pluck('id')->merge($approvedRegs->pluck('id'))->unique();
         $allCertificates = \App\Models\Certificate::whereIn('user_id', $allUserIds)->get();
 
-        $enrollmentList = collect();
+        $studentRoster = collect();
 
         foreach ($allEmails as $email) {
             $user = $usersByEmail->get($email);
@@ -442,55 +442,57 @@ public function adminEnrollStudentCourse(Request $request)
 
             $modules = Courses::whereIn('id', $courseIds)->get();
 
-            foreach ($modules as $module) {
+            $modulesWithCerts = $modules->map(function($module) use ($user, $reg, $allCertificates, $pivotModules) {
                 $cert = $allCertificates->first(function($c) use ($user, $reg, $module) {
                     return $c->module_id == $module->id && (
                         ($user && $c->user_id == $user->id) || ($reg && $c->user_id == $reg->id)
                     );
                 });
-
                 $pivot = $pivotModules->firstWhere('id', $module->id)?->pivot;
-                $status = $pivot?->status ?? 'active';
+                return (object)[
+                    'module'      => $module,
+                    'certificate' => $cert,
+                    'status'      => $pivot?->status ?? 'active',
+                ];
+            });
 
-                $studentObj = (object)[
+            $hasAnyCert = $modulesWithCerts->contains(fn($m) => $m->certificate !== null);
+
+            $studentRoster->push((object)[
+                'student'          => (object)[
                     'id'            => $userId,
                     'name'          => $studentName,
                     'email'         => $email,
                     'profile_image' => $profileImage,
-                ];
-
-                $enrollmentList->push((object)[
-                    'student'      => $studentObj,
-                    'module'       => $module,
-                    'certificate'  => $cert,
-                    'status'       => $status,
-                ]);
-            }
+                    'is_user'       => $user !== null,
+                ],
+                'modulesWithCerts' => $modulesWithCerts,
+                'hasAnyCert'       => $hasAnyCert,
+            ]);
         }
 
-        // Precise Global KPI Statistics
-        $totalStudents  = $allEmails->count();
-        $totalRecords   = $enrollmentList->count();
-        $issuedCount    = $enrollmentList->filter(fn($i) => $i->certificate !== null)->count();
-        $pendingCount   = $totalRecords - $issuedCount;
-        $completedCount = $enrollmentList->filter(fn($i) => $i->status === 'completed')->count();
+        // Exact Student KPI Statistics
+        $totalStudents   = $studentRoster->count();
+        $issuedCount     = $studentRoster->filter(fn($s) => $s->hasAnyCert)->count();
+        $pendingCount    = $totalStudents - $issuedCount;
+        $totalCertsCount = $allCertificates->count();
 
-        // Paginate enrollmentList into $users
-        $perPage = 20;
+        // Paginate studentRoster into $users
+        $perPage = 15;
         $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
-        $paginatedItems = $enrollmentList->slice(($page - 1) * $perPage, $perPage)->values();
+        $paginatedItems = $studentRoster->slice(($page - 1) * $perPage, $perPage)->values();
 
         $users = new \Illuminate\Pagination\LengthAwarePaginator(
             $paginatedItems,
-            $enrollmentList->count(),
+            $studentRoster->count(),
             $perPage,
             $page,
             ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
         );
 
         return view('layouts.certificatesManagment', compact(
-            'allModules', 'selectedModuleId', 'search', 'users', 'enrollmentList',
-            'totalStudents', 'totalRecords', 'issuedCount', 'pendingCount', 'completedCount'
+            'allModules', 'selectedModuleId', 'search', 'users', 'studentRoster',
+            'totalStudents', 'issuedCount', 'pendingCount', 'totalCertsCount'
         ));
     }
 

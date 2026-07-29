@@ -33,7 +33,7 @@
                     </div>
                     <div>
                         <h4 class="cm-hero-title mb-1">Certificate Management Hub</h4>
-                        <p class="cm-hero-sub mb-0">Issue, audit, and manage official course completion certificates for all enrolled students</p>
+                        <p class="cm-hero-sub mb-0">Issue, audit, and manage official course completion certificates for all approved students</p>
                     </div>
                 </div>
             </div>
@@ -58,22 +58,12 @@
         </div>
 
         <div class="cm-stat-box">
-            <div class="cm-stat-icon-wrap bg-purple-subtle text-purple">
-                <i class="fa-solid fa-layer-group"></i>
-            </div>
-            <div class="cm-stat-content">
-                <span class="cm-stat-val">{{ $totalRecords ?? 0 }}</span>
-                <span class="cm-stat-lbl">Course Allocations</span>
-            </div>
-        </div>
-
-        <div class="cm-stat-box">
             <div class="cm-stat-icon-wrap bg-emerald-subtle text-emerald">
                 <i class="fa-solid fa-award"></i>
             </div>
             <div class="cm-stat-content">
                 <span class="cm-stat-val">{{ $issuedCount ?? 0 }}</span>
-                <span class="cm-stat-lbl">Certificates Issued</span>
+                <span class="cm-stat-lbl">Students With Certs</span>
             </div>
         </div>
 
@@ -83,7 +73,17 @@
             </div>
             <div class="cm-stat-content">
                 <span class="cm-stat-val">{{ $pendingCount ?? 0 }}</span>
-                <span class="cm-stat-lbl">Pending Certificates</span>
+                <span class="cm-stat-lbl">Pending Students</span>
+            </div>
+        </div>
+
+        <div class="cm-stat-box">
+            <div class="cm-stat-icon-wrap bg-purple-subtle text-purple">
+                <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div class="cm-stat-content">
+                <span class="cm-stat-val">{{ $totalCertsCount ?? 0 }}</span>
+                <span class="cm-stat-lbl">Published Files</span>
             </div>
         </div>
     </div>
@@ -130,13 +130,13 @@
                         @if($selectedModuleId && $allModules->find($selectedModuleId))
                             Students Enrolled in <span class="text-primary">{{ $allModules->find($selectedModuleId)->title }}</span>
                         @else
-                            All Student Certificate Records
+                            Approved Student Roster
                         @endif
                     </h6>
-                    <span class="text-muted small">Select any student below to upload or manage their certificate</span>
+                    <span class="text-muted small">Select any student course below to upload or manage their certificate</span>
                 </div>
                 <span class="cm-badge-count">
-                    {{ $totalStudents }} Approved Students ({{ $totalRecords }} Course Allocations) — Showing {{ $users->count() }} on Page {{ $users->currentPage() }}
+                    Total {{ $totalStudents }} Approved Student(s) — Showing {{ $users->count() }} on Page {{ $users->currentPage() }}
                 </span>
             </div>
         </div>
@@ -145,12 +145,10 @@
             <table class="table cm-table align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4">Student Profile</th>
-                        <th>Email Address</th>
-                        <th>Enrolled Module</th>
-                        <th class="text-center">Course Status</th>
-                        <th class="text-center">Certificate Status</th>
-                        <th class="text-end pe-4">Actions</th>
+                        <th class="ps-4" style="width: 280px;">Student Profile</th>
+                        <th>Email Contact</th>
+                        <th>Enrolled Courses & Certificate Actions</th>
+                        <th class="text-end pe-4">Student Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -177,73 +175,66 @@
                             </td>
 
                             <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="cm-cat-chip">{{ $item->module->category }}</span>
-                                    <span class="fw-bold text-dark">{{ $item->module->title }}</span>
+                                <div class="d-flex flex-column gap-2 py-1">
+                                    @foreach($item->modulesWithCerts as $mc)
+                                        <div class="d-flex align-items-center justify-content-between p-2 rounded-3" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="cm-cat-chip">{{ $mc->module->category }}</span>
+                                                <span class="fw-bold text-dark me-2" style="font-size: 0.85rem;">{{ $mc->module->title }}</span>
+                                                
+                                                @if($mc->certificate)
+                                                    <span class="cm-chip cm-chip-issued">
+                                                        <span class="cm-dot"></span>Issued
+                                                    </span>
+                                                @else
+                                                    <span class="cm-chip cm-chip-pending">
+                                                        <span class="cm-dot"></span>Pending
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if($mc->certificate)
+                                                    <a href="{{ asset('storage/' . $mc->certificate->certificate_path) }}" target="_blank" class="cm-action-icon view-icon" title="View Certificate">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
+                                                    <form action="{{ route('admin.student.certificate.delete', $mc->certificate->id) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Delete certificate for {{ addslashes($item->student->name) }} in {{ addslashes($mc->module->title) }}?')">
+                                                        @csrf @method('DELETE')
+                                                        <button type="submit" class="cm-action-icon delete-icon" title="Delete Certificate">
+                                                            <i class="fa-solid fa-trash-can"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+
+                                                <button class="cm-btn-upload" 
+                                                        data-bs-toggle="modal" data-bs-target="#assignCertificateModal"
+                                                        data-userid="{{ $item->student->id }}"
+                                                        data-username="{{ $item->student->name }}"
+                                                        data-moduleid="{{ $mc->module->id }}"
+                                                        data-moduletitle="{{ $mc->module->title }}">
+                                                    <i class="fa-solid fa-file-arrow-up me-1"></i> {{ $mc->certificate ? 'Re-upload' : 'Upload Cert' }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            </td>
-
-                            <td class="text-center">
-                                @if($item->status == 'completed')
-                                    <span class="cm-chip cm-chip-completed">
-                                        <i class="fa-solid fa-graduation-cap me-1"></i>Completed
-                                    </span>
-                                @elseif($item->status == 'active')
-                                    <span class="cm-chip cm-chip-active">
-                                        <i class="fa-solid fa-play me-1"></i>Active
-                                    </span>
-                                @else
-                                    <span class="cm-chip cm-chip-muted">
-                                        {{ ucfirst($item->status) }}
-                                    </span>
-                                @endif
-                            </td>
-
-                            <td class="text-center">
-                                @if($item->certificate)
-                                    <span class="cm-chip cm-chip-issued">
-                                        <span class="cm-dot"></span>Issued (Active)
-                                    </span>
-                                @else
-                                    <span class="cm-chip cm-chip-pending">
-                                        <span class="cm-dot"></span>Not Issued
-                                    </span>
-                                @endif
                             </td>
 
                             <td class="text-end pe-4">
-                                <div class="d-flex justify-content-end align-items-center gap-2">
-                                    @if($item->certificate)
-                                        {{-- View Certificate --}}
-                                        <a href="{{ asset('storage/' . $item->certificate->certificate_path) }}" target="_blank" class="cm-action-icon view-icon" title="View Certificate Document">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </a>
-
-                                        {{-- Delete Certificate --}}
-                                        <form action="{{ route('admin.student.certificate.delete', $item->certificate->id) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Are you sure you want to delete this certificate? It will be permanently removed from student dashboard, database and storage.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="cm-action-icon delete-icon" title="Delete Certificate">
-                                                <i class="fa-solid fa-trash-can"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    {{-- Assign / Re-upload Certificate --}}
-                                    <button class="cm-btn-upload" 
-                                            data-bs-toggle="modal" data-bs-target="#assignCertificateModal"
-                                            data-userid="{{ $item->student->id }}"
-                                            data-username="{{ $item->student->name }}"
-                                            data-moduleid="{{ $item->module->id }}"
-                                            data-moduletitle="{{ $item->module->title }}">
-                                        <i class="fa-solid fa-file-arrow-up me-1"></i> {{ $item->certificate ? 'Re-upload' : 'Upload Cert' }}
-                                    </button>
-                                </div>
+                                @if($item->hasAnyCert)
+                                    <span class="cm-chip cm-chip-issued">
+                                        <i class="fa-solid fa-circle-check me-1"></i>Verified Student
+                                    </span>
+                                @else
+                                    <span class="cm-chip cm-chip-pending">
+                                        <i class="fa-solid fa-clock me-1"></i>Awaiting Cert
+                                    </span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="4" class="text-center py-5">
                                 <div class="py-4 text-center">
                                     <i class="fa-solid fa-award fa-3x text-muted opacity-25 mb-3 d-block"></i>
                                     <h6 class="fw-bold text-dark mb-1">No Student Certificate Records Found</h6>
@@ -499,27 +490,23 @@
 }
 
 .cm-cat-chip {
-    background: #F1F5F9;
-    color: #475569;
+    background: #EEF2FF;
+    color: #4F46E5;
     padding: 0.2rem 0.65rem;
     border-radius: 50px;
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.68rem;
+    font-weight: 800;
 }
 
 .cm-chip {
-    padding: 0.35rem 0.85rem;
+    padding: 0.25rem 0.7rem;
     border-radius: 50px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 800;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 }
-.cm-chip-completed { background: #EEF2FF; color: #4F46E5; }
-.cm-chip-active { background: #ECFDF5; color: #059669; }
-.cm-chip-muted { background: #F1F5F9; color: #64748B; }
-
 .cm-chip-issued { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
 .cm-chip-pending { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
 
@@ -531,13 +518,13 @@
 }
 
 .cm-action-icon {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     text-decoration: none;
     border: 1px solid #E2E8F0;
     background: #FFFFFF;
@@ -554,8 +541,8 @@
     color: #FFFFFF !important;
     border: none;
     border-radius: 50px;
-    padding: 0.45rem 1.1rem;
-    font-size: 0.78rem;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.75rem;
     font-weight: 800;
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
     transition: all 0.2s ease;
