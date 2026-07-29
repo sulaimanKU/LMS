@@ -5,326 +5,971 @@
 
     {{-- ── Alerts ── --}}
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="fa-solid fa-circle-check me-2"></i>{{ session('success') }}
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #ECFDF5; border-left: 4px solid #10B981 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-circle-check fs-5 me-2 text-success"></i>
+                <span class="fw-semibold text-dark">{{ session('success') }}</span>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ session('error') }}
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #FEF2F2; border-left: 4px solid #EF4444 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-triangle-exclamation fs-5 me-2 text-danger"></i>
+                <span class="fw-semibold text-dark">{{ session('error') }}</span>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
-    {{-- ── Header ── --}}
-    <div class="cr-header">
-        <div>
-            <h5 class="cr-title">Course Management</h5>
-            <p class="cr-subtitle">Create, edit and manage all modules offered by MyLMS</p>
+    {{-- ── Page Hero Header ── --}}
+    <div class="cr-hero-card mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-lg-6">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="cr-hero-icon">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h4 class="cr-hero-title mb-1">Course & Student Directory</h4>
+                        <p class="cr-hero-sub mb-0">Manage courses, monitor enrollments and inspect student details in real-time</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 text-lg-end">
+                <div class="d-flex align-items-center justify-content-lg-end gap-2 flex-wrap">
+                    <a href="{{ route('course.create') }}" class="cr-btn-primary text-decoration-none">
+                        <i class="fa-solid fa-plus me-2"></i>Create New Course
+                    </a>
+                </div>
+            </div>
         </div>
-        <a href="{{ route('course.create') }}" class="cr-btn-add text-decoration-none">
-            <i class="fa-solid fa-plus me-2"></i>Add New Course
-        </a>
     </div>
 
-    {{-- ── Stat cards ── --}}
-    <div class="cr-stats">
-        <div class="cr-stat">
-            <div class="cr-stat-icon" style="background:#EEF2FF;color:#4F46E5;">
-                <i class="fa-solid fa-book-open"></i>
+    {{-- ── Executive Stat Cards ── --}}
+    <div class="cr-stats-grid mb-4">
+        <div class="cr-stat-box">
+            <div class="cr-stat-icon-wrap bg-indigo-subtle text-indigo">
+                <i class="fa-solid fa-layer-group"></i>
             </div>
-            <div>
-                <p class="cr-stat-num">{{ $totalCourses }}</p>
-                <p class="cr-stat-label">Total Courses</p>
+            <div class="cr-stat-content">
+                <span class="cr-stat-val">{{ $totalCourses }}</span>
+                <span class="cr-stat-lbl">Total Courses</span>
             </div>
         </div>
-        <div class="cr-stat">
-            <div class="cr-stat-icon" style="background:#D1FAE5;color:#065F46;">
+        <div class="cr-stat-box">
+            <div class="cr-stat-icon-wrap bg-emerald-subtle text-emerald">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
-            <div>
-                <p class="cr-stat-num">{{ $activeCourses }}</p>
-                <p class="cr-stat-label">Active</p>
+            <div class="cr-stat-content">
+                <span class="cr-stat-val">{{ $activeCourses }}</span>
+                <span class="cr-stat-lbl">Active Courses</span>
             </div>
         </div>
-        <div class="cr-stat">
-            <div class="cr-stat-icon" style="background:#F1F5F9;color:#64748B;">
+        <div class="cr-stat-box">
+            <div class="cr-stat-icon-wrap bg-slate-subtle text-slate">
                 <i class="fa-solid fa-circle-pause"></i>
             </div>
-            <div>
-                <p class="cr-stat-num">{{ $inactiveCourses }}</p>
-                <p class="cr-stat-label">Inactive</p>
+            <div class="cr-stat-content">
+                <span class="cr-stat-val">{{ $inactiveCourses }}</span>
+                <span class="cr-stat-lbl">Inactive Courses</span>
             </div>
         </div>
-        <div class="cr-stat">
-            <div class="cr-stat-icon" style="background:#FEF3C7;color:#92400E;">
-                <i class="fa-solid fa-user-graduate"></i>
+        <div class="cr-stat-box">
+            <div class="cr-stat-icon-wrap bg-amber-subtle text-amber">
+                <i class="fa-solid fa-users"></i>
             </div>
-            <div>
-                <p class="cr-stat-num">{{ $totalEnrolled }}</p>
-                <p class="cr-stat-label">Enrolled Students</p>
+            <div class="cr-stat-content">
+                <span class="cr-stat-val">{{ $totalEnrolled }}</span>
+                <span class="cr-stat-lbl">Total Enrollments</span>
             </div>
         </div>
     </div>
 
-    {{-- ── Filter & Search Row ── --}}
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-        {{-- Tabs --}}
-        <div class="cr-tabs">
-            <a class="cr-tab {{ $filter === 'all' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'all', 'page' => 1]) }}">All Courses ({{ $totalCourses }})</a>
-            <a class="cr-tab {{ $filter === 'active' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'active', 'page' => 1]) }}">Active ({{ $activeCourses }})</a>
-            <a class="cr-tab {{ $filter === 'inactive' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'inactive', 'page' => 1]) }}">Inactive ({{ $inactiveCourses }})</a>
-        </div>
-
-        {{-- Filters & Search --}}
-        <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
-            {{-- Category Filter --}}
-            <form action="{{ route('course.index') }}" method="GET" class="m-0">
-                @if($filter !== 'all') <input type="hidden" name="filter" value="{{ $filter }}"> @endif
-                @if($search) <input type="hidden" name="search" value="{{ $search }}"> @endif
-                <select name="category" class="form-select form-select-sm rounded-pill px-3 shadow-none border-0" style="background:#fff; font-size:.8rem; min-width:140px;" onchange="this.form.submit()">
-                    <option value="">All Categories</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat }}" {{ $category === $cat ? 'selected' : '' }}>{{ $cat }}</option>
-                    @endforeach
-                </select>
-            </form>
-
-            {{-- Search Form --}}
-            <form action="{{ route('course.index') }}" method="GET" class="cr-search-form m-0">
-                @if($category) <input type="hidden" name="category" value="{{ $category }}"> @endif
-                @if($filter !== 'all') <input type="hidden" name="filter" value="{{ $filter }}"> @endif
-                
-                <div class="cr-search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Search courses..." class="cr-search-input">
-                    @if($search)
-                        <a href="{{ route('course.index', array_filter(['filter' => $filter, 'category' => $category])) }}" class="cr-search-clear">
-                            <i class="fa-solid fa-xmark"></i>
-                        </a>
-                    @endif
-                    <button type="submit" class="cr-search-btn">Search</button>
+    {{-- ── Modern Enterprise Filter & Search Toolbar ── --}}
+    <div class="cr-toolbar mb-4">
+        <div class="row align-items-center g-3">
+            {{-- Status Tabs --}}
+            <div class="col-12 col-xl-4">
+                <div class="cr-nav-pills">
+                    <a class="cr-pill {{ $filter === 'all' && !$selectedCourseId ? 'active' : '' }}" href="{{ route('course.index', ['filter' => 'all']) }}">
+                        All Courses <span class="cr-pill-badge">{{ $totalCourses }}</span>
+                    </a>
+                    <a class="cr-pill {{ $filter === 'active' ? 'active' : '' }}" href="{{ route('course.index', ['filter' => 'active']) }}">
+                        Active <span class="cr-pill-badge">{{ $activeCourses }}</span>
+                    </a>
+                    <a class="cr-pill {{ $filter === 'inactive' ? 'active' : '' }}" href="{{ route('course.index', ['filter' => 'inactive']) }}">
+                        Inactive <span class="cr-pill-badge">{{ $inactiveCourses }}</span>
+                    </a>
                 </div>
-            </form>
+            </div>
+
+            {{-- Selectors & Unified Search --}}
+            <div class="col-12 col-xl-8">
+                <div class="d-flex align-items-center justify-content-xl-end gap-2 flex-wrap">
+                    
+                    {{-- Filter by Course Dropdown --}}
+                    <form action="{{ route('course.index') }}" method="GET" class="m-0 flex-grow-1 flex-md-grow-0">
+                        @if($filter !== 'all') <input type="hidden" name="filter" value="{{ $filter }}"> @endif
+                        @if($search) <input type="hidden" name="search" value="{{ $search }}"> @endif
+                        @if($category) <input type="hidden" name="category" value="{{ $category }}"> @endif
+                        
+                        <div class="cr-filter-select-box shadow-sm">
+                            <i class="fa-solid fa-graduation-cap cr-filter-icon text-indigo"></i>
+                            <select name="course_id" class="cr-filter-select" onchange="this.form.submit()">
+                                <option value="">Filter by Course / Workshop...</option>
+                                @foreach($allCoursesList as $cList)
+                                    <option value="{{ $cList->id }}" {{ $selectedCourseId == $cList->id ? 'selected' : '' }}>
+                                        {{ $cList->title }} ({{ $cList->enrollments_count }} Enrolled)
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
+
+                    {{-- Category Filter --}}
+                    <form action="{{ route('course.index') }}" method="GET" class="m-0">
+                        @if($filter !== 'all') <input type="hidden" name="filter" value="{{ $filter }}"> @endif
+                        @if($search) <input type="hidden" name="search" value="{{ $search }}"> @endif
+                        @if($selectedCourseId) <input type="hidden" name="course_id" value="{{ $selectedCourseId }}"> @endif
+                        
+                        <div class="cr-filter-select-box shadow-sm">
+                            <i class="fa-solid fa-filter cr-filter-icon text-muted"></i>
+                            <select name="category" class="cr-filter-select" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat }}" {{ $category === $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
+
+                    {{-- Global Search Bar (Searches course title, student name, email, mobile phone) --}}
+                    <form action="{{ route('course.index') }}" method="GET" class="m-0 flex-grow-1 flex-md-grow-0">
+                        @if($category) <input type="hidden" name="category" value="{{ $category }}"> @endif
+                        @if($filter !== 'all') <input type="hidden" name="filter" value="{{ $filter }}"> @endif
+                        @if($selectedCourseId) <input type="hidden" name="course_id" value="{{ $selectedCourseId }}"> @endif
+                        
+                        <div class="cr-search-box shadow-sm">
+                            <i class="fa-solid fa-magnifying-glass cr-search-icon"></i>
+                            <input type="text" name="search" value="{{ $search }}" placeholder="Search course, email, mobile num..." class="cr-search-input">
+                            @if($search)
+                                <a href="{{ route('course.index', array_filter(['filter' => $filter, 'category' => $category, 'course_id' => $selectedCourseId])) }}" class="cr-clear-btn" title="Clear Search">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+
+                </div>
+            </div>
         </div>
     </div>
 
-    {{-- ── Course grid ── --}}
+    {{-- ── Enrolled Students Panel (When Course Selected OR Student Search Match) ── --}}
+    @if($selectedCourse || $enrolledStudents->isNotEmpty())
+        <div class="cr-panel-card mb-5">
+            <div class="cr-panel-header">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="cr-course-badge-avatar">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <div>
+                            @if($selectedCourse)
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="cr-chip cr-chip-primary">{{ $selectedCourse->category }}</span>
+                                    <span class="cr-chip {{ $selectedCourse->status === 'active' ? 'cr-chip-success' : 'cr-chip-muted' }}">
+                                        <span class="cr-dot"></span>{{ ucfirst($selectedCourse->status) }}
+                                    </span>
+                                </div>
+                                <h4 class="cr-course-panel-title mb-1">{{ $selectedCourse->title }}</h4>
+                                <p class="cr-course-panel-meta mb-0">
+                                    <i class="fa-solid fa-chalkboard-user me-1 text-primary"></i>Instructor: <strong>{{ $selectedCourse->teacher->first()?->name ?? 'Unassigned' }}</strong>
+                                    &nbsp;&bull;&nbsp; <i class="fa-solid fa-clock me-1 text-primary"></i>Duration: <strong>{{ $selectedCourse->duration ?? 'N/A' }}</strong>
+                                </p>
+                            @else
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="cr-chip cr-chip-primary">Search Match</span>
+                                </div>
+                                <h4 class="cr-course-panel-title mb-1">Matching Student Results for "{{ $search }}"</h4>
+                                <p class="cr-course-panel-meta mb-0">Found {{ $enrolledStudents->count() }} student record(s) matching your search query</p>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="cr-enrolled-count-chip">
+                            <i class="fa-solid fa-users me-2"></i>{{ $enrolledStudents->count() }} Student(s) Listed
+                        </div>
+                        <a href="{{ route('course.index') }}" class="cr-btn-close-view">
+                            <i class="fa-solid fa-xmark me-1"></i>Close Student View
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table cr-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Student Profile</th>
+                            <th>Email & Mobile Contact</th>
+                            <th>Institution & Field</th>
+                            <th class="text-center">Enrolled On</th>
+                            <th class="text-center">Activity Metrics</th>
+                            <th class="text-center">Certificate Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($enrolledStudents as $st)
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if($st->profile_image)
+                                            <img src="{{ asset('storage/' . $st->profile_image) }}" class="cr-student-avatar" alt="{{ $st->name }}">
+                                        @else
+                                            <div class="cr-student-avatar-placeholder">
+                                                {{ strtoupper(substr($st->name, 0, 1)) }}
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <span class="cr-student-name">{{ $st->name }}</span>
+                                            <span class="cr-status-tag {{ $st->enrollment_status === 'active' ? 'tag-active' : 'tag-completed' }}">
+                                                {{ ucfirst($st->enrollment_status) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cr-contact-block">
+                                        <div class="text-dark font-medium"><i class="fa-solid fa-envelope me-1 text-muted"></i>{{ $st->email }}</div>
+                                        <div class="text-muted small"><i class="fa-solid fa-phone me-1 text-muted"></i>{{ $st->phone }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cr-academic-block">
+                                        <div class="fw-semibold text-dark">{{ $st->institution }}</div>
+                                        <div class="text-muted small">{{ $st->research_area }}</div>
+                                    </div>
+                                </td>
+                                <td class="text-center text-muted small fw-medium">
+                                    {{ $st->enrolled_at }}
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <span class="cr-metric-badge badge-green">
+                                            <i class="fa-solid fa-user-check me-1"></i>{{ $st->attendance_count }} Classes
+                                        </span>
+                                        <span class="cr-metric-badge badge-amber">
+                                            <i class="fa-solid fa-file-lines me-1"></i>{{ $st->submissions_count }} Tasks
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @if($st->certificate)
+                                        <a href="{{ asset('storage/' . $st->certificate->certificate_path) }}" target="_blank" class="cr-cert-link cert-issued">
+                                            <i class="fa-solid fa-award me-1"></i>Issued (View)
+                                        </a>
+                                    @else
+                                        <a href="{{ route('admin.certificates.management', ['module_id' => $selectedCourse?->id ?? '']) }}" class="cr-cert-link cert-pending">
+                                            <i class="fa-solid fa-clock me-1"></i>Allot Cert
+                                        </a>
+                                    @endif
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="{{ route('admin.student.details', $st->registration_id) }}" class="cr-btn-detail text-decoration-none">
+                                        <i class="fa-solid fa-arrow-right-to-bracket me-1"></i>Manage & Enroll
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="cr-empty-students py-4 text-center">
+                                        <i class="fa-solid fa-user-graduate fa-3x text-muted opacity-25 mb-3 d-block"></i>
+                                        <h6 class="fw-bold text-dark">No Enrolled Students Found</h6>
+                                        <p class="text-muted small">No students matched your filter or search query.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
+    {{-- ── All Courses Grid (Default View) ── --}}
     <div class="cr-grid">
         @forelse($courses as $course)
         <div class="cr-card {{ $course->status === 'inactive' ? 'cr-card-inactive' : '' }}">
 
-            {{-- Course image --}}
-            <div class="cr-card-img">
+            {{-- Image & Badges --}}
+            <div class="cr-card-media">
                 @if($course->image)
                     <img src="{{ asset('storage/' . $course->image) }}" alt="{{ $course->title }}">
                 @else
-                    <div class="cr-card-img-placeholder">
+                    <div class="cr-card-placeholder">
                         <i class="fa-solid fa-book-open"></i>
                     </div>
                 @endif
-                <span class="cr-status-badge cr-status-overlay {{ $course->status === 'active' ? 'cr-badge-active' : 'cr-badge-inactive' }}">
-                    {{ ucfirst($course->status) }}
-                </span>
-                <div class="cr-card-actions cr-actions-overlay">
-                    <a href="{{ route('course.edit', $course->id) }}" class="cr-action-edit text-decoration-none" title="Edit">
+                
+                <div class="cr-media-badges">
+                    <span class="cr-status-chip {{ $course->status === 'active' ? 'status-active' : 'status-inactive' }}">
+                        <span class="cr-dot"></span>{{ ucfirst($course->status) }}
+                    </span>
+                </div>
+
+                <div class="cr-media-actions">
+                    <a href="{{ route('course.edit', $course->id) }}" class="cr-icon-btn edit-btn" title="Edit Course">
                         <i class="fa-solid fa-pen"></i>
                     </a>
                     <form action="{{ route('course.destroy', $course->id) }}" method="POST"
                           onsubmit="return confirm('Delete \'{{ addslashes($course->title) }}\'? This cannot be undone.')">
                         @csrf @method('DELETE')
-                        <button type="submit" class="cr-action-delete" title="Delete">
+                        <button type="submit" class="cr-icon-btn delete-btn" title="Delete Course">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </form>
                 </div>
             </div>
 
-            {{-- Card body --}}
-            <div class="cr-card-body">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="cr-category-pill">{{ $course->category }}</span>
+            {{-- Card Body --}}
+            <div class="cr-card-content">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="cr-cat-pill">{{ $course->category }}</span>
+                    <span class="cr-price-tag">PKR {{ number_format($course->price, 0) }}</span>
                 </div>
 
-                <h6 class="cr-card-title">{{ $course->title }}</h6>
+                <h6 class="cr-card-h">{{ $course->title }}</h6>
                 @if($course->short_description)
-                    <p class="cr-card-desc">{{ Str::limit(strip_tags($course->short_description), 80) }}</p>
+                    <p class="cr-card-p">{{ Str::limit(strip_tags($course->short_description), 85) }}</p>
                 @endif
 
-                <div class="cr-meta">
+                <div class="cr-card-specs mb-3">
                     @if($course->duration)
-                    <span class="cr-meta-item">
-                        <i class="fa-solid fa-clock"></i> {{ $course->duration }}
-                    </span>
+                    <span class="spec-item"><i class="fa-solid fa-clock"></i>{{ $course->duration }}</span>
                     @endif
-                    <span class="cr-meta-item">
-                        <i class="fa-solid fa-book"></i> {{ $course->lessons_count }} lesson{{ $course->lessons_count != 1 ? 's' : '' }}
-                    </span>
-                    <span class="cr-meta-item">
-                        <i class="fa-solid fa-users"></i> {{ $course->enrollments_count }} enrolled
-                    </span>
+                    <span class="spec-item"><i class="fa-solid fa-book-bookmark"></i>{{ $course->lessons_count }} Lessons</span>
+                    <span class="spec-item"><i class="fa-solid fa-users"></i>{{ $course->enrollments_count }} Enrolled</span>
                 </div>
 
-                <div class="cr-card-foot">
-                    <span class="cr-price">PKR {{ number_format($course->price, 0) }}</span>
-                    @php $teacher = $course->teacher->first(); @endphp
-                    @if($teacher)
-                        <span class="cr-teacher-tag">
-                            <i class="fa-solid fa-chalkboard-user me-1"></i>{{ Str::limit($teacher->name, 18) }}
-                        </span>
-                    @else
-                        <span class="cr-no-teacher">No teacher assigned</span>
-                    @endif
+                <div class="cr-card-footer">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        @php $teacher = $course->teacher->first(); @endphp
+                        @if($teacher)
+                            <div class="cr-teacher-chip">
+                                <i class="fa-solid fa-chalkboard-user me-1 text-emerald"></i>{{ Str::limit($teacher->name, 20) }}
+                            </div>
+                        @else
+                            <span class="text-muted extra-small italic">No Instructor</span>
+                        @endif
+                    </div>
+
+                    <a href="{{ route('course.index', ['course_id' => $course->id]) }}" class="cr-btn-view-students text-decoration-none">
+                        <i class="fa-solid fa-user-graduate me-2"></i>View Enrolled Students ({{ $course->enrollments_count }})
+                    </a>
                 </div>
             </div>
 
         </div>
         @empty
-        <div class="cr-empty">
-            <i class="fa-solid fa-book-open-reader"></i>
-            <p>No courses found{{ $filter !== 'all' ? ' for filter "' . $filter . '"' : '' }}.</p>
+        <div class="cr-empty-grid text-center py-5">
+            <i class="fa-solid fa-book-open-reader fa-3x text-muted opacity-25 mb-3 d-block"></i>
+            <h5 class="fw-bold text-dark">No Courses Found</h5>
+            <p class="text-muted small">No courses match your current search or filter criteria.</p>
         </div>
         @endforelse
     </div>
 
     {{-- ── Pagination ── --}}
     @if($courses->hasPages())
-    <div class="cr-pagination">{{ $courses->links('pagination::bootstrap-5') }}</div>
+    <div class="cr-pagination-wrap mt-4">
+        {{ $courses->links('pagination::bootstrap-5') }}
+    </div>
     @endif
 
 </div>
 
 <style>
-/* ── Page ── */
-.cr-page { padding: 1.5rem; background: #F8FAFF; min-height: 100%; }
-
-/* ── Header ── */
-.cr-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; }
-.cr-title    { font-size: 1.2rem; font-weight: 800; color: #1E293B; margin: 0; }
-.cr-subtitle { font-size: .8rem; color: #94A3B8; margin: .1rem 0 0; }
-.cr-btn-add {
-    display: inline-flex; align-items: center;
-    background: linear-gradient(135deg,#4F46E5,#7C3AED); color: #fff !important;
-    border: none; border-radius: 10px; padding: .55rem 1.1rem;
-    font-size: .82rem; font-weight: 600; cursor: pointer;
-    box-shadow: 0 4px 12px rgba(79,70,229,.25); transition: all .2s;
+/* ── Global Page Styling ── */
+.cr-page {
+    padding: 2rem;
+    background-color: #F8FAFC;
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
-.cr-btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,70,229,.36); }
 
-/* ── Stats ── */
-.cr-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: .75rem; margin-bottom: 1.25rem; }
-.cr-stat {
-    background: #fff; border: 1.5px solid #F1F5F9; border-radius: 14px;
-    padding: .9rem 1.1rem; display: flex; align-items: center; gap: .85rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+/* ── Hero Card ── */
+.cr-hero-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 1.5rem 1.75rem;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
 }
-.cr-stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: .95rem; flex-shrink: 0; }
-.cr-stat-num   { font-size: 1.3rem; font-weight: 800; color: #1E293B; margin: 0; line-height: 1; }
-.cr-stat-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: #94A3B8; margin: .15rem 0 0; }
+.cr-hero-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
+    flex-shrink: 0;
+}
+.cr-hero-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0F172A;
+    letter-spacing: -0.3px;
+}
+.cr-hero-sub {
+    font-size: 0.85rem;
+    color: #64748B;
+}
+.cr-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #4F46E5, #6366F1);
+    color: #FFFFFF !important;
+    border-radius: 12px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
+    transition: all 0.2s ease;
+}
+.cr-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.38);
+}
 
-/* ── Tabs ── */
-.cr-tabs { display: flex; gap: 4px; background: #EEF2FF; padding: 4px; border-radius: 10px; width: fit-content; margin-bottom: 1.25rem; }
-.cr-tab { padding: .32rem .9rem; border-radius: 7px; font-size: .8rem; font-weight: 600; color: #64748B; text-decoration: none; transition: all .15s; }
-.cr-tab.active { background: #fff; color: #4F46E5; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-.cr-tab:hover:not(.active) { background: rgba(255,255,255,.6); }
+/* ── Stats Grid ── */
+.cr-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+.cr-stat-box {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 1.15rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.02);
+    transition: all 0.2s ease;
+}
+.cr-stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+    border-color: #CBD5E1;
+}
+.cr-stat-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+.bg-indigo-subtle { background: #EEF2FF; }
+.text-indigo { color: #4F46E5; }
+.bg-emerald-subtle { background: #ECFDF5; }
+.text-emerald { color: #10B981; }
+.bg-slate-subtle { background: #F1F5F9; }
+.text-slate { color: #64748B; }
+.bg-amber-subtle { background: #FFFBEB; }
+.text-amber { color: #D97706; }
 
-/* ── Search Box ── */
-.cr-search-form { flex: 1; max-width: 450px; }
+.cr-stat-val {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #0F172A;
+    line-height: 1;
+    display: block;
+}
+.cr-stat-lbl {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748B;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* ── Toolbar & Filter Styling ── */
+.cr-toolbar {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 18px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+.cr-nav-pills {
+    display: inline-flex;
+    background: #F1F5F9;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px;
+}
+.cr-pill {
+    padding: 0.45rem 1rem;
+    border-radius: 9px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748B;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.cr-pill.active {
+    background: #FFFFFF;
+    color: #4F46E5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.cr-pill-badge {
+    font-size: 0.7rem;
+    padding: 2px 7px;
+    border-radius: 50px;
+    background: #F1F5F9;
+    color: #475569;
+}
+.cr-pill.active .cr-pill-badge {
+    background: #EEF2FF;
+    color: #4F46E5;
+}
+
+.cr-filter-select-box {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+.cr-filter-select-box:focus-within {
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+}
+.cr-filter-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+.cr-filter-select {
+    border: none;
+    background: transparent;
+    padding: 0.55rem 1rem 0.55rem 2.2rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0F172A;
+    outline: none;
+    cursor: pointer;
+}
+
 .cr-search-box {
-    position: relative; display: flex; align-items: center;
-    background: #fff; border: 1.5px solid #E2E8F0; border-radius: 12px;
-    padding: 2px 2px 2px 15px; transition: all .2s;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
 }
-.cr-search-box:focus-within { border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,.1); }
-.cr-search-box i { color: #94A3B8; font-size: .85rem; }
+.cr-search-box:focus-within {
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+}
+.cr-search-icon {
+    position: absolute;
+    left: 12px;
+    color: #94A3B8;
+    font-size: 0.85rem;
+}
 .cr-search-input {
-    border: none; background: transparent; padding: 8px 10px;
-    font-size: .85rem; color: #1E293B; width: 100%; outline: none;
+    border: none;
+    background: transparent;
+    padding: 0.55rem 2.2rem 0.55rem 2.2rem;
+    font-size: 0.82rem;
+    color: #0F172A;
+    outline: none;
+    width: 230px;
 }
-.cr-search-clear {
-    display: flex; align-items: center; justify-content: center;
-    width: 24px; height: 24px; border-radius: 50%; color: #94A3B8 !important;
-    margin-right: 5px; transition: all .2s;
+.cr-clear-btn {
+    position: absolute;
+    right: 10px;
+    color: #94A3B8;
+    text-decoration: none;
+    font-size: 0.85rem;
 }
-.cr-search-clear:hover { background: #F1F5F9; color: #64748B !important; }
-.cr-search-btn {
-    background: #4F46E5; color: #fff; border: none; border-radius: 10px;
-    padding: 6px 15px; font-size: .8rem; font-weight: 600; transition: all .2s;
-}
-.cr-search-btn:hover { background: #4338CA; }
+.cr-clear-btn:hover { color: #0F172A; }
 
-/* ── Grid ── */
-.cr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
-
-/* ── Card ── */
-.cr-card {
-    background: #fff; border-radius: 14px; border: 1.5px solid #F1F5F9;
-    padding: 0; display: flex; flex-direction: column; gap: 0;
-    box-shadow: 0 1px 6px rgba(0,0,0,.05); transition: box-shadow .2s, transform .2s;
+/* ── Panel Card (Selected Course Students) ── */
+.cr-panel-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04);
     overflow: hidden;
 }
-.cr-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.09); transform: translateY(-1px); }
-.cr-card-inactive { opacity: .7; background: #F8FAFF; }
+.cr-panel-header {
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px solid #F1F5F9;
+    background: #FAFAFC;
+}
+.cr-course-badge-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #312E81, #4F46E5);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+    box-shadow: 0 6px 16px rgba(49, 46, 129, 0.25);
+}
+.cr-chip {
+    padding: 0.2rem 0.7rem;
+    border-radius: 50px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.cr-chip-primary { background: #EEF2FF; color: #4F46E5; }
+.cr-chip-success { background: #ECFDF5; color: #059669; }
+.cr-chip-muted { background: #F1F5F9; color: #64748B; }
+.cr-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+.cr-course-panel-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0F172A;
+}
+.cr-course-panel-meta {
+    font-size: 0.82rem;
+    color: #64748B;
+}
+.cr-enrolled-count-chip {
+    background: #EEF2FF;
+    color: #4F46E5;
+    border: 1px solid #C7D2FE;
+    padding: 0.5rem 1.1rem;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+.cr-btn-close-view {
+    background: #F1F5F9;
+    color: #475569;
+    border-radius: 50px;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.cr-btn-close-view:hover { background: #E2E8F0; color: #0F172A; }
 
-/* ── Card image area ── */
-.cr-card-img {
-    position: relative; width: 100%; height: 150px; overflow: hidden;
-    background: linear-gradient(135deg,#EEF2FF,#E0E7FF); flex-shrink: 0;
+/* ── Table Design ── */
+.cr-table {
+    margin-bottom: 0;
 }
-.cr-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cr-card-img-placeholder {
-    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-    font-size: 2.5rem; color: #A5B4FC;
+.cr-table thead th {
+    background: #F8FAFC;
+    color: #64748B;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #E2E8F0;
 }
-.cr-status-overlay {
-    position: absolute; top: .55rem; left: .65rem;
+.cr-table tbody td {
+    padding: 1.15rem 1.25rem;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
 }
-.cr-actions-overlay {
-    position: absolute; top: .45rem; right: .55rem;
+.cr-table tbody tr:hover {
+    background-color: #F8FAFC;
 }
-.cr-card-body {
-    padding: .85rem 1.2rem .9rem;
-    display: flex; flex-direction: column; gap: .55rem;
+.cr-student-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #E2E8F0;
+}
+.cr-student-avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: #FFFFFF;
+    font-weight: 800;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+}
+.cr-student-name {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #0F172A;
+    display: block;
+}
+.cr-status-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 50px;
+    display: inline-block;
+    margin-top: 2px;
+}
+.tag-active { background: #ECFDF5; color: #059669; }
+.tag-completed { background: #EEF2FF; color: #4F46E5; }
+
+.cr-metric-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+.badge-green { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
+.badge-amber { background: #FFFBEB; color: #D97706; border-color: #FDE68A; }
+
+.cr-cert-link {
+    padding: 0.4rem 0.9rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+.cert-issued { background: #10B981; color: #FFFFFF !important; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25); }
+.cert-issued:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35); }
+.cert-pending { background: #F1F5F9; color: #64748B !important; border: 1px solid #CBD5E1; }
+.cert-pending:hover { background: #E2E8F0; color: #0F172A !important; }
+
+.cr-btn-detail {
+    display: inline-flex;
+    align-items: center;
+    background: #EEF2FF;
+    color: #4F46E5 !important;
+    border: 1px solid #C7D2FE;
+    border-radius: 50px;
+    padding: 0.45rem 1.1rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    transition: all 0.2s ease;
+}
+.cr-btn-detail:hover {
+    background: #4F46E5;
+    color: #FFFFFF !important;
+    border-color: #4F46E5;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* ── Course Grid Cards ── */
+.cr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+}
+.cr-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    transition: all 0.25s ease;
+}
+.cr-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    border-color: #CBD5E1;
+}
+.cr-card-inactive { opacity: 0.75; }
+
+.cr-card-media {
+    position: relative;
+    width: 100%;
+    height: 160px;
+    background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+    overflow: hidden;
+}
+.cr-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.cr-card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.75rem;
+    color: #A5B4FC;
+}
+.cr-media-badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+}
+.cr-status-chip {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.status-active { background: #ECFDF5; color: #059669; }
+.status-inactive { background: #F1F5F9; color: #64748B; }
+
+.cr-media-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+}
+.cr-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+}
+.edit-btn { background: rgba(255, 255, 255, 0.9); color: #4F46E5 !important; }
+.edit-btn:hover { background: #4F46E5; color: #FFFFFF !important; }
+.delete-btn { background: rgba(255, 255, 255, 0.9); color: #EF4444; }
+.delete-btn:hover { background: #EF4444; color: #FFFFFF; }
+
+.cr-card-content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
     flex: 1;
 }
-
-.cr-card-top { display: flex; align-items: center; justify-content: space-between; }
-.cr-status-badge { padding: .2rem .65rem; border-radius: 50px; font-size: .7rem; font-weight: 700; }
-.cr-badge-active   { background: #D1FAE5; color: #065F46; }
-.cr-badge-inactive { background: #F1F5F9; color: #64748B; }
-
-.cr-card-actions { display: flex; gap: 5px; }
-.cr-action-edit, .cr-action-delete {
-    width: 28px; height: 28px; border-radius: 7px; border: none;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .72rem; cursor: pointer; transition: all .15s;
+.cr-cat-pill {
+    background: #F1F5F9;
+    color: #475569;
+    padding: 0.2rem 0.7rem;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 700;
 }
-.cr-action-edit   { background: #EEF2FF; color: #4F46E5 !important; }
-.cr-action-edit:hover   { background: #4F46E5; color: #fff !important; }
-.cr-action-delete { background: #FEE2E2; color: #DC2626; }
-.cr-action-delete:hover { background: #DC2626; color: #fff; }
-
-.cr-category-pill {
-    display: inline-block; background: #F1F5F9; color: #475569;
-    padding: .15rem .6rem; border-radius: 50px; font-size: .68rem; font-weight: 600; width: fit-content;
+.cr-price-tag {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #4F46E5;
 }
-.cr-card-title { font-size: .9rem; font-weight: 700; color: #1E293B; margin: 0; line-height: 1.3; }
-.cr-card-desc  { font-size: .76rem; color: #64748B; margin: 0; line-height: 1.5; }
+.cr-card-h {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 0.4rem;
+    line-height: 1.35;
+}
+.cr-card-p {
+    font-size: 0.8rem;
+    color: #64748B;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+.cr-card-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.spec-item {
+    font-size: 0.75rem;
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.spec-item i { color: #94A3B8; }
 
-.cr-meta { display: flex; flex-wrap: wrap; gap: .5rem; }
-.cr-meta-item { display: flex; align-items: center; gap: 5px; font-size: .73rem; color: #64748B; }
-.cr-meta-item i { color: #94A3B8; font-size: .68rem; }
+.cr-card-footer {
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid #F1F5F9;
+}
+.cr-teacher-chip {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #059669;
+    background: #ECFDF5;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+}
 
-.cr-card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: .6rem; border-top: 1px solid #F1F5F9; }
-.cr-price { font-size: .95rem; font-weight: 800; color: #4F46E5; }
-.cr-teacher-tag { font-size: .72rem; font-weight: 600; color: #065F46; background: #D1FAE5; padding: .18rem .6rem; border-radius: 50px; }
-.cr-no-teacher  { font-size: .72rem; color: #CBD5E1; font-style: italic; }
+.cr-btn-view-students {
+    display: block;
+    text-align: center;
+    background: #F8FAFC;
+    color: #4F46E5 !important;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 0.55rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    transition: all 0.2s ease;
+}
+.cr-btn-view-students:hover {
+    background: #4F46E5;
+    color: #FFFFFF !important;
+    border-color: #4F46E5;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
 
-@media(max-width:991.98px) { .cr-stats { grid-template-columns: repeat(2,1fr); } }
-@media(max-width:767.98px) {
-    .cr-grid { grid-template-columns: 1fr; }
-    .cr-stats { grid-template-columns: repeat(2,1fr); }
+@media(max-width: 991.98px) {
+    .cr-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 575.98px) {
+    .cr-stats-grid { grid-template-columns: 1fr; }
+    .cr-page { padding: 1rem; }
 }
 </style>
 @endsection

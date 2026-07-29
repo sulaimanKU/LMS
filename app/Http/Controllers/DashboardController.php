@@ -275,55 +275,154 @@ public function studentManagement(Request $request)
 
 public function studentDetails($id)
 {
-    $registration = Registration::with('slips')->findOrFail($id);
-    $courseIds = $registration->selected_courses ?? [];
-    $courses = Courses::whereIn('id', $courseIds)->get();
+    $registration = Registration::with('slips')->find($id);
+    if (!$registration) {
+        $user = User::find($id);
+        if ($user) {
+            $registration = Registration::with('slips')->where('email', $user->email)->first();
+            if (!$registration) {
+                $registration = new Registration([
+                    'id'           => $user->id,
+                    'name'         => $user->name,
+                    'email'        => $user->email,
+                    'phone'        => $user->phone ?? 'N/A',
+                    'status'       => 'approved',
+                    'created_at'   => $user->created_at,
+                    'total_amount' => 0,
+                ]);
+            }
+        } else {
+            abort(404, 'Student profile not found.');
+        }
+    }
     
     $user = User::where('email', $registration->email)->first();
     $enrolledModules = $user ? $user->enrolledModules : collect();
-
-    return view('layouts.studentDetails', compact('registration', 'courses', 'enrolledModules'));
-}
-
-public function assignCertificate(Request $request)
-{
-    $request->validate([
-        'user_id' => 'required|exists:users,id',
-        'module_id' => 'required|exists:modules,id',
-        'certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
-    ]);
-
-    $path = $request->file('certificate')->store('certificates', 'public');
-
-    \App\Models\Certificate::updateOrCreate(
-        ['user_id' => $request->user_id, 'module_id' => $request->module_id],
-        ['certificate_path' => $path]
-    );
-
-    return redirect()->back()->with('success', 'Certificate assigned successfully.');
-}
-
-public function certificatesManagement(Request $request)
-{
-    $allModules = Courses::orderBy('title')->get();
-    $selectedModuleId = $request->get('module_id');
-    
-    $students = collect();
-    if ($selectedModuleId) {
-        $students = User::whereHas('enrolledModules', function($q) use ($selectedModuleId) {
-            $q->where('modules.id', $selectedModuleId);
-        })->with([
-            'enrolledModules' => function($q) use ($selectedModuleId) {
-                $q->where('modules.id', $selectedModuleId);
-            },
-            'certificates' => function($q) use ($selectedModuleId) {
-                $q->where('module_id', $selectedModuleId);
-            }
-        ])->get();
+    $courseIds = $registration->selected_courses ?? $enrolledModules->pluck('id')->toArray();
+    $courses = Courses::whereIn('id', $courseIds)->get();
+    if ($courses->isEmpty() && $enrolledModules->isNotEmpty()) {
+        $courses = $enrolledModules;
     }
 
-    return view('layouts.certificatesManagment', compact('allModules', 'selectedModuleId', 'students'));
+    $allAvailableCourses = Courses::orderBy('title')->get();
+
+    return view('layouts.studentDetails', compact(
+        'registration', 'courses', 'enrolledModules', 'user', 'allAvailableCourses'
+    ));
 }
+
+public function adminEnrollStudentCourse(Request $request)
+{
+    $request->validate([
+        'user_id'   => 'required|exists:users,id',
+        'module_id' => 'required|exists:modules,id',
+        'status'    => 'required|in:active,completed,inactive,dropped',
+    ]);
+
+    $user = User::findOrFail($request->user_id);
+    
+    $user->enrolledModules()->syncWithoutDetaching([
+        $request->module_id => ['status' => $request->status]
+    ]);
+
+    $reg = Registration::where('email', $user->email)->first();
+    if ($reg) {
+        $courses = $reg->selected_courses ?? [];
+        if (!in_array((int)$request->module_id, array_map('intval', $courses))) {
+            $courses[] = (int)$request->module_id;
+            $reg->update(['selected_courses' => $courses]);
+        }
+    }
+
+    $course = Courses::find($request->module_id);
+    return back()->with('success', "{$user->name} successfully enrolled in '{$course->title}' with status '{$request->status}'.");
+}
+
+    public function assignCertificate(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'module_id' => 'required|exists:modules,id',
+            'certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $existingCert = \App\Models\Certificate::where('user_id', $request->user_id)
+            ->where('module_id', $request->module_id)
+            ->first();
+
+        if ($existingCert && $existingCert->certificate_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($existingCert->certificate_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($existingCert->certificate_path);
+        }
+
+        $path = $request->file('certificate')->store('certificates', 'public');
+
+        \App\Models\Certificate::updateOrCreate(
+            ['user_id' => $request->user_id, 'module_id' => $request->module_id],
+            ['certificate_path' => $path]
+        );
+
+        return redirect()->back()->with('success', 'Certificate assigned successfully.');
+    }
+
+    public function deleteCertificate($id)
+    {
+        $certificate = \App\Models\Certificate::findOrFail($id);
+
+        if ($certificate->certificate_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($certificate->certificate_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($certificate->certificate_path);
+        }
+
+        $certificate->delete();
+
+        return redirect()->back()->with('success', 'Certificate deleted successfully from system and storage.');
+    }
+
+    public function certificatesManagement(Request $request)
+    {
+        $allModules = Courses::orderBy('title')->get();
+        $selectedModuleId = $request->get('module_id');
+        $search = trim($request->get('search', ''));
+
+        $query = User::whereHas('enrolledModules', function($q) use ($selectedModuleId) {
+            if ($selectedModuleId) {
+                $q->where('modules.id', $selectedModuleId);
+            }
+        });
+
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->with([
+            'enrolledModules' => function($q) use ($selectedModuleId) {
+                if ($selectedModuleId) {
+                    $q->where('modules.id', $selectedModuleId);
+                }
+            },
+            'certificates'
+        ])->paginate(15)->withQueryString();
+
+        $enrollmentList = collect();
+        foreach ($users as $user) {
+            foreach ($user->enrolledModules as $module) {
+                $cert = $user->certificates->firstWhere('module_id', $module->id);
+                $status = $module->pivot->status ?? 'active';
+                $enrollmentList->push((object)[
+                    'student'     => $user,
+                    'module'      => $module,
+                    'certificate' => $cert,
+                    'status'      => $status,
+                ]);
+            }
+        }
+
+        return view('layouts.certificatesManagment', compact(
+            'allModules', 'selectedModuleId', 'search', 'users', 'enrollmentList'
+        ));
+    }
 
 public function adminApproveStudent(Request $request, $id)
 {

@@ -132,26 +132,48 @@ class RegisterController
         return view('home_layouts.trackRegisteration', compact('trackReg', 'allCourses', 'enrolledIds'));
     }
 
-        public function loginView()
-        {
+    public function loginView()
+    {
+        return view('logFile.loginView');
+    }
 
-
-    return view('logFile.loginView');
-}
-
-
-public function submitLogin(Request $request)
+    public function submitLogin(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+        $remember = $request->has('remember');
 
+        if (Auth::attempt($credentials, $remember)) {
             /** @var \App\Models\User $user */
             $user = Auth::user();
+
+            // 1. Check account status if set
+            if (isset($user->status) && strtolower($user->status) === 'inactive') {
+                Auth::logout();
+                $request->session()->invalidate();
+                return back()->withErrors(['email' => 'Your account is currently inactive. Please contact administration.']);
+            }
+
+            // 2. If student, check registration approval status
+            if ($user->hasRole('student')) {
+                $reg = \App\Models\Registration::where('email', $user->email)->latest()->first();
+                if ($reg) {
+                    if ($reg->status === 'pending') {
+                        Auth::logout();
+                        $request->session()->invalidate();
+                        return back()->withErrors(['email' => 'Your registration is still pending admin approval. You will be able to log in once approved.']);
+                    } elseif ($reg->status === 'rejected') {
+                        Auth::logout();
+                        $request->session()->invalidate();
+                        return back()->withErrors(['email' => 'Your registration request was not approved. Please contact support.']);
+                    }
+                }
+            }
+
+            $request->session()->regenerate();
 
             if ($user->hasRole('admin')) {
                 return redirect()->route('dashboard');
@@ -165,20 +187,101 @@ public function submitLogin(Request $request)
                 return redirect()->route('student.main');
             }
 
-
             return redirect('/');
         }
 
-        // THIS return must be INSIDE the function
-        return back()->withErrors(['email' => 'Invalid credentials']);
+        return back()->withErrors(['email' => 'Invalid email address or password.']);
     }
 
-        public function logout(Request $request){
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+    public function forgotPasswordView()
+    {
+        return view('logFile.forgotPassword');
+    }
 
-            return redirect('/login')->with('success','You logout Successfully');
+    public function sendPasswordResetLink(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'We could not find an account with that email address.']);
         }
+
+        if ($user->hasRole('student')) {
+            $reg = \App\Models\Registration::where('email', $user->email)->latest()->first();
+            if ($reg && $reg->status !== 'approved') {
+                return back()->withErrors(['email' => 'Password reset is unavailable because your registration is pending approval.']);
+            }
+        }
+
+        $token = \Illuminate\Support\Str::random(64);
+
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            ['token' => $token, 'created_at' => now()]
+        );
+
+        $resetUrl = route('password.reset', ['token' => $token, 'email' => $request->email]);
+
+        try {
+            $fromAddr = env('MAIL_FROM_ADDRESS', 'info@tread.com.pk');
+            $fromName = env('MAIL_FROM_NAME', config('app.name'));
+
+            \Illuminate\Support\Facades\Mail::raw(
+                "Hello {$user->name},\n\nYou requested a password reset for your account on " . config('app.name') . ".\n\nPlease click or open the following link to set your new password:\n\n{$resetUrl}\n\nIf you did not request a password reset, please ignore this message.\n\nBest regards,\n" . config('app.name') . " Team",
+                function ($message) use ($user, $fromAddr, $fromName) {
+                    $message->to($user->email)
+                            ->from($fromAddr, $fromName)
+                            ->subject("Password Reset Link — " . config('app.name'));
+                }
+            );
+
+            return back()->with('success', 'A password reset link has been sent to your email address. Please check your inbox.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Failed to send reset email: ' . $e->getMessage()]);
+        }
+    }
+
+    public function resetPasswordView(Request $request, $token)
+    {
+        $email = $request->get('email');
+        return view('logFile.resetPassword', compact('token', 'email'));
+    }
+
+    public function submitResetPassword(Request $request)
+    {
+        $request->validate([
+            'token'    => 'required',
+            'email'    => 'required|email|exists:users,email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $record = \Illuminate\Support\Facades\DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$record) {
+            return back()->withErrors(['email' => 'Invalid or expired password reset token. Please request a new link.']);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $user->save();
+
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return redirect()->route('login')->with('success', 'Your password has been reset successfully! You can now log in.');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login')->with('success', 'You logged out successfully.');
+    }
 
 }

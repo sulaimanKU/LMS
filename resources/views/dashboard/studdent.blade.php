@@ -56,13 +56,13 @@
                 <p class="sd-stat-lbl">Pending Assignments</p>
             </div>
         </div>
-        <div class="sd-stat">
-            <div class="sd-stat-icon" style="background:{{ $overdueCount > 0 ? '#FEE2E2' : '#D1FAE5' }};color:{{ $overdueCount > 0 ? '#DC2626' : '#065F46' }};"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <a href="{{ route('student.certificates.view') }}" class="sd-stat text-decoration-none text-dark">
+            <div class="sd-stat-icon" style="background:#F0FDF4;color:#15803D;"><i class="fa-solid fa-award"></i></div>
             <div>
-                <p class="sd-stat-num">{{ $overdueCount }}</p>
-                <p class="sd-stat-lbl">Overdue</p>
+                <p class="sd-stat-num">{{ $certificatesCount ?? 0 }}</p>
+                <p class="sd-stat-lbl">My Certificates</p>
             </div>
-        </div>
+        </a>
     </div>
 
     {{-- ── Live Banner ── --}}

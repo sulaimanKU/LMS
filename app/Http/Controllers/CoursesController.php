@@ -11,33 +11,73 @@ class CoursesController
 {
     public function courses_index(Request $request)
     {
-        $filter   = $request->get('filter', 'all');
-        $search   = $request->get('search');
-        $category = $request->get('category');
+        $filter           = $request->get('filter', 'all');
+        $search           = trim($request->get('search', ''));
+        $category         = $request->get('category');
+        $selectedCourseId = $request->get('course_id');
+
+        $allCoursesList = Courses::where('category', '!=', 'Workshop')
+            ->withCount('enrollments')
+            ->orderBy('title')
+            ->get();
+
+        // 1. Check if search query matches any student email, phone (mobile), or name
+        $matchingUserIds = [];
+        $matchingCourseIdsFromUsers = [];
+
+        if (!empty($search)) {
+            // Find users by name, email, or phone
+            $matchedUsers = \App\Models\User::where('name', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%")
+                ->orWhere('phone', 'LIKE', "%{$search}%")
+                ->get();
+
+            // Find registrations by name, email, or phone
+            $matchedRegs = \App\Models\Registration::where('name', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%")
+                ->orWhere('phone', 'LIKE', "%{$search}%")
+                ->pluck('email');
+
+            $allMatchedEmails = $matchedUsers->pluck('email')->merge($matchedRegs)->unique()->filter();
+
+            if ($allMatchedEmails->isNotEmpty()) {
+                $usersFromSearch = \App\Models\User::whereIn('email', $allMatchedEmails)
+                    ->with('enrolledModules')
+                    ->get();
+
+                $matchingUserIds = $usersFromSearch->pluck('id')->toArray();
+                foreach ($usersFromSearch as $u) {
+                    foreach ($u->enrolledModules as $m) {
+                        $matchingCourseIdsFromUsers[] = $m->id;
+                    }
+                }
+            }
+        }
 
         // Base query for regular courses
         $baseQuery = Courses::where('category', '!=', 'Workshop');
 
-        // Apply category filter to base if present
         if ($category) {
             $baseQuery->where('category', $category);
         }
 
-        // Apply search to base if present
-        if ($search) {
-            $baseQuery->where(function($q) use ($search) {
+        if (!empty($search)) {
+            $baseQuery->where(function($q) use ($search, $matchingCourseIdsFromUsers) {
                 $q->where('title', 'LIKE', "%{$search}%")
                   ->orWhere('short_description', 'LIKE', "%{$search}%")
                   ->orWhere('details', 'LIKE', "%{$search}%");
+
+                if (!empty($matchingCourseIdsFromUsers)) {
+                    $q->orWhereIn('id', array_unique($matchingCourseIdsFromUsers));
+                }
             });
         }
 
-        // Clone for stats before applying status filter
+        // Stats
         $totalCourses    = (clone $baseQuery)->count();
         $activeCourses   = (clone $baseQuery)->where('status', 'active')->count();
         $inactiveCourses = (clone $baseQuery)->where('status', 'inactive')->count();
 
-        // Now apply status filter for the main list
         $query = (clone $baseQuery)->with(['teacher'])->withCount(['lessons', 'enrollments']);
         if ($filter === 'active') {
             $query->where('status', 'active');
@@ -47,19 +87,71 @@ class CoursesController
 
         $courses  = $query->orderBy('title')->paginate(12)->withQueryString();
         $teachers = Teacher::orderBy('name')->get();
-
-        // Distinct categories for the dropdown
         $categories = Courses::where('category', '!=', 'Workshop')->distinct()->pluck('category');
 
-        // Total enrolled for the entire regular course section (independent of status/category filter usually)
         $totalEnrolled   = \DB::table('enrollments')
             ->whereIn('module_id', Courses::where('category', '!=', 'Workshop')->pluck('id'))
             ->whereIn('status', ['active', 'completed'])
             ->count();
 
+        // Enrolled Students list logic
+        $selectedCourse = null;
+        $enrolledStudents = collect();
+
+        if ($selectedCourseId) {
+            $selectedCourse = Courses::with(['teacher'])->withCount(['lessons', 'enrollments'])->find($selectedCourseId);
+        }
+
+        // Load student list if a course is selected OR if searching for student by email/phone/name
+        if ($selectedCourse || !empty($matchingUserIds)) {
+            $userQuery = \App\Models\User::query();
+
+            if ($selectedCourse) {
+                $userQuery->whereHas('enrolledModules', function($q) use ($selectedCourseId) {
+                    $q->where('modules.id', $selectedCourseId);
+                });
+            } else {
+                $userQuery->whereIn('id', $matchingUserIds);
+            }
+
+            $users = $userQuery->with([
+                'enrolledModules',
+                'certificates',
+                'submissions'
+            ])->get();
+
+            $emails = $users->pluck('email')->unique()->filter();
+            $registrations = \App\Models\Registration::whereIn('email', $emails)->with('slips')->get()->keyBy('email');
+
+            $enrolledStudents = $users->map(function($user) use ($selectedCourseId, $registrations) {
+                $reg = $registrations->get($user->email);
+                $pivot = $selectedCourseId ? $user->enrolledModules->firstWhere('id', $selectedCourseId)?->pivot : $user->enrolledModules->first()?->pivot;
+                $cert = $selectedCourseId ? $user->certificates->firstWhere('module_id', $selectedCourseId) : $user->certificates->first();
+                $attendanceCount = \App\Models\Attendance::where('user_id', $user->id)->count();
+
+                return (object)[
+                    'id'               => $user->id,
+                    'registration_id'  => $reg?->id ?? $user->id,
+                    'name'             => $user->name,
+                    'email'            => $user->email,
+                    'phone'            => $user->phone ?? $reg?->phone ?? 'N/A',
+                    'profile_image'    => $user->profile_image,
+                    'institution'      => $reg?->institution ?? 'N/A',
+                    'research_area'    => $reg?->research_area ?? 'N/A',
+                    'enrollment_status' => $pivot?->status ?? 'active',
+                    'enrolled_at'      => $pivot?->created_at ? $pivot->created_at->format('M d, Y') : 'N/A',
+                    'certificate'      => $cert,
+                    'attendance_count' => $attendanceCount,
+                    'submissions_count'=> $user->submissions->count(),
+                    'registration'     => $reg,
+                ];
+            });
+        }
+
         return view('layouts.courses.index', compact(
             'courses', 'teachers', 'filter', 'search', 'category', 'categories',
-            'totalCourses', 'activeCourses', 'inactiveCourses', 'totalEnrolled'
+            'totalCourses', 'activeCourses', 'inactiveCourses', 'totalEnrolled',
+            'allCoursesList', 'selectedCourseId', 'selectedCourse', 'enrolledStudents'
         ));
     }
 

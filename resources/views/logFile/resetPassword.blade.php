@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login — {{ $systemSettings['site_title'] ?? 'MyLMS' }}</title>
+    <title>Set New Password — {{ $systemSettings['site_title'] ?? 'MyLMS' }}</title>
     <link rel="icon" href="{{ isset($systemSettings['site_favicon']) ? asset('storage/'.$systemSettings['site_favicon']) : asset('images/logo/logo1.png') }}" type="image/png">
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -45,7 +45,6 @@
             position: relative;
         }
 
-        /* ── Left Side: Visual Branding ── */
         .brand-side {
             flex: 1.1;
             background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
@@ -57,7 +56,6 @@
             position: relative;
         }
 
-        /* Decorative background pattern */
         .brand-side::before {
             content: ""; position: absolute; inset: 0;
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
@@ -75,13 +73,12 @@
         .brand-name { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
 
         .brand-main { position: relative; z-index: 2; }
-        .brand-main h1 { font-size: 2.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 24px; }
+        .brand-main h1 { font-size: 2.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 24px; }
         .brand-main h1 span { color: #A5B4FC; }
         .brand-main p { font-size: 1.05rem; color: #C7D2FE; line-height: 1.6; max-width: 360px; }
 
         .brand-footer { position: relative; z-index: 2; font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 500; }
 
-        /* ── Right Side: Form ── */
         .form-side {
             flex: 1;
             padding: 60px;
@@ -91,12 +88,11 @@
             justify-content: center;
         }
 
-        .form-intro { margin-bottom: 40px; }
-        .form-intro h2 { font-size: 2rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+        .form-intro { margin-bottom: 30px; }
+        .form-intro h2 { font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
         .form-intro p { color: var(--text-muted); font-size: 0.95rem; }
 
-        /* Custom Input Fields */
-        .field-group { margin-bottom: 24px; }
+        .field-group { margin-bottom: 20px; }
         .field-label { font-size: 0.8rem; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
         
         .input-box { position: relative; display: flex; align-items: center; }
@@ -113,10 +109,6 @@
         }
         .input-control:focus + i.main-icon { color: var(--brand-primary); }
 
-        .btn-eye { position: absolute; right: 12px; background: none; border: none; color: #9CA3AF; cursor: pointer; padding: 8px; transition: 0.2s; }
-        .btn-eye:hover { color: var(--brand-primary); }
-
-        /* Action Button */
         .btn-auth-submit {
             width: 100%; padding: 16px; background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
             color: #fff; border: none; border-radius: 14px; font-weight: 700; font-size: 1.05rem;
@@ -124,20 +116,13 @@
             transition: all 0.3s; cursor: pointer; margin-top: 12px;
         }
         .btn-auth-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.4); }
-        .btn-auth-submit:active { transform: translateY(0); }
 
-        /* Alerts */
         .alert-bubble {
             padding: 14px 18px; border-radius: 14px; font-size: 0.9rem; font-weight: 500; margin-bottom: 24px;
-            display: flex; align-items: center; gap: 12px; animation: slideIn 0.4s ease-out;
+            display: flex; align-items: center; gap: 12px;
         }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         .alert-error { background: #FFF1F2; color: #991B1B; border: 1px solid #FFE4E6; }
         .alert-success { background: #ECFDF5; color: #065F46; border: 1px solid #D1FAE5; }
-
-        /* Role Indicators */
-        .access-footer { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 40px; }
-        .access-pill { font-size: 0.75rem; font-weight: 700; color: #9CA3AF; padding: 6px 14px; background: #F3F4F6; border-radius: 50px; }
 
         @media (max-width: 900px) {
             .brand-side { display: none; }
@@ -164,8 +149,8 @@
             </div>
 
             <div class="brand-main">
-                <h1>Elevate Your<br><span>Knowledge.</span></h1>
-                <p>Welcome back to the portal. Access your courses, connect with peers, and continue your journey toward excellence.</p>
+                <h1>Set Secure<br><span>Password.</span></h1>
+                <p>Create a strong password for your account to restore access to your portal and learning dashboard.</p>
             </div>
 
             <div class="brand-footer">
@@ -177,8 +162,8 @@
         <div class="form-side">
             
             <div class="form-intro">
-                <h2>Welcome Back</h2>
-                <p>Please enter your account details below.</p>
+                <h2>Set New Password</h2>
+                <p>Please type your new account password below.</p>
             </div>
 
             {{-- Messages --}}
@@ -196,67 +181,47 @@
                 </div>
             @endif
 
-            <form action="{{ route('login.submit') }}" method="POST">
+            <form action="{{ route('password.update') }}" method="POST">
                 @csrf
+                <input type="hidden" name="token" value="{{ $token }}">
 
                 <div class="field-group">
                     <label class="field-label">Email Address</label>
                     <div class="input-box">
-                        <input type="email" name="email" class="input-control" placeholder="name@company.com" value="{{ old('email') }}" required autofocus>
+                        <input type="email" name="email" class="input-control" value="{{ old('email', $email) }}" required readonly>
                         <i class="fa-solid fa-envelope main-icon"></i>
                     </div>
                 </div>
 
                 <div class="field-group">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <label class="field-label mb-0">Password</label>
-                        <a href="{{ route('password.request') }}" class="text-decoration-none small fw-bold" style="color: var(--brand-primary); font-size: 0.8rem;">Forgot Password?</a>
-                    </div>
+                    <label class="field-label">New Password</label>
                     <div class="input-box">
-                        <input type="password" name="password" id="loginPass" class="input-control" placeholder="••••••••" required>
+                        <input type="password" name="password" class="input-control" placeholder="Minimum 8 characters" required autofocus>
                         <i class="fa-solid fa-lock main-icon"></i>
-                        <button type="button" class="btn-eye" onclick="togglePass()">
-                            <i class="fa-solid fa-eye" id="eyeIcon"></i>
-                        </button>
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember" id="remember" style="cursor: pointer;">
-                        <label class="form-check-label small fw-semibold text-muted" for="remember" style="cursor: pointer;">
-                            Remember Me
-                        </label>
+                <div class="field-group">
+                    <label class="field-label">Confirm New Password</label>
+                    <div class="input-box">
+                        <input type="password" name="password_confirmation" class="input-control" placeholder="Repeat new password" required>
+                        <i class="fa-solid fa-lock main-icon"></i>
                     </div>
                 </div>
 
                 <button type="submit" class="btn-auth-submit">
-                    Sign In to Portal
+                    Reset & Update Password
                 </button>
             </form>
 
-            <div class="access-footer">
-                <span class="access-pill">Student</span>
-                <span class="access-pill">Teacher</span>
-                <span class="access-pill">Admin</span>
+            <div class="text-center mt-4">
+                <a href="{{ route('login') }}" class="text-decoration-none fw-bold small text-muted">
+                    <i class="fa-solid fa-arrow-left me-1"></i>Back to Sign In
+                </a>
             </div>
 
         </div>
     </div>
-
-    <script>
-        function togglePass() {
-            const p = document.getElementById('loginPass');
-            const i = document.getElementById('eyeIcon');
-            if (p.type === 'password') {
-                p.type = 'text';
-                i.className = 'fa-solid fa-eye-slash';
-            } else {
-                p.type = 'password';
-                i.className = 'fa-solid fa-eye';
-            }
-        }
-    </script>
 
 </body>
 </html>

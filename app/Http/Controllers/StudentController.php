@@ -43,6 +43,8 @@ class StudentController
 
         $submissionsCount = Submission::where('user_id', $user->id)->count();
 
+        $certificatesCount = \App\Models\Certificate::where('user_id', $user->id)->count();
+
         $liveClass = OnlineClass::with(['module', 'teacher'])
             ->whereIn('module_id', $enrolledModuleIds)
             ->where('status', 'live')
@@ -77,7 +79,7 @@ class StudentController
 
         return view('dashboard.studdent', compact(
             'user', 'enrollments', 'courseCount',
-            'attendanceCount', 'pendingCount', 'overdueCount', 'submissionsCount',
+            'attendanceCount', 'pendingCount', 'overdueCount', 'submissionsCount', 'certificatesCount',
             'liveClass', 'upcomingClasses', 'recentSubmissions', 'latestLessons', 'latestResources'
         ));
     }

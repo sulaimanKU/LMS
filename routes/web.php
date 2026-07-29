@@ -88,6 +88,12 @@ Route::get('/login', [RegisterController::class, 'loginView'])->name('login');
 Route::post('/submitLogin', [RegisterController::class, 'submitLogin'])->name('login.submit');
 Route::post('/logout', [RegisterController::class, 'logout'])->name('logout');
 
+// Password Reset Routes
+Route::get('/forgot-password', [RegisterController::class, 'forgotPasswordView'])->name('password.request');
+Route::post('/forgot-password', [RegisterController::class, 'sendPasswordResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [RegisterController::class, 'resetPasswordView'])->name('password.reset');
+Route::post('/reset-password', [RegisterController::class, 'submitResetPassword'])->name('password.update');
+
 // Smart Dashboard Redirect
 Route::get('/dashboard', function() {
     $user = auth()->user();
@@ -113,10 +119,12 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/student/{id}/details', [DashboardController::class, 'studentDetails'])->name('admin.student.details');
     Route::get('/certificates/management', [DashboardController::class, 'certificatesManagement'])->name('admin.certificates.management');
     Route::post('/student/certificate', [DashboardController::class, 'assignCertificate'])->name('admin.student.certificate');
+    Route::delete('/student/certificate/{id}', [DashboardController::class, 'deleteCertificate'])->name('admin.student.certificate.delete');
     Route::post('approve/{id}/student', [DashboardController::class, 'adminApproveStudent'])->name('admin.approve.student');
     Route::delete('delete-registration/{id}', [DashboardController::class, 'deleteRegistration'])->name('admin.registration.delete');
     Route::post('manual-registration', [DashboardController::class, 'manualRegistration'])->name('admin.registration.manual');
     Route::post('/enrollment/update-status', [DashboardController::class, 'updateEnrollmentStatus'])->name('admin.enrollment.updateStatus');
+    Route::post('/student/enroll-course', [DashboardController::class, 'adminEnrollStudentCourse'])->name('admin.student.enrollCourse');
     Route::post('/user/update-password', [DashboardController::class, 'adminUpdateUserPassword'])->name('admin.user.updatePassword');
     Route::get('/admin/rolesOrPermissions', [DashboardController::class, 'roleOrPermissionsView'])->name('admin.role');
     Route::post('/roles/created', [RolesController::class, 'store'])->name('roles.store');
@@ -151,6 +159,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     
     // System Settings (Admin only)
     Route::put('settings/update/system',[SettingController::class,'updateSystemSetting'])->name('settings.update.system');
+    Route::put('settings/update/email',[SettingController::class,'updateEmailSetting'])->name('settings.update.email');
+    Route::post('settings/test-email',[SettingController::class,'sendTestEmail'])->name('settings.test.email');
 
     Route::get('system/admins', [DashboardController::class, 'systemAdminsView'])->name('admin.system.admins');
     Route::post('system/admins/store', [DashboardController::class, 'systemAdminStore'])->name('admin.system.admins.store');
