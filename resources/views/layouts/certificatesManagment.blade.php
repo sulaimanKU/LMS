@@ -136,7 +136,7 @@
                     <span class="text-muted small">Select any student below to upload or manage their certificate</span>
                 </div>
                 <span class="cm-badge-count">
-                    {{ $enrollmentList->count() }} Student Record(s) Listed
+                    Total {{ $users->total() }} Record(s) — Showing {{ $users->count() }} on Page {{ $users->currentPage() }}
                 </span>
             </div>
         </div>
@@ -154,7 +154,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($enrollmentList as $item)
+                    @forelse($users as $item)
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center gap-3">

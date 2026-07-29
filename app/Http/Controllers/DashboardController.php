@@ -383,84 +383,106 @@ public function adminEnrollStudentCourse(Request $request)
         $selectedModuleId = $request->get('module_id');
         $search = trim($request->get('search', ''));
 
-        // Query all users who are students or have enrolled modules
-        $query = User::query();
+        // 1. Fetch all approved registrations
+        $approvedRegs = Registration::where('status', 'approved')->get();
+        $approvedEmails = $approvedRegs->pluck('email')->filter()->map(fn($e) => strtolower(trim($e)))->unique();
 
-        if ($selectedModuleId) {
-            $query->where(function($q) use ($selectedModuleId) {
-                $q->whereHas('enrolledModules', function($m) use ($selectedModuleId) {
-                    $m->where('modules.id', $selectedModuleId);
-                });
-            });
-        } else {
-            $query->where(function($q) {
-                $q->whereHas('enrolledModules')
-                  ->orWhereHas('roles', function($r) {
-                      $r->where('name', 'student');
-                  });
-            });
-        }
+        // 2. Fetch all student users
+        $studentUsers = User::whereIn('email', $approvedEmails)
+            ->orWhereHas('roles', function($r) {
+                $r->where('name', 'student');
+            })
+            ->orWhereHas('enrolledModules')
+            ->with(['enrolledModules', 'certificates'])
+            ->get();
 
+        // Key by lowercase email to deduplicate
+        $usersByEmail = $studentUsers->keyBy(fn($u) => strtolower(trim($u->email)));
+        $regsByEmail  = $approvedRegs->keyBy(fn($r) => strtolower(trim($r->email)));
+
+        // 3. Build unique set of all student emails
+        $allStudentEmails = $usersByEmail->keys()->merge($regsByEmail->keys())->unique();
+
+        // 4. Apply search filter
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+            $searchLower = strtolower($search);
+            $allStudentEmails = $allStudentEmails->filter(function($email) use ($usersByEmail, $regsByEmail, $searchLower) {
+                $u = $usersByEmail->get($email);
+                $r = $regsByEmail->get($email);
+                $name = $u?->name ?? $r?->name ?? '';
+                return str_contains(strtolower($name), $searchLower) || str_contains(strtolower($email), $searchLower);
             });
         }
 
-        $allMatchingUsers = $query->with([
-            'enrolledModules',
-            'certificates'
-        ])->get();
-
-        $emails = $allMatchingUsers->pluck('email')->unique()->filter();
-        $registrations = \App\Models\Registration::whereIn('email', $emails)->get()->keyBy('email');
+        // 5. Pre-fetch all certificates
+        $allUserIds = $studentUsers->pluck('id')->merge($approvedRegs->pluck('id'))->unique();
+        $allCertificates = \App\Models\Certificate::whereIn('user_id', $allUserIds)->get();
 
         $enrollmentList = collect();
-        foreach ($allMatchingUsers as $user) {
-            $reg = $registrations->get($user->email);
-            $modulesToLoop = $user->enrolledModules;
 
-            // If selectedModuleId filter is active, filter user's enrolled modules
+        foreach ($allStudentEmails as $email) {
+            $user = $usersByEmail->get($email);
+            $reg  = $regsByEmail->get($email);
+
+            $studentName  = $user?->name ?? $reg?->name ?? 'Student';
+            $userId       = $user?->id ?? $reg?->id;
+            $profileImage = $user?->profile_image ?? null;
+
+            // Merge course IDs from user pivot and registration selected_courses
+            $pivotModules   = $user?->enrolledModules ?? collect();
+            $pivotCourseIds = $pivotModules->pluck('id')->toArray();
+            $regCourseIds   = $reg ? array_map('intval', $reg->selected_courses ?? []) : [];
+
+            $uniqueCourseIds = array_unique(array_merge($pivotCourseIds, $regCourseIds));
+
             if ($selectedModuleId) {
-                $modulesToLoop = $modulesToLoop->where('id', $selectedModuleId);
-            }
-
-            // Fallback: If student has no pivot modules but has selected_courses in registration
-            if ($modulesToLoop->isEmpty() && $reg && !empty($reg->selected_courses)) {
-                $regCourseIds = array_map('intval', $reg->selected_courses);
-                if ($selectedModuleId) {
-                    if (in_array((int)$selectedModuleId, $regCourseIds)) {
-                        $modulesToLoop = Courses::where('id', $selectedModuleId)->get();
-                    }
-                } else {
-                    $modulesToLoop = Courses::whereIn('id', $regCourseIds)->get();
+                if (!in_array((int)$selectedModuleId, $uniqueCourseIds)) {
+                    continue;
                 }
+                $uniqueCourseIds = [(int)$selectedModuleId];
             }
 
-            foreach ($modulesToLoop as $module) {
-                $cert = $user->certificates->firstWhere('module_id', $module->id);
-                $status = isset($module->pivot) ? ($module->pivot->status ?? 'active') : 'active';
+            $modules = Courses::whereIn('id', $uniqueCourseIds)->get();
+
+            foreach ($modules as $module) {
+                // Find certificate by user ID (User ID or Registration ID)
+                $cert = $allCertificates->first(function($c) use ($user, $reg, $module) {
+                    return $c->module_id == $module->id && (
+                        ($user && $c->user_id == $user->id) || ($reg && $c->user_id == $reg->id)
+                    );
+                });
+
+                $pivot = $pivotModules->firstWhere('id', $module->id)?->pivot;
+                $status = $pivot?->status ?? 'active';
+
+                $studentObj = (object)[
+                    'id'            => $userId,
+                    'name'          => $studentName,
+                    'email'         => $email,
+                    'profile_image' => $profileImage,
+                    'is_user'       => $user !== null,
+                ];
+
                 $enrollmentList->push((object)[
-                    'student'     => $user,
-                    'module'      => $module,
-                    'certificate' => $cert,
-                    'status'      => $status,
+                    'student'      => $studentObj,
+                    'module'       => $module,
+                    'certificate'  => $cert,
+                    'status'       => $status,
                 ]);
             }
         }
 
-        // Global DB KPI Stats
+        // Global KPI Statistics (Unique per Student-Course pair)
         $totalRecords   = $enrollmentList->count();
         $issuedCount    = $enrollmentList->filter(fn($i) => $i->certificate !== null)->count();
         $pendingCount   = $totalRecords - $issuedCount;
         $completedCount = $enrollmentList->filter(fn($i) => $i->status === 'completed')->count();
 
-        // Paginate the final enrollmentList collection cleanly
-        $perPage = 25;
+        // Paginate enrollmentList into $users
+        $perPage = 20;
         $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
         $paginatedItems = $enrollmentList->slice(($page - 1) * $perPage, $perPage)->values();
-        
+
         $users = new \Illuminate\Pagination\LengthAwarePaginator(
             $paginatedItems,
             $enrollmentList->count(),
