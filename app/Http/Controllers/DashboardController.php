@@ -24,16 +24,48 @@ class DashboardController
 
     public function dashboard_index()
     {
-        // Total unique people who are enrolled in at least one module
-        $totalStudents      = DB::table('enrollments')->distinct('user_id')->count('user_id');
-        $totalTeachers      = Teacher::count();
-        $totalCourses       = Courses::count();
-        $pendingCount       = Registration::where('status', 'pending')->count();
-        $recentRegistrations = Registration::with('slips')->latest()->take(6)->get();
+        // 1. Fetch all approved registrations
+        $approvedRegs = Registration::where('status', 'approved')->get();
+        $approvedEmails = $approvedRegs->pluck('email')->filter()->map(fn($e) => strtolower(trim($e)))->unique();
 
-        // New Metrics
-        $totalRevenue       = Registration::where('status', 'approved')->sum('total_amount');
-        $totalEnrollments   = DB::table('enrollments')->count(); // Total course seats filled
+        // 2. Fetch all student users matching approved emails or enrolled modules or student role
+        $studentUsers = User::whereHas('enrolledModules')
+            ->orWhereIn('email', $approvedEmails)
+            ->orWhereHas('roles', function($r) {
+                $r->where('name', 'student');
+            })
+            ->with('enrolledModules')
+            ->get();
+
+        $usersByEmail = $studentUsers->keyBy(fn($u) => strtolower(trim($u->email)));
+        $regsByEmail  = $approvedRegs->keyBy(fn($r) => strtolower(trim($r->email)));
+
+        // 3. Calculate Total Unique Approved Students
+        $allStudentEmails = $usersByEmail->keys()->merge($regsByEmail->keys())->unique()->filter();
+        $totalStudents    = $allStudentEmails->count();
+
+        // 4. Calculate Total Course Allocations / Module Seats Filled
+        $totalEnrollmentsCount = 0;
+        foreach ($allStudentEmails as $email) {
+            $user = $usersByEmail->get($email);
+            $reg  = $regsByEmail->get($email);
+
+            $pivotCourseIds = $user ? $user->enrolledModules->pluck('id')->toArray() : [];
+            $regCourseIds   = $reg ? array_map('intval', $reg->selected_courses ?? []) : [];
+
+            $uniqueCourses  = array_unique(array_filter(array_merge($pivotCourseIds, $regCourseIds)));
+            $totalEnrollmentsCount += count($uniqueCourses);
+        }
+        $totalEnrollments = $totalEnrollmentsCount;
+
+        // 5. Total Approved Revenue
+        $totalRevenue = Registration::where('status', 'approved')->sum('total_amount');
+
+        // General Stats
+        $totalTeachers       = Teacher::count();
+        $totalCourses        = Courses::count();
+        $pendingCount        = Registration::where('status', 'pending')->count();
+        $recentRegistrations = Registration::with('slips')->latest()->take(6)->get();
 
         // Top Modules by enrollment
         $topModules = Courses::withCount('enrolledUsers')
@@ -41,12 +73,22 @@ class DashboardController
             ->take(5)
             ->get();
 
-        // Monthly registrations for the last 6 months
-        $monthlyData = Registration::selectRaw("DATE_FORMAT(created_at, '%b') as month, COUNT(*) as total")
-            ->where('created_at', '>=', Carbon::now()->subMonths(6))
-            ->groupByRaw("DATE_FORMAT(created_at, '%b %Y'), DATE_FORMAT(created_at, '%b')")
-            ->orderBy('created_at')
-            ->pluck('total', 'month');
+        // Monthly registrations for the last 6 months (Chronological & zero-filled for continuity)
+        $chartMonths = collect();
+        $chartCounts = collect();
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date       = Carbon::now()->subMonths($i);
+            $monthLabel = $date->format('M');
+            $yearMonth  = $date->format('Y-m');
+
+            $count = Registration::whereRaw("DATE_FORMAT(created_at, '%Y-%m') = ?", [$yearMonth])->count();
+
+            $chartMonths->push($monthLabel);
+            $chartCounts->push($count);
+        }
+
+        $monthlyData = $chartMonths->combine($chartCounts);
 
         return view('dashboard.admin', compact(
             'totalStudents',
@@ -57,7 +99,9 @@ class DashboardController
             'monthlyData',
             'totalRevenue',
             'totalEnrollments',
-            'topModules'
+            'topModules',
+            'chartMonths',
+            'chartCounts'
         ));
     }
 

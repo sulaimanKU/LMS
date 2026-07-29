@@ -643,40 +643,63 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('regChart');
-    if(ctx) {
+    const canvas = document.getElementById('regChart');
+    if(canvas) {
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+        gradient.addColorStop(0, 'rgba(79, 70, 229, 0.28)');
+        gradient.addColorStop(1, 'rgba(79, 70, 229, 0.00)');
+
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: {!! json_encode($months) !!},
+                labels: {!! json_encode($chartMonths ?? $months) !!},
                 datasets: [{
-                    label: 'Registrations',
-                    data: {!! json_encode($counts) !!},
+                    label: 'Applications Registered',
+                    data: {!! json_encode($chartCounts ?? $counts) !!},
                     borderColor: '#4F46E5',
-                    borderWidth: 3,
-                    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                    borderWidth: 3.5,
+                    backgroundColor: gradient,
                     fill: true,
-                    tension: 0.4,
+                    tension: 0.38,
                     pointBackgroundColor: '#4F46E5',
                     pointBorderColor: '#FFFFFF',
-                    pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    pointHoverBackgroundColor: '#4F46E5',
+                    pointHoverBorderColor: '#FFFFFF',
+                    pointHoverBorderWidth: 3,
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        titleFont: { size: 13, weight: 'bold', family: 'Plus Jakarta Sans' },
+                        bodyFont: { size: 12, family: 'Plus Jakarta Sans' },
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return ' Applications: ' + context.parsed.y;
+                            }
+                        }
+                    }
                 },
                 scales: {
                     x: {
-                        grid: { display: false }
+                        grid: { display: false },
+                        ticks: { font: { family: 'Plus Jakarta Sans', weight: '700', size: 11 }, color: '#64748B' }
                     },
                     y: {
                         beginAtZero: true,
-                        ticks: { precision: 0 }
+                        grid: { color: '#F1F5F9' },
+                        ticks: { precision: 0, font: { family: 'Plus Jakarta Sans', weight: '600', size: 11 }, color: '#64748B' }
                     }
                 }
             }
