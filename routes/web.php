@@ -120,9 +120,11 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/certificates/management', [DashboardController::class, 'certificatesManagement'])->name('admin.certificates.management');
     Route::post('/student/certificate', [DashboardController::class, 'assignCertificate'])->name('admin.student.certificate');
     Route::delete('/student/certificate/{id}', [DashboardController::class, 'deleteCertificate'])->name('admin.student.certificate.delete');
+    Route::post('/student/approve/{id?}', [DashboardController::class, 'adminApproveStudent'])->name('admin.student.approve');
     Route::post('approve/{id}/student', [DashboardController::class, 'adminApproveStudent'])->name('admin.approve.student');
     Route::delete('delete-registration/{id}', [DashboardController::class, 'deleteRegistration'])->name('admin.registration.delete');
-    Route::post('manual-registration', [DashboardController::class, 'manualRegistration'])->name('admin.registration.manual');
+    Route::post('manual-registration', [DashboardController::class, 'manualRegistration'])->name('admin.student.manualStore');
+    Route::post('manual-registration-legacy', [DashboardController::class, 'manualRegistration'])->name('admin.registration.manual');
     Route::post('/enrollment/update-status', [DashboardController::class, 'updateEnrollmentStatus'])->name('admin.enrollment.updateStatus');
     Route::post('/student/enroll-course', [DashboardController::class, 'adminEnrollStudentCourse'])->name('admin.student.enrollCourse');
     Route::post('/user/update-password', [DashboardController::class, 'adminUpdateUserPassword'])->name('admin.user.updatePassword');

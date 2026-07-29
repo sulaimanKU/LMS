@@ -243,6 +243,11 @@ public function studentManagement(Request $request)
     $filter = $request->get('filter', 'all');
     $search = $request->get('search');
     
+    $totalRegs     = Registration::count();
+    $approvedCount = Registration::where('status', 'approved')->count();
+    $pendingCount  = Registration::where('status', 'pending')->count();
+    $rejectedCount = Registration::where('status', 'rejected')->count();
+
     $query = Registration::with('slips')->latest();
     
     if ($filter !== 'all') {
@@ -270,7 +275,10 @@ public function studentManagement(Request $request)
         
     $enrolledByEmail = $enrolledUsers->map(fn($u) => $u->enrolledModules->keyBy('id'));
 
-    return view('layouts.studentManagment', compact('registrations', 'allCourses', 'filter', 'enrolledByEmail', 'enrolledUsers', 'search'));
+    return view('layouts.studentManagment', compact(
+        'registrations', 'allCourses', 'filter', 'enrolledByEmail', 'enrolledUsers', 'search',
+        'totalRegs', 'approvedCount', 'pendingCount', 'rejectedCount'
+    ));
 }
 
 public function studentDetails($id)
@@ -504,9 +512,10 @@ public function adminEnrollStudentCourse(Request $request)
         ));
     }
 
-public function adminApproveStudent(Request $request, $id)
+public function adminApproveStudent(Request $request, $id = null)
 {
-    $reg = Registration::findOrFail($id);
+    $regId = $id ?? $request->input('registration_id');
+    $reg = Registration::findOrFail($regId);
 
     $request->validate([
         'approved_courses'   => 'required|array|min:1',

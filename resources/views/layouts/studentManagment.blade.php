@@ -5,82 +5,160 @@
 
     {{-- ── Alerts ── --}}
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="fa-solid fa-circle-check me-2"></i>{{ session('success') }}
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #ECFDF5; border-left: 4px solid #10B981 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-circle-check fs-5 me-2 text-success"></i>
+                <span class="fw-semibold text-dark">{{ session('success') }}</span>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
     @if(session('warning'))
-        <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="fa-solid fa-circle-exclamation me-2"></i>{{ session('warning') }}
+        <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #FFFBEB; border-left: 4px solid #F59E0B !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-circle-exclamation fs-5 me-2 text-warning"></i>
+                <span class="fw-semibold text-dark">{{ session('warning') }}</span>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
     @if(session('info'))
-        <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="fa-solid fa-circle-info me-2"></i>{{ session('info') }}
+        <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #EEF2FF; border-left: 4px solid #6366F1 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-circle-info fs-5 me-2 text-primary"></i>
+                <span class="fw-semibold text-dark">{{ session('info') }}</span>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
     @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="fa-solid fa-triangle-exclamation me-2"></i>
-            <ul class="mb-0 ps-3 mt-1">
-                @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
-            </ul>
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #FEF2F2; border-left: 4px solid #EF4444 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-triangle-exclamation fs-5 me-2 text-danger"></i>
+                <div>
+                    @foreach($errors->all() as $e)<div class="fw-semibold text-dark">{{ $e }}</div>@endforeach
+                </div>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
-    {{-- ── Header ── --}}
-    <div class="sm-header">
-        <div class="d-flex justify-content-between align-items-center w-100">
-            <div>
-                <h5 class="sm-title">Student Registrations</h5>
-                <p class="sm-subtitle">
-                    {{ $registrations->total() }} total &nbsp;·&nbsp;
-                    Page {{ $registrations->currentPage() }} of {{ $registrations->lastPage() }}
-                </p>
+    {{-- ── Hero Banner ── --}}
+    <div class="sm-hero-card mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-lg-6">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="sm-hero-icon">
+                        <i class="fa-solid fa-users-gear"></i>
+                    </div>
+                    <div>
+                        <h4 class="sm-hero-title mb-1">Student Management & Approvals</h4>
+                        <p class="sm-hero-sub mb-0">Review registrations, verify payment slips, approve course enrollments & manage student accounts</p>
+                    </div>
+                </div>
             </div>
-            
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary shadow-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#notifyStudentsModal">
-                    <i class="fa-solid fa-envelope me-2"></i>Send Notice
-                </button>
-                <button class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#manualEntryModal">
-                    <i class="fa-solid fa-user-plus me-2"></i>Add New Student
-                </button>
+            <div class="col-12 col-lg-6 text-lg-end">
+                <div class="d-flex align-items-center justify-content-lg-end gap-2 flex-wrap">
+                    <button class="sm-btn-secondary" data-bs-toggle="modal" data-bs-target="#notifyStudentsModal">
+                        <i class="fa-solid fa-paper-plane me-2"></i>Send Class Notice
+                    </button>
+                    <button class="sm-btn-primary" data-bs-toggle="modal" data-bs-target="#manualEntryModal">
+                        <i class="fa-solid fa-user-plus me-2"></i>Add New Student
+                    </button>
+                </div>
             </div>
         </div>
+    </div>
 
-        {{-- Status filter tabs and Search --}}
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-3 w-100">
-            <div class="sm-tab-group">
-                <a class="sm-tab {{ $filter === 'all'      ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'all',      'page' => 1]) }}">All</a>
-                <a class="sm-tab {{ $filter === 'pending'  ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'pending',  'page' => 1]) }}">Pending</a>
-                <a class="sm-tab {{ $filter === 'approved' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'approved', 'page' => 1]) }}">Approved</a>
+    {{-- ── Executive KPI Stat Cards ── --}}
+    <div class="sm-stats-grid mb-4">
+        <a href="{{ route('admin.student.management', ['filter' => 'all']) }}" class="text-decoration-none">
+            <div class="sm-stat-box {{ $filter === 'all' ? 'active-stat' : '' }}">
+                <div class="sm-stat-icon bg-indigo-subtle text-indigo">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div>
+                    <span class="sm-stat-val">{{ $totalRegs ?? 0 }}</span>
+                    <span class="sm-stat-lbl">Total Registrations</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('admin.student.management', ['filter' => 'approved']) }}" class="text-decoration-none">
+            <div class="sm-stat-box {{ $filter === 'approved' ? 'active-stat' : '' }}">
+                <div class="sm-stat-icon bg-emerald-subtle text-emerald">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <span class="sm-stat-val">{{ $approvedCount ?? 0 }}</span>
+                    <span class="sm-stat-lbl">Approved Students</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('admin.student.management', ['filter' => 'pending']) }}" class="text-decoration-none">
+            <div class="sm-stat-box {{ $filter === 'pending' ? 'active-stat' : '' }}">
+                <div class="sm-stat-icon bg-amber-subtle text-amber">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div>
+                    <span class="sm-stat-val">{{ $pendingCount ?? 0 }}</span>
+                    <span class="sm-stat-lbl">Pending Review</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('admin.student.management', ['filter' => 'rejected']) }}" class="text-decoration-none">
+            <div class="sm-stat-box {{ $filter === 'rejected' ? 'active-stat' : '' }}">
+                <div class="sm-stat-icon bg-rose-subtle text-rose">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <div>
+                    <span class="sm-stat-val">{{ $rejectedCount ?? 0 }}</span>
+                    <span class="sm-stat-lbl">Rejected Requests</span>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    {{-- ── Enterprise Toolbar ── --}}
+    <div class="sm-toolbar mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 w-100">
+            <div class="sm-nav-pills">
+                <a class="sm-pill {{ $filter === 'all'      ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'all',      'page' => 1]) }}">
+                    All Applications <span class="sm-pill-badge">{{ $totalRegs }}</span>
+                </a>
+                <a class="sm-pill {{ $filter === 'pending'  ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'pending',  'page' => 1]) }}">
+                    Pending Review <span class="sm-pill-badge">{{ $pendingCount }}</span>
+                </a>
+                <a class="sm-pill {{ $filter === 'approved' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'approved', 'page' => 1]) }}">
+                    Approved <span class="sm-pill-badge">{{ $approvedCount }}</span>
+                </a>
+                <a class="sm-pill {{ $filter === 'rejected' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['filter' => 'rejected', 'page' => 1]) }}">
+                    Rejected <span class="sm-pill-badge">{{ $rejectedCount }}</span>
+                </a>
             </div>
 
-            <form action="{{ route('admin.student.management') }}" method="GET" class="d-flex gap-2">
+            <form action="{{ route('admin.student.management') }}" method="GET" class="m-0">
                 @if($filter !== 'all')
                     <input type="hidden" name="filter" value="{{ $filter }}">
                 @endif
-                <div class="input-group shadow-sm" style="max-width: 300px; border-radius: 10px; overflow: hidden;">
-                    <span class="input-group-text bg-white border-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                    <input type="text" name="search" class="form-control border-0" placeholder="Search students..." value="{{ $search ?? '' }}" style="font-size: .85rem;">
+                <div class="input-group shadow-sm" style="min-width: 280px; border-radius: 12px; border: 1.5px solid #cbd5e1; background: #fff; overflow: hidden;">
+                    <span class="input-group-text bg-white border-0 ps-3 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="search" class="form-control border-0 py-2 fw-medium text-dark shadow-none" placeholder="Search student, email, phone..." value="{{ $search ?? '' }}" style="font-size: 0.85rem;">
                     @if($search)
-                        <a href="{{ route('admin.student.management', ['filter' => $filter]) }}" class="btn btn-white border-0 text-muted d-flex align-items-center">
+                        <a href="{{ route('admin.student.management', ['filter' => $filter]) }}" class="input-group-text bg-white border-0 text-muted px-3" title="Clear Search">
                             <i class="fa-solid fa-xmark"></i>
                         </a>
                     @endif
-                    <button class="btn btn-primary px-3" type="submit">Search</button>
+                    <button class="btn btn-primary px-3 fw-bold" type="submit" style="background: #4F46E5; border-color: #4F46E5;">Search</button>
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- ── Cards grid ── --}}
-    <div class="sm-grid">
+    {{-- ── Cards Grid ── --}}
+    <div class="sm-grid mb-4">
         @forelse($registrations as $reg)
         @php
             $hasSlip       = $reg->slips->isNotEmpty();
@@ -89,7 +167,6 @@
             $enrolledMap   = $enrolledByEmail[$reg->email] ?? collect();
             $enrolledIds   = $enrolledMap->keys()->toArray();
             
-            // Prepare a clean list of currently enrolled module titles for the modal
             $alreadyEnrolledTitles = [];
             foreach($enrolledMap as $eid => $eMod) {
                 if(!in_array($eid, $courseIds)) {
@@ -109,20 +186,20 @@
             <div class="sm-card-top">
                 <div class="sm-avatar">{{ strtoupper(substr($reg->name,0,1)) }}</div>
                 <div class="sm-info">
-                    <p class="sm-name">{{ $reg->name }}</p>
-                    <p class="sm-email">{{ $reg->email }}</p>
-                    <p class="sm-meta">{{ $reg->phone }} &nbsp;·&nbsp; {{ $reg->institution }}</p>
-                    <p class="sm-meta mt-1 text-primary fw-bold" style="font-size: 0.65rem;">
+                    <h6 class="sm-name mb-0">{{ $reg->name }}</h6>
+                    <p class="sm-email mb-1">{{ $reg->email }}</p>
+                    <p class="sm-meta mb-1"><i class="fa-solid fa-phone me-1 text-muted"></i>{{ $reg->phone }} &bull; <i class="fa-solid fa-building-columns me-1 text-muted"></i>{{ Str::limit($reg->institution, 22) }}</p>
+                    <p class="sm-meta mb-0 text-primary fw-bold" style="font-size: 0.7rem;">
                         <i class="fa-solid fa-clock me-1"></i>Applied {{ $reg->created_at->diffForHumans() }}
                     </p>
                 </div>
-                <div class="ms-auto">
+                <div class="ms-auto text-end">
                     @if($allEnrolled)
                         <span class="sm-badge sm-badge-approved"><i class="fa-solid fa-graduation-cap me-1"></i>Fully Enrolled</span>
                     @elseif($partial)
                         <span class="sm-badge sm-badge-partial"><i class="fa-solid fa-circle-half-stroke me-1"></i>{{ $enrolledCount }}/{{ $courseCount }} Enrolled</span>
                     @elseif($hasSlip)
-                        <span class="sm-badge sm-badge-review"><i class="fa-solid fa-clock me-1"></i>Review</span>
+                        <span class="sm-badge sm-badge-review"><i class="fa-solid fa-clock me-1"></i>Review Slip</span>
                     @else
                         <span class="sm-badge sm-badge-pending"><i class="fa-solid fa-hourglass me-1"></i>No Slip</span>
                     @endif
@@ -131,19 +208,18 @@
 
             {{-- Modules row --}}
             <div class="sm-courses-row">
-                <span class="sm-courses-label">
-                    <i class="fa-solid fa-book-open me-1"></i>Modules ({{ $enrolledCount }}/{{ $courseCount }} enrolled)
+                <span class="sm-courses-label mb-2">
+                    <i class="fa-solid fa-book-open me-1 text-indigo"></i>Selected Modules ({{ $enrolledCount }}/{{ $courseCount }} enrolled)
                 </span>
                 
-                {{-- NEW: Show already enrolled modules for this student --}}
                 @if($hasAccount && $enrolledMap->isNotEmpty())
                     <div class="sm-already-enrolled mb-2">
-                        <small class="text-muted d-block mb-1" style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">Existing Enrollments:</small>
+                        <small class="text-muted d-block mb-1 fw-bold" style="font-size: 0.65rem; text-transform: uppercase;">Existing Enrollments:</small>
                         <div class="d-flex flex-wrap gap-1">
                             @foreach($enrolledMap as $eid => $eMod)
                                 @if(!in_array($eid, $courseIds))
-                                    <span class="badge bg-light text-dark border" style="font-size: 0.6rem; opacity: 0.7;">
-                                        <i class="fa-solid fa-check text-success me-1"></i>{{ Str::limit($eMod->title, 15) }}
+                                    <span class="badge bg-light text-dark border" style="font-size: 0.65rem;">
+                                        <i class="fa-solid fa-check text-success me-1"></i>{{ Str::limit($eMod->title, 18) }}
                                     </span>
                                 @endif
                             @endforeach
@@ -164,10 +240,10 @@
                                 <div class="dropdown d-inline-block">
                                     <button class="sm-course-pill sm-pill-{{ $status }} dropdown-toggle border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fa-solid fa-{{ $status == 'active' ? 'circle-check' : ($status == 'completed' ? 'graduation-cap' : 'circle-xmark') }} me-1"></i>
-                                        {{ Str::limit($allCourses[$cid]->title, 20) }}
+                                        {{ Str::limit($allCourses[$cid]->title, 22) }}
                                     </button>
                                     <ul class="dropdown-menu shadow-sm border-0" style="font-size: .8rem; min-width: 140px;">
-                                        <li><h6 class="dropdown-header">Update Status</h6></li>
+                                        <li><h6 class="dropdown-header">Update Module Status</h6></li>
                                         <li>
                                             <form action="{{ route('admin.enrollment.updateStatus') }}" method="POST">
                                                 @csrf
@@ -189,7 +265,7 @@
                             @else
                                 <span class="sm-course-pill sm-pill-pending">
                                     <i class="fa-solid fa-clock me-1"></i>
-                                    {{ Str::limit($allCourses[$cid]->title, 20) }}
+                                    {{ Str::limit($allCourses[$cid]->title, 22) }}
                                 </span>
                             @endif
                         @endif
@@ -200,7 +276,7 @@
             {{-- Amount + slip + action --}}
             <div class="sm-card-foot">
                 <div class="sm-amount">
-                    <span class="sm-amount-label">Total Registered</span>
+                    <span class="sm-amount-label">Registered Amount</span>
                     <span class="sm-amount-val">PKR {{ number_format($reg->total_amount, 0) }}</span>
                 </div>
 
@@ -217,7 +293,7 @@
                     ])->values()->toJson();
                 @endphp
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <a href="{{ route('admin.student.details', $reg->id) }}" class="sm-slip-btn" title="View all student details">
+                    <a href="{{ route('admin.student.details', $reg->id) }}" class="sm-slip-btn text-decoration-none" title="View all student details">
                         <i class="fa-solid fa-circle-info me-1"></i>Details
                     </a>
                     @if($hasAccount)
@@ -231,19 +307,18 @@
                     @endif
 
                     @if($hasSlip)
-                        <a href="{{ $latestSlipUrl }}" target="_blank" class="sm-slip-btn" title="View latest payment slip">
+                        <a href="{{ $latestSlipUrl }}" target="_blank" class="sm-slip-btn text-decoration-none" title="View latest payment slip">
                             <i class="fa-solid fa-receipt me-1"></i>Slip
                         </a>
                     @else
-                        <span class="sm-no-slip">No slip yet</span>
+                        <span class="sm-no-slip">No slip</span>
                     @endif
 
                     @if($allEnrolled)
                         <button class="sm-action-btn sm-enrolled" disabled>
-                            <i class="fa-solid fa-graduation-cap me-1"></i>Fully Enrolled
+                            <i class="fa-solid fa-graduation-cap me-1"></i>Enrolled
                         </button>
                     @elseif($partial && $hasSlip)
-                        {{-- Some courses enrolled, new slip uploaded — allow adding remaining --}}
                         <button class="sm-action-btn sm-add-btn"
                                 data-bs-toggle="modal" data-bs-target="#reviewModal"
                                 data-id="{{ $reg->id }}"
@@ -257,10 +332,9 @@
                                 data-enrolled-ids="{{ json_encode(array_values($enrolledIds)) }}"
                                 data-already-enrolled="{{ json_encode($alreadyEnrolledTitles) }}"
                                 data-has-account="true">
-                            <i class="fa-solid fa-circle-plus me-1"></i>Add Remaining Courses
+                            <i class="fa-solid fa-circle-plus me-1"></i>Add Remaining
                         </button>
                     @elseif($partial)
-                        {{-- Partial enrollment but NO NEW SLIP — allow manual add --}}
                         <button class="sm-action-btn sm-add-btn"
                                 style="background: linear-gradient(135deg, #64748b, #475569);"
                                 data-bs-toggle="modal" data-bs-target="#reviewModal"
@@ -275,7 +349,7 @@
                                 data-enrolled-ids="{{ json_encode(array_values($enrolledIds)) }}"
                                 data-already-enrolled="{{ json_encode($alreadyEnrolledTitles) }}"
                                 data-has-account="true">
-                            <i class="fa-solid fa-user-plus me-1"></i>Manual Add (No Slip)
+                            <i class="fa-solid fa-user-plus me-1"></i>Manual Add
                         </button>
                     @elseif($hasSlip)
                         <button class="sm-action-btn sm-approve-btn"
@@ -294,7 +368,6 @@
                             <i class="fa-solid fa-user-check me-1"></i>Review & Approve
                         </button>
                     @else
-                        {{-- MANUAL APPROVAL (No Slip) --}}
                         <button class="sm-action-btn sm-approve-btn"
                                 style="background: linear-gradient(135deg, #64748b, #475569);"
                                 data-bs-toggle="modal" data-bs-target="#reviewModal"
@@ -309,726 +382,203 @@
                                 data-enrolled-ids="[]"
                                 data-already-enrolled="{{ json_encode($alreadyEnrolledTitles) }}"
                                 data-has-account="false">
-                            <i class="fa-solid fa-user-plus me-1"></i>Manual Approve
+                            <i class="fa-solid fa-user-check me-1"></i>Manual Approve
                         </button>
                     @endif
-
-                    {{-- DELETE BUTTON --}}
-                    <form action="{{ route('admin.registration.delete', $reg->id) }}" method="POST" 
-                          onsubmit="return confirm('Are you sure you want to PERMANENTLY delete this registration and the associated user account? This cannot be undone.')" 
-                          class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="sm-action-btn" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </form>
                 </div>
             </div>
 
         </div>
         @empty
-        <div class="sm-empty">
-            <i class="fa-solid fa-users-slash"></i>
-            @if($search)
-                <p>No students found matching "<strong>{{ $search }}</strong>".</p>
-                <a href="{{ route('admin.student.management', ['filter' => $filter]) }}" class="btn btn-link btn-sm mt-2">Clear search</a>
-            @else
-                <p>No registrations found.</p>
-            @endif
+        <div class="sm-empty text-center py-5 w-100">
+            <i class="fa-solid fa-users-slash fa-3x text-muted opacity-25 mb-3 d-block"></i>
+            <h5 class="fw-bold text-dark">No Student Registrations Found</h5>
+            <p class="text-muted small">No student records matched your current filter or search term.</p>
         </div>
         @endforelse
     </div>
 
-    {{-- ── Pagination ── --}}
+    {{-- Pagination --}}
     @if($registrations->hasPages())
-    <div class="sm-pagination">
+    <div class="d-flex justify-content-center mt-4">
         {{ $registrations->links('pagination::bootstrap-5') }}
     </div>
     @endif
 
 </div>
 
-{{-- ═══════════════════════════════════════════
-     MODAL — Review & Approve
-═══════════════════════════════════════════ --}}
+{{-- ── REVIEW & APPROVE MODAL ── --}}
 <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:580px;">
-        <div class="modal-content sm-modal">
-
-            <div class="sm-modal-header">
-                <div>
-                    <h5 class="sm-modal-title"><i class="fa-solid fa-user-check me-2"></i>Review & Approve</h5>
-                    <p class="sm-modal-sub" id="reviewSubtitle">Reviewing student application</p>
-                </div>
-                <button type="button" class="sm-modal-close" data-bs-dismiss="modal">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <form id="reviewForm" action="" method="POST">
-                @csrf
-                <div class="sm-modal-body">
-
-                    {{-- How-to banner --}}
-                    <div class="sm-howto">
-                        <span class="sm-howto-step">1</span>
-                        <span>Check payment (Slip or WhatsApp)</span>
-                        <span class="sm-howto-sep">→</span>
-                        <span class="sm-howto-step">2</span>
-                        <span><strong>Tick</strong> module(s) paid for</span>
-                        <span class="sm-howto-sep">→</span>
-                        <span class="sm-howto-step">3</span>
-                        <span>Click Approve</span>
-                    </div>
-
-                    {{-- Student info --}}
-                    <div class="sm-review-info" id="reviewStudentInfo"></div>
-
-                    {{-- Payment slip link --}}
-                    <div class="sm-review-slip" id="reviewSlipRow"></div>
-
-                    {{-- Course selection --}}
-                    <div class="sm-review-section">
-                        <p class="sm-review-section-title">
-                            <i class="fa-solid fa-check-square me-2 text-primary"></i>
-                            Select modules to enroll
-                        </p>
-                        <div id="reviewCourseList" class="sm-course-check-grid"></div>
-                    </div>
-
-                    {{-- Live payment tracker --}}
-                    <div class="sm-pay-tracker" id="payTracker">
-                        <div class="sm-pay-tracker-row">
-                            <div>
-                                <p class="sm-pay-label">Selected modules</p>
-                                <p class="sm-pay-selected" id="paySelected">0 of 0</p>
-                            </div>
-                            <div style="text-align:right;">
-                                <p class="sm-pay-label">Selected amount</p>
-                                <p class="sm-pay-amount" id="payAmount">PKR 0</p>
-                            </div>
-                        </div>
-                        <div class="sm-pay-bar-wrap">
-                            <div class="sm-pay-bar" id="payBar" style="width:0%"></div>
-                        </div>
-                        <p class="sm-pay-hint" id="payHint"></p>
-                    </div>
-
-                </div>
-
-                <div class="sm-modal-footer">
-                    <button type="button" class="sm-btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="sm-btn-approve" id="approveBtn">
-                        <i class="fa-solid fa-user-check me-2" id="approveBtnIcon"></i>
-                        <span id="approveBtnText">Approve & Send Credentials</span>
-                    </button>
-                </div>
-            </form>
-
-        </div>
-    </div>
-</div>
-
-{{-- ═══════════════════════════════════════════
-     MODAL — Reset Password
-═══════════════════════════════════════════ --}}
-<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
-        <div class="modal-content sm-modal">
-
-            <div class="sm-modal-header" style="background: linear-gradient(135deg, #475569, #1E293B);">
-                <div>
-                    <h5 class="sm-modal-title"><i class="fa-solid fa-key me-2"></i>Reset Password</h5>
-                    <p class="sm-modal-sub" id="passwordSubtitle">Updating student credentials</p>
-                </div>
-                <button type="button" class="sm-modal-close" data-bs-dismiss="modal">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <form action="{{ route('admin.user.updatePassword') }}" method="POST">
-                @csrf
-                <div class="sm-modal-body" style="gap: 0.75rem;">
-                    <input type="hidden" name="email" id="passwordEmail">
-                    
-                    <div class="mb-2">
-                        <label class="sm-label">New Password <span class="text-danger">*</span></label>
-                        <input type="password" name="password" class="tm-input" style="padding-left: 1rem;" required minlength="8" placeholder="Enter new password">
-                    </div>
-                    
-                    <div class="mb-2">
-                        <label class="sm-label">Confirm Password <span class="text-danger">*</span></label>
-                        <input type="password" name="password_confirmation" class="tm-input" style="padding-left: 1rem;" required minlength="8" placeholder="Confirm new password">
-                    </div>
-                </div>
-
-                <div class="sm-modal-footer">
-                    <button type="button" class="sm-btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="sm-btn-approve" style="background: linear-gradient(135deg, #475569, #1E293B);">
-                        <i class="fa-solid fa-save me-2"></i>Update Password
-                    </button>
-                </div>
-            </form>
-
-        </div>
-    </div>
-</div>
-
-<style>
-/* ── Page ── */
-.sm-page { padding: 1.5rem; background: #F8FAFF; min-height: 100%; }
-
-/* ── Header ── */
-.sm-header {
-    display: flex; align-items: flex-start;
-    justify-content: space-between; flex-wrap: wrap;
-    gap: 1rem; margin-bottom: 1.75rem;
-}
-.sm-title    { font-size: 1.2rem; font-weight: 800; color: #1E293B; margin: 0; }
-.sm-subtitle { font-size: .8rem; color: #94A3B8; margin: .15rem 0 0; }
-
-/* ── Filter tabs ── */
-.sm-tab-group {
-    display: flex; gap: 4px;
-    background: #EEF2FF; padding: 4px; border-radius: 10px;
-}
-.sm-tab {
-    padding: .35rem .9rem; border-radius: 7px; border: none;
-    background: transparent; font-size: .8rem; font-weight: 600;
-    color: #64748B; cursor: pointer; transition: all .15s;
-    text-decoration: none;
-}
-.sm-tab.active { background: #fff; color: #4F46E5; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-.sm-tab:hover:not(.active) { background: rgba(255,255,255,.6); }
-
-/* ── Cards grid ── */
-.sm-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
-    gap: 1rem;
-}
-.sm-card {
-    background: #fff;
-    border-radius: 14px;
-    border: 1.5px solid #F1F5F9;
-    box-shadow: 0 1px 6px rgba(0,0,0,.05);
-    overflow: hidden;
-    transition: box-shadow .2s, transform .2s;
-}
-.sm-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.09); transform: translateY(-1px); }
-.sm-card[data-status="approved"] { border-color: #D1FAE5; }
-
-/* ── Card top ── */
-.sm-card-top {
-    display: flex; align-items: flex-start;
-    gap: 12px; padding: 1.1rem 1.2rem .75rem;
-}
-.sm-avatar {
-    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
-    background: linear-gradient(135deg,#4F46E5,#7C3AED);
-    color: #fff; font-size: .9rem; font-weight: 800;
-    display: flex; align-items: center; justify-content: center;
-}
-.sm-info { min-width: 0; flex: 1; }
-.sm-name  { font-size: .9rem; font-weight: 700; color: #1E293B; margin: 0; line-height: 1.3; }
-.sm-email { font-size: .77rem; color: #64748B; margin: .1rem 0 .1rem; }
-.sm-meta  { font-size: .72rem; color: #94A3B8; margin: 0; }
-
-/* ── Badges ── */
-.sm-badge {
-    display: inline-flex; align-items: center;
-    padding: .25rem .75rem; border-radius: 50px;
-    font-size: .72rem; font-weight: 700; white-space: nowrap;
-}
-.sm-badge-approved { background: #D1FAE5; color: #065F46; }
-.sm-badge-partial  { background: #DBEAFE; color: #1D4ED8; }
-.sm-badge-review   { background: #FEF3C7; color: #92400E; }
-.sm-badge-pending  { background: #FEE2E2; color: #991B1B; }
-
-/* ── Modules row ── */
-.sm-courses-row {
-    padding: .6rem 1.2rem;
-    background: #F8FAFF;
-    border-top: 1px solid #F1F5F9;
-    border-bottom: 1px solid #F1F5F9;
-}
-.sm-courses-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #94A3B8; display: block; margin-bottom: .4rem; }
-.sm-courses-list  { display: flex; flex-wrap: wrap; gap: 5px; }
-.sm-course-pill {
-    padding: .18rem .6rem; border-radius: 50px;
-    font-size: .72rem; font-weight: 600;
-    display: inline-flex; align-items: center;
-}
-.sm-pill-active    { background: #D1FAE5; color: #065F46; }
-.sm-pill-completed { background: #DBEAFE; color: #1D4ED8; }
-.sm-pill-dropped   { background: #FEE2E2; color: #991B1B; }
-.sm-pill-pending   { background: #FEF3C7; color: #92400E; }
-.sm-pill-enrolled  { background: #D1FAE5; color: #065F46; }
-
-/* ── Card foot ── */
-.sm-card-foot {
-    display: flex; align-items: center;
-    justify-content: space-between; flex-wrap: wrap;
-    gap: .75rem; padding: .85rem 1.2rem;
-}
-.sm-amount-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .6px; color: #94A3B8; display: block; }
-.sm-amount-val   { font-size: 1rem; font-weight: 800; color: #1E293B; }
-
-.sm-slip-btn {
-    display: inline-flex; align-items: center;
-    background: #EEF2FF; color: #4F46E5;
-    border: 1px solid #C7D2FE; border-radius: 7px;
-    padding: .38rem .75rem; font-size: .78rem; font-weight: 600;
-    text-decoration: none; transition: all .15s;
-}
-.sm-slip-btn:hover { background: #4F46E5; color: #fff; }
-.sm-no-slip { font-size: .75rem; color: #CBD5E1; font-style: italic; }
-
-.sm-action-btn {
-    display: inline-flex; align-items: center;
-    padding: .42rem .9rem; border-radius: 8px; border: none;
-    font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .2s;
-}
-.sm-approve-btn {
-    background: linear-gradient(135deg,#4F46E5,#7C3AED);
-    color: #fff; box-shadow: 0 3px 10px rgba(79,70,229,.25);
-}
-.sm-approve-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(79,70,229,.36); }
-.sm-add-btn {
-    background: linear-gradient(135deg,#0891B2,#0E7490);
-    color: #fff; box-shadow: 0 3px 10px rgba(8,145,178,.25);
-}
-.sm-add-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(8,145,178,.36); }
-.sm-enrolled { background: #D1FAE5; color: #065F46; cursor: default; }
-.sm-waiting  { background: #F1F5F9; color: #94A3B8; cursor: default; }
-
-/* ── Empty ── */
-.sm-empty {
-    grid-column: 1/-1;
-    text-align: center; padding: 4rem 1rem;
-    color: #CBD5E1;
-}
-.sm-empty i { font-size: 3rem; display: block; margin-bottom: .75rem; }
-.sm-empty p { font-size: .9rem; margin: 0; }
-
-/* ── Pagination ── */
-.sm-pagination { margin-top: 1.5rem; display: flex; justify-content: center; }
-.sm-pagination .pagination { margin: 0; }
-.sm-pagination .page-link { color: #4F46E5; border-color: #E2E8F0; font-size: .82rem; }
-.sm-pagination .page-item.active .page-link { background: #4F46E5; border-color: #4F46E5; color: #fff !important; }
-
-/* ── Modal ── */
-.sm-modal { border: none; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.12); }
-.sm-modal-header {
-    display: flex; align-items: flex-start;
-    justify-content: space-between;
-    padding: 1.3rem 1.5rem 1rem;
-    background: linear-gradient(135deg,#4F46E5,#7C3AED);
-}
-.sm-modal-title { font-size: .975rem; font-weight: 700; color: #fff; margin: 0; }
-.sm-modal-sub   { font-size: .78rem; color: rgba(255,255,255,.75); margin: .2rem 0 0; }
-.sm-modal-close {
-    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
-    color: #fff; width: 30px; height: 30px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: .8rem; transition: background .15s;
-}
-.sm-modal-close:hover { background: rgba(255,255,255,.28); }
-.sm-modal-body   { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: .9rem; max-height: 70vh; overflow-y: auto; }
-.sm-modal-footer { padding: 1rem 1.5rem 1.3rem; display: flex; justify-content: flex-end; gap: .6rem; border-top: 1px solid #F1F5F9; }
-
-/* ── How-to banner ── */
-.sm-howto {
-    display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
-    background: #EEF2FF; border: 1px solid #C7D2FE;
-    border-radius: 10px; padding: .65rem 1rem;
-    font-size: .78rem; color: #3730A3;
-}
-.sm-howto-step {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 20px; height: 20px; border-radius: 50%;
-    background: #4F46E5; color: #fff; font-size: .7rem; font-weight: 800; flex-shrink: 0;
-}
-.sm-howto-sep { color: #A5B4FC; font-weight: 700; }
-
-/* ── Review modal internals ── */
-.sm-review-info {
-    background: #F8FAFF; border: 1.5px solid #E2E8F0;
-    border-radius: 10px; padding: 1rem 1.1rem;
-    font-size: .845rem; display: grid;
-    grid-template-columns: 1fr 1fr; gap: .4rem .75rem;
-}
-.sm-ri-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #94A3B8; margin: 0; }
-.sm-ri-val   { font-size: .845rem; font-weight: 600; color: #1E293B; margin-bottom: .4rem; }
-
-.sm-review-slip {
-    display: flex; align-items: center; gap: 10px;
-    padding: .75rem 1rem;
-    background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 10px;
-    font-size: .845rem;
-}
-.sm-review-slip a {
-    color: #92400E; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;
-}
-
-.sm-review-section-title {
-    font-size: .82rem; font-weight: 700; color: #1E293B;
-    margin: 0 0 .6rem; display: flex; align-items: center; gap: 6px;
-}
-
-.sm-course-check-grid { display: flex; flex-direction: column; gap: 6px; }
-
-/* Already-enrolled row in modal */
-.sm-course-locked {
-    display: flex; align-items: center; gap: 10px;
-    padding: .6rem .9rem; border: 1.5px solid #D1FAE5;
-    border-radius: 9px; background: #F0FDF4;
-}
-.sm-locked-icon { color: #16A34A; font-size: .9rem; flex-shrink: 0; }
-.sm-enrolled-tag {
-    margin-left: auto; font-size: .68rem; font-weight: 700;
-    background: #D1FAE5; color: #065F46;
-    padding: .15rem .55rem; border-radius: 50px; white-space: nowrap;
-}
-
-.sm-course-chk {
-    display: flex; align-items: center; gap: 10px;
-    padding: .6rem .9rem; border: 1.5px solid #E2E8F0; border-radius: 9px;
-    cursor: pointer; transition: border-color .15s, background .15s; user-select: none;
-    margin: 0;
-}
-.sm-course-chk:hover { border-color: #7C3AED; background: #FAF5FF; }
-.sm-course-chk.checked { border-color: #4F46E5; background: #EEF2FF; }
-.sm-course-chk input { position: absolute; opacity: 0; width: 0; height: 0; }
-.sm-chk-box {
-    width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
-    border: 2px solid #CBD5E1; background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .65rem; color: #fff; transition: all .15s;
-}
-.sm-course-chk.checked .sm-chk-box {
-    background: linear-gradient(135deg,#4F46E5,#7C3AED); border-color: #4F46E5;
-}
-.sm-chk-label { font-size: .845rem; color: #1E293B; flex: 1; }
-.sm-chk-price { font-size: .78rem; font-weight: 700; color: #4F46E5; }
-
-/* ── Payment tracker ── */
-.sm-pay-tracker {
-    background: #0F0A2E; border-radius: 12px; padding: 1rem 1.1rem;
-    display: flex; flex-direction: column; gap: .5rem;
-}
-.sm-pay-tracker-row { display: flex; justify-content: space-between; align-items: flex-start; }
-.sm-pay-label { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: #6366F1; margin: 0 0 2px; }
-.sm-pay-selected { font-size: 1.1rem; font-weight: 800; color: #A5B4FC; margin: 0; }
-.sm-pay-amount { font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0; }
-.sm-pay-bar-wrap {
-    background: rgba(255,255,255,.1); border-radius: 99px; height: 5px; margin-top: .25rem; overflow: hidden;
-}
-.sm-pay-bar {
-    height: 100%; border-radius: 99px;
-    background: linear-gradient(90deg,#6366F1,#8B5CF6);
-    transition: width .3s ease, background .3s;
-}
-.sm-pay-bar.exact { background: #10B981; }
-.sm-pay-bar.over  { background: #EF4444; }
-.sm-pay-hint { font-size: .75rem; margin: 0; font-weight: 500; color: #94A3B8; }
-.sm-pay-hint.match   { color: #34D399; }
-.sm-pay-hint.partial { color: #FCD34D; }
-.sm-pay-hint.over    { color: #FCA5A5; }
-
-/* ── Modal buttons ── */
-.sm-btn-cancel {
-    padding: .5rem 1.1rem; border: 1.5px solid #E2E8F0; border-radius: 9px;
-    background: #fff; color: #64748B; font-size: .855rem; font-weight: 600; cursor: pointer;
-    transition: all .15s;
-}
-.sm-btn-cancel:hover { background: #F8FAFF; }
-.sm-btn-approve {
-    padding: .5rem 1.25rem; border: none; border-radius: 9px;
-    background: linear-gradient(135deg,#4F46E5,#7C3AED);
-    color: #fff; font-size: .855rem; font-weight: 600; cursor: pointer;
-    box-shadow: 0 4px 12px rgba(79,70,229,.25); transition: all .2s;
-    display: inline-flex; align-items: center;
-}
-.sm-btn-approve:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,70,229,.36); }
-
-@media (max-width: 767.98px) {
-    .sm-grid { grid-template-columns: 1fr; }
-    .sm-howto { font-size: .72rem; }
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const reviewModal = document.getElementById('reviewModal');
-    if (!reviewModal) return;
-
-    // ── Populate modal on open ──
-    reviewModal.addEventListener('show.bs.modal', function (e) {
-        const btn      = e.relatedTarget;
-        const regId    = btn.dataset.id;
-        const name     = btn.dataset.name;
-        const email    = btn.dataset.email;
-        const phone    = btn.dataset.phone;
-        const inst     = btn.dataset.institution;
-        const regTotal = parseFloat(btn.dataset.amount) || 0;
-        const slips    = JSON.parse(btn.dataset.slips || '[]');
-        // courses = [{id, title, price}, ...] — pre-built server-side, no lookup needed
-        const courses     = JSON.parse(btn.dataset.courses    || '[]');
-        const enrolledIds = JSON.parse(btn.dataset.enrolledIds || '[]');
-        const alreadyEnrolledTitles = JSON.parse(btn.dataset.alreadyEnrolled || '[]');
-        const hasAccount  = btn.dataset.hasAccount === 'true';
-
-        // Courses NOT yet enrolled (the ones admin can approve now)
-        const pendingCourses = courses.filter(c => !enrolledIds.includes(c.id));
-
-        reviewModal.querySelector('#reviewSubtitle').textContent =
-            hasAccount ? 'Adding courses for: ' + name : 'Reviewing: ' + name;
-        reviewModal.querySelector('#reviewForm').action =
-            '{{ route("admin.approve.student", ":id") }}'.replace(':id', regId);
-
-        // Student info
-        reviewModal.querySelector('#reviewStudentInfo').innerHTML =
-            `<div><p class="sm-ri-label">Name</p><p class="sm-ri-val">${name}</p></div>
-             <div><p class="sm-ri-label">Email</p><p class="sm-ri-val">${email}</p></div>
-             <div><p class="sm-ri-label">Phone</p><p class="sm-ri-val">${phone || '—'}</p></div>
-             <div><p class="sm-ri-label">Institution</p><p class="sm-ri-val">${inst || '—'}</p></div>
-             <div><p class="sm-ri-label">Registered Total</p><p class="sm-ri-val" style="color:#4F46E5">PKR ${regTotal.toLocaleString()}</p></div>
-             <div><p class="sm-ri-label">Account Status</p><p class="sm-ri-val" style="color:${hasAccount?'#059669':'#D97706'}">${hasAccount ? '✓ Account Exists' : 'Will be Created'}</p></div>`;
-
-        // Slip row — show ALL slips
-        const slipRow = reviewModal.querySelector('#reviewSlipRow');
-        if (slips.length === 0) {
-            slipRow.innerHTML = `
-                <div style="width:100%; padding:.75rem; border-radius:10px; background:#EEF2FF; border:1px solid #C7D2FE; display:flex; align-items:center; gap:.75rem;">
-                    <div style="font-size:1.5rem; color:#4F46E5;"><i class="fa-brands fa-whatsapp"></i></div>
-                    <div>
-                        <p style="margin:0; font-size:.82rem; font-weight:700; color:#1E293B;">Manual WhatsApp Verification</p>
-                        <p style="margin:0; font-size:.75rem; color:#64748B;">No slip in system. Please verify via WhatsApp proof before approving.</p>
-                    </div>
-                </div>`;
-        } else {
-            const statusColor = s => s === 'approved' ? '#065F46' : '#92400E';
-            const statusBg    = s => s === 'approved' ? '#D1FAE5' : '#FEF3C7';
-            slipRow.innerHTML = `
-                <div style="width:100%;">
-                  <p style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#92400E;margin:0 0 .5rem;">
-                    <i class="fa-solid fa-receipt me-1"></i>${slips.length} Payment Slip${slips.length > 1 ? 's' : ''} — open each to verify
-                  </p>
-                  ${slips.map((s, i) => `
-                    <div style="display:flex;align-items:center;gap:.6rem;padding:.4rem .65rem;border-radius:8px;background:#FFFBEB;border:1px solid #FCD34D;margin-bottom:.35rem;">
-                      <span style="font-size:.75rem;font-weight:700;color:#92400E;min-width:52px;">Slip ${i+1}</span>
-                      <span style="font-size:.73rem;color:#92400E;flex:1;">${s.date}</span>
-                      <span style="font-size:.65rem;font-weight:800;padding:.12rem .45rem;border-radius:50px;background:${statusBg(s.status)};color:${statusColor(s.status)};">${s.status.charAt(0).toUpperCase()+s.status.slice(1)}</span>
-                      <a href="${s.url}" target="_blank" style="font-size:.73rem;font-weight:600;color:#4F46E5;text-decoration:none;">
-                        <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>Open
-                      </a>
-                    </div>
-                  `).join('')}
-                </div>`;
-        }
-
-        // Build course list:
-        // Already-enrolled → locked row (no checkbox)
-        // Pending → checkboxes for admin to tick
-        const list = reviewModal.querySelector('#reviewCourseList');
-        let html = '';
-
-        // 1. Show modules from PREVIOUS registrations (already enrolled)
-        alreadyEnrolledTitles.forEach(title => {
-            html += `<div class="sm-course-locked" style="opacity: 0.6; background: #f1f5f9;">
-                       <span class="sm-locked-icon"><i class="fa-solid fa-circle-check text-muted"></i></span>
-                       <span class="sm-chk-label">${title}</span>
-                       <span class="sm-enrolled-tag" style="background:#e2e8f0; color:#475569;">Already Enrolled</span>
-                     </div>`;
-        });
-
-        // 2. Show modules from THIS registration that are already enrolled (partial approval cases)
-        courses.filter(c => enrolledIds.includes(c.id)).forEach(c => {
-            html += `<div class="sm-course-locked">
-                       <span class="sm-locked-icon"><i class="fa-solid fa-circle-check text-success"></i></span>
-                       <span class="sm-chk-label">${c.title}</span>
-                       <span class="sm-enrolled-tag">Approved</span>
-                     </div>`;
-        });
-
-        // Show pending courses as checkboxes
-        pendingCourses.forEach(c => {
-            html += `<label class="sm-course-chk" data-price="${c.price}">
-                       <input type="checkbox" name="approved_courses[]" value="${c.id}">
-                       <span class="sm-chk-box"><i class="fa-solid fa-check"></i></span>
-                       <span class="sm-chk-label">${c.title}</span>
-                       <span class="sm-chk-price">PKR ${Number(c.price).toLocaleString()}</span>
-                     </label>`;
-        });
-
-        list.innerHTML = html || '<p style="color:#94A3B8;font-size:.82rem;margin:0;">No pending modules.</p>';
-
-        // Approve button label
-        const btnText = document.getElementById('approveBtnText');
-        const btnIcon = document.getElementById('approveBtnIcon');
-        if (hasAccount) {
-            btnText.textContent = 'Enroll in Additional Courses';
-            btnIcon.className = 'fa-solid fa-circle-plus me-2';
-        } else {
-            btnText.textContent = 'Approve & Send Credentials';
-            btnIcon.className = 'fa-solid fa-user-check me-2';
-        }
-
-        // Tracker (only counts pending/checkable courses)
-        function updateTracker() {
-            let selCount = 0, selAmount = 0;
-            list.querySelectorAll('label.sm-course-chk').forEach(lbl => {
-                if (lbl.classList.contains('checked')) {
-                    selCount++;
-                    selAmount += parseFloat(lbl.dataset.price) || 0;
-                }
-            });
-            const total = pendingCourses.length;
-            reviewModal.querySelector('#paySelected').textContent = selCount + ' of ' + total + ' pending module(s)';
-            reviewModal.querySelector('#payAmount').textContent   = 'PKR ' + selAmount.toLocaleString();
-
-            const bar  = reviewModal.querySelector('#payBar');
-            const hint = reviewModal.querySelector('#payHint');
-            bar.style.width = (total > 0 ? (selCount / total) * 100 : 0) + '%';
-            bar.classList.remove('exact', 'over');
-            hint.className = 'sm-pay-hint';
-
-            if (selCount === 0) {
-                hint.textContent = 'Open the slip above, then tick the module(s) that were paid for.';
-                hint.classList.add('partial');
-            } else if (selCount === total) {
-                bar.classList.add('exact');
-                hint.classList.add('match');
-                hint.textContent = 'All ' + total + ' pending module(s) selected.';
-            } else {
-                hint.classList.add('partial');
-                hint.textContent = 'Partial: ' + selCount + ' of ' + total + ' pending module(s) will be enrolled.';
-            }
-            document.getElementById('approveBtn').disabled = selCount === 0;
-        }
-
-        list.querySelectorAll('label.sm-course-chk').forEach(lbl => {
-            lbl.addEventListener('click', function (ev) {
-                ev.preventDefault();
-                this.classList.toggle('checked');
-                this.querySelector('input[type=checkbox]').checked = this.classList.contains('checked');
-                updateTracker();
-            });
-        });
-
-        updateTracker();
-    });
-
-    // ── Handle Password Modal ──
-    const passwordModal = document.getElementById('passwordModal');
-    if (passwordModal) {
-        passwordModal.addEventListener('show.bs.modal', function (e) {
-            const btn   = e.relatedTarget;
-            const name  = btn.dataset.name;
-            const email = btn.dataset.email;
-
-            passwordModal.querySelector('#passwordSubtitle').textContent = 'Resetting password for: ' + name;
-            passwordModal.querySelector('#passwordEmail').value = email;
-            
-            // Clear previous inputs
-            passwordModal.querySelectorAll('input[type=password]').forEach(i => i.value = '');
-        });
-    }
-
-});
-</script>
-
-</div>
-
-{{-- ═══════════════════════════════════════════
-     MODAL — Manual Student Entry
-═══════════════════════════════════════════ --}}
-<div class="modal fade" id="manualEntryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:650px;">
-        <div class="modal-content sm-modal">
-
-            <div class="sm-modal-header">
-                <div>
-                    <h5 class="sm-modal-title"><i class="fa-solid fa-user-plus me-2"></i>Manual Student Entry</h5>
-                    <p class="sm-modal-sub">Create a new registration record for a student</p>
-                </div>
-                <button type="button" class="sm-modal-close" data-bs-dismiss="modal">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <form action="{{ route('admin.registration.manual') }}" method="POST">
-                @csrf
-                <div class="sm-modal-body p-4">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Full Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" placeholder="Student Name" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Email Address <span class="text-danger">*</span></label>
-                            <input type="email" name="email" class="form-control" placeholder="student@example.com" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" name="phone" class="form-control" placeholder="+92 ..." required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Institution</label>
-                            <input type="text" name="institution" class="form-control" placeholder="University/Org">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Research Area</label>
-                            <input type="text" name="research_area" class="form-control" placeholder="e.g. Computer Science, AI, etc.">
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-top">
-                        <p class="small fw-bold text-primary text-uppercase mb-3"><i class="fa-solid fa-book-open me-1"></i>Select Modules to Enroll</p>
-                        <div class="row g-2">
-                            @foreach($allCourses as $id => $course)
-                            <div class="col-md-6">
-                                <div class="form-check p-2 rounded border bg-light-subtle">
-                                    <input class="form-check-input ms-0 me-2" type="checkbox" name="selected_courses[]" value="{{ $id }}" id="manMod{{ $id }}">
-                                    <label class="form-check-label small d-block" for="manMod{{ $id }}" style="cursor:pointer;">
-                                        <span class="fw-bold d-block text-truncate" title="{{ $course->title }}">{{ $course->title }}</span>
-                                        <span class="text-muted" style="font-size: 0.65rem;">PKR {{ number_format($course->price, 0) }}</span>
-                                    </label>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-                <div class="sm-modal-footer">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="sm-btn-approve px-5">
-                        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Create Manual Entry
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-{{-- NOTIFY STUDENTS MODAL --}}
-<div class="modal fade" id="notifyStudentsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header bg-primary text-white" style="border-radius: 20px 20px 0 0;">
-                <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2"></i>Send Class Notification</h5>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+            <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #1E1B4B, #4F46E5);">
+                <div>
+                    <h5 class="modal-title fw-extrabold mb-1" id="reviewModalTitle"><i class="fa-solid fa-user-check me-2"></i>Review & Approve Student</h5>
+                    <p class="small mb-0 opacity-80" id="modalSubhead">Verify payment slips and select courses for enrollment</p>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
+            
+            <form action="{{ route('admin.student.approve') }}" method="POST" id="approvalForm">
+                @csrf
+                <input type="hidden" name="registration_id" id="modalRegId">
+
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        {{-- Left: Student Details --}}
+                        <div class="col-md-5">
+                            <div class="p-3 bg-light rounded-4 border">
+                                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-user-gear me-2 text-primary"></i>Student Details</h6>
+                                <div class="mb-2"><span class="text-muted small d-block">Full Name</span><strong id="modalName" class="text-dark">-</strong></div>
+                                <div class="mb-2"><span class="text-muted small d-block">Email Address</span><strong id="modalEmail" class="text-dark">-</strong></div>
+                                <div class="mb-2"><span class="text-muted small d-block">Phone Number</span><strong id="modalPhone" class="text-dark">-</strong></div>
+                                <div class="mb-2"><span class="text-muted small d-block">Institution</span><strong id="modalInst" class="text-dark">-</strong></div>
+                                <div class="mb-0"><span class="text-muted small d-block">Registered Total Amount</span><strong id="modalAmount" class="text-primary">-</strong></div>
+                            </div>
+                        </div>
+
+                        {{-- Right: Payment Slips & Course Selection --}}
+                        <div class="col-md-7">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-uppercase text-muted">Uploaded Payment Slips</label>
+                                <div id="slipsContainer" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-uppercase text-muted">Select Courses to Approve / Enroll</label>
+                                <div id="coursesContainer" class="d-flex flex-column gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm" style="background: linear-gradient(135deg, #4F46E5, #6366F1); border: none;">
+                        <i class="fa-solid fa-check me-2"></i>Confirm Approval & Enroll
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ── PASSWORD RESET MODAL ── --}}
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+            <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #1E1B4B, #312E81);">
+                <div>
+                    <h5 class="modal-title fw-bold mb-1"><i class="fa-solid fa-key me-2"></i>Reset Student Password</h5>
+                    <p class="small mb-0 opacity-80" id="pwdModalSub">Set new password for student</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form action="{{ route('admin.user.updatePassword') }}" method="POST">
+                @csrf
+                <input type="hidden" name="email" id="pwdModalEmail">
+
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">NEW PASSWORD</label>
+                        <input type="password" name="password" class="form-control py-2 rounded-3 border" required placeholder="Minimum 8 characters">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">CONFIRM PASSWORD</label>
+                        <input type="password" name="password_confirmation" class="form-control py-2 rounded-3 border" required placeholder="Repeat password">
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background: #4F46E5; border: none;">
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ── MANUAL ENTRY MODAL ── --}}
+<div class="modal fade" id="manualEntryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+            <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #1E1B4B, #4F46E5);">
+                <div>
+                    <h5 class="modal-title fw-bold mb-1"><i class="fa-solid fa-user-plus me-2"></i>Add New Student Manually</h5>
+                    <p class="small mb-0 opacity-80">Create student account and assign courses directly</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form action="{{ route('admin.student.manualStore') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">FULL NAME</label>
+                            <input type="text" name="name" class="form-control py-2 rounded-3 border" required placeholder="John Doe">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">EMAIL ADDRESS</label>
+                            <input type="email" name="email" class="form-control py-2 rounded-3 border" required placeholder="student@example.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">PHONE NUMBER</label>
+                            <input type="text" name="phone" class="form-control py-2 rounded-3 border" placeholder="+92 300 1234567">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">INSTITUTION</label>
+                            <input type="text" name="institution" class="form-control py-2 rounded-3 border" placeholder="University Name">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">ASSIGN COURSES</label>
+                            <div class="border rounded-3 p-3 bg-light" style="max-height: 180px; overflow-y: auto;">
+                                @foreach($allCourses as $c)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="selected_courses[]" value="{{ $c->id }}" id="manualC{{ $c->id }}">
+                                        <label class="form-check-label small fw-semibold text-dark" for="manualC{{ $c->id }}">
+                                            {{ $c->title }} — <span class="text-primary fw-bold">PKR {{ number_format($c->price) }}</span>
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm" style="background: #4F46E5; border: none;">
+                        Create Student Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ── NOTIFY STUDENTS MODAL ── --}}
+<div class="modal fade" id="notifyStudentsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+            <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #1E1B4B, #312E81);">
+                <div>
+                    <h5 class="modal-title fw-bold mb-1"><i class="fa-solid fa-paper-plane me-2"></i>Send Class Notification</h5>
+                    <p class="small mb-0 opacity-80">Broadcast emails to students enrolled in specific modules</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
             <form action="{{ route('class.notification.send') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">TARGET MODULE</label>
-                            <select class="form-select bg-light border-0" name="module_id" id="notify_module_id" required>
+                            <select class="form-select py-2 rounded-3 border" name="module_id" id="notify_module_id" required>
                                 <option value="" selected disabled>Select Course...</option>
                                 @foreach($allCourses as $id => $course)
                                     <option value="{{ $id }}">{{ $course->title }}</option>
@@ -1037,21 +587,21 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">CLASS DATE (OPTIONAL)</label>
-                            <input type="date" name="class_date" class="form-control bg-light border-0">
+                            <input type="date" name="class_date" class="form-control py-2 rounded-3 border">
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted">MEETING LINK (OPTIONAL)</label>
-                            <input type="url" name="meeting_link" class="form-control bg-light border-0" placeholder="https://zoom.us/j/...">
+                            <input type="url" name="meeting_link" class="form-control py-2 rounded-3 border" placeholder="https://zoom.us/j/...">
                         </div>
                         
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted">EMAIL SUBJECT / TOPIC</label>
-                            <input type="text" name="subject" class="form-control bg-light border-0" required placeholder="e.g. Tomorrow's Class Link & Prep">
+                            <input type="text" name="subject" class="form-control py-2 rounded-3 border" required placeholder="e.g. Tomorrow's Class Link & Prep">
                         </div>
 
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted">MESSAGE BODY</label>
-                            <textarea name="message" class="form-control bg-light border-0" rows="5" required placeholder="Write your announcement here..."></textarea>
+                            <textarea name="message" class="form-control py-2 rounded-3 border" rows="5" required placeholder="Write your announcement here..."></textarea>
                         </div>
 
                         <div class="col-12">
@@ -1062,16 +612,17 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <label class="form-check-label small fw-bold" for="selectAllStudents">Select All</label>
                                 </div>
                             </div>
-                            <div id="students_list_container" class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                            <div id="students_list_container" class="border rounded-3 p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
                                 <p class="text-muted small text-center mb-0 py-3">Please select a module first to see students.</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0">
+
+                <div class="modal-footer border-0 p-4 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm" id="sendNotificationBtn" disabled>
-                        <i class="fas fa-paper-plane me-2"></i>Send Email to Selected
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm" id="sendNotificationBtn" disabled style="background: #4F46E5; border: none;">
+                        <i class="fa-solid fa-paper-plane me-2"></i>Send Email to Selected
                     </button>
                 </div>
             </form>
@@ -1079,15 +630,404 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
 </div>
 
+<style>
+.sm-page {
+    padding: 2rem;
+    background-color: #F8FAFC;
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Hero Banner */
+.sm-hero-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 1.5rem 1.75rem;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+}
+.sm-hero-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
+    flex-shrink: 0;
+}
+.sm-hero-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0F172A;
+    letter-spacing: -0.3px;
+}
+.sm-hero-sub {
+    font-size: 0.85rem;
+    color: #64748B;
+}
+.sm-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #4F46E5, #6366F1);
+    color: #FFFFFF !important;
+    border: none;
+    border-radius: 50px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
+    transition: all 0.2s ease;
+}
+.sm-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.38);
+}
+.sm-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    background: #FFFFFF;
+    color: #4F46E5 !important;
+    border: 1.5px solid #C7D2FE;
+    border-radius: 50px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+.sm-btn-secondary:hover {
+    background: #EEF2FF;
+    border-color: #4F46E5;
+}
+
+/* KPI Stats Grid */
+.sm-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+.sm-stat-box {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 1.15rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.02);
+    transition: all 0.2s ease;
+}
+.sm-stat-box:hover, .sm-stat-box.active-stat {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+    border-color: #4F46E5;
+}
+.sm-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+.bg-indigo-subtle { background: #EEF2FF; }
+.text-indigo { color: #4F46E5; }
+.bg-emerald-subtle { background: #ECFDF5; }
+.text-emerald { color: #10B981; }
+.bg-amber-subtle { background: #FFFBEB; }
+.text-amber { color: #D97706; }
+.bg-rose-subtle { background: #FFE4E6; }
+.text-rose { color: #E11D48; }
+
+.sm-stat-val {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #0F172A;
+    line-height: 1;
+    display: block;
+}
+.sm-stat-lbl {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748B;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Toolbar & Nav Pills */
+.sm-toolbar {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 18px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+.sm-nav-pills {
+    display: inline-flex;
+    background: #F1F5F9;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px;
+}
+.sm-pill {
+    padding: 0.45rem 1rem;
+    border-radius: 9px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748B;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.sm-pill.active {
+    background: #FFFFFF;
+    color: #4F46E5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.sm-pill-badge {
+    font-size: 0.7rem;
+    padding: 2px 7px;
+    border-radius: 50px;
+    background: #F1F5F9;
+    color: #475569;
+}
+.sm-pill.active .sm-pill-badge {
+    background: #EEF2FF;
+    color: #4F46E5;
+}
+
+/* Cards Grid */
+.sm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.25rem;
+}
+.sm-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    transition: all 0.25s ease;
+}
+.sm-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+    border-color: #CBD5E1;
+}
+
+.sm-card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.sm-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: #FFFFFF;
+    font-weight: 800;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+.sm-name {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: #0F172A;
+}
+.sm-email {
+    font-size: 0.8rem;
+    color: #64748B;
+}
+.sm-meta {
+    font-size: 0.75rem;
+    color: #64748B;
+}
+
+.sm-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+}
+.sm-badge-approved { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+.sm-badge-partial { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; }
+.sm-badge-review { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+.sm-badge-pending { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; }
+
+.sm-courses-row {
+    background: #F8FAFC;
+    border: 1px solid #F1F5F9;
+    border-radius: 14px;
+    padding: 0.85rem;
+    margin-bottom: 1rem;
+}
+.sm-courses-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #475569;
+    display: block;
+}
+.sm-courses-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.sm-course-pill {
+    padding: 0.25rem 0.65rem;
+    border-radius: 50px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+}
+.sm-pill-active { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+.sm-pill-completed { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; }
+.sm-pill-dropped { background: #FEF2F2; color: #DC2626; border: 1px solid #FCA5A5; }
+.sm-pill-pending { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+
+.sm-card-foot {
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid #F1F5F9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.sm-amount-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748B;
+    display: block;
+}
+.sm-amount-val {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #4F46E5;
+}
+
+.sm-slip-btn {
+    background: #FFFFFF;
+    color: #475569 !important;
+    border: 1px solid #CBD5E1;
+    border-radius: 50px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+.sm-slip-btn:hover { background: #F1F5F9; color: #0F172A !important; }
+.sm-no-slip { font-size: 0.72rem; color: #94A3B8; font-style: italic; }
+
+.sm-action-btn {
+    border: none;
+    border-radius: 50px;
+    padding: 0.45rem 1rem;
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    transition: all 0.2s ease;
+}
+.sm-approve-btn { background: linear-gradient(135deg, #4F46E5, #6366F1); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); }
+.sm-add-btn { background: linear-gradient(135deg, #059669, #10B981); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
+.sm-enrolled { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; }
+
+@media(max-width: 991.98px) {
+    .sm-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 575.98px) {
+    .sm-stats-grid { grid-template-columns: 1fr; }
+    .sm-page { padding: 1rem; }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const moduleSelect = document.getElementById('notify_module_id');
-    const studentContainer = document.getElementById('students_list_container');
-    const selectAllCheckbox = document.getElementById('selectAllStudents');
-    const sendBtn = document.getElementById('sendNotificationBtn');
+    const reviewModal = document.getElementById('reviewModal');
+    if (reviewModal) {
+        reviewModal.addEventListener('show.bs.modal', function (e) {
+            const btn = e.relatedTarget;
+            document.getElementById('modalRegId').value = btn.dataset.id;
+            document.getElementById('modalName').textContent = btn.dataset.name;
+            document.getElementById('modalEmail').textContent = btn.dataset.email;
+            document.getElementById('modalPhone').textContent = btn.dataset.phone;
+            document.getElementById('modalInst').textContent = btn.dataset.institution;
+            document.getElementById('modalAmount').textContent = 'PKR ' + Number(btn.dataset.amount).toLocaleString();
 
-    if (moduleSelect) {
-        moduleSelect.addEventListener('change', function() {
+            // Populate Slips
+            const slipsContainer = document.getElementById('slipsContainer');
+            const slips = JSON.parse(btn.dataset.slips || '[]');
+            if(slips.length === 0) {
+                slipsContainer.innerHTML = '<span class="text-muted small italic">No payment slip uploaded yet</span>';
+            } else {
+                slipsContainer.innerHTML = slips.map((s, idx) => `
+                    <a href="${s.url}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
+                        <i class="fa-solid fa-receipt me-1"></i>Slip #${idx+1} (${s.date})
+                    </a>
+                `).join('');
+            }
+
+            // Populate Courses
+            const coursesContainer = document.getElementById('coursesContainer');
+            const courses = JSON.parse(btn.dataset.courses || '[]');
+            const enrolledIds = JSON.parse(btn.dataset.enrolledIds || '[]').map(Number);
+
+            if(courses.length === 0) {
+                coursesContainer.innerHTML = '<span class="text-muted small italic">No modules selected</span>';
+            } else {
+                coursesContainer.innerHTML = courses.map(c => {
+                    const isEnrolled = enrolledIds.includes(Number(c.id));
+                    return `
+                        <div class="form-check p-2 rounded-3 border ${isEnrolled ? 'bg-light opacity-75' : 'bg-white'}">
+                            <input class="form-check-input" type="checkbox" name="approved_courses[]" value="${c.id}" id="mCourse${c.id}" ${isEnrolled ? 'checked disabled' : 'checked'}>
+                            <label class="form-check-label small fw-bold text-dark d-flex justify-content-between" for="mCourse${c.id}">
+                                <span>${c.title} ${isEnrolled ? '<span class="badge bg-success ms-1">Enrolled</span>' : ''}</span>
+                                <span class="text-primary">PKR ${Number(c.price).toLocaleString()}</span>
+                            </label>
+                        </div>
+                    `;
+                }).join('');
+            }
+        });
+    }
+
+    const passwordModal = document.getElementById('passwordModal');
+    if(passwordModal) {
+        passwordModal.addEventListener('show.bs.modal', function(e) {
+            const btn = e.relatedTarget;
+            document.getElementById('pwdModalEmail').value = btn.dataset.email;
+            document.getElementById('pwdModalSub').textContent = 'For student: ' + btn.dataset.name;
+        });
+    }
+
+    const notifyModuleSelect = document.getElementById('notify_module_id');
+    const studentContainer   = document.getElementById('students_list_container');
+    const selectAllCheckbox  = document.getElementById('selectAllStudents');
+    const sendBtn            = document.getElementById('sendNotificationBtn');
+
+    if (notifyModuleSelect) {
+        notifyModuleSelect.addEventListener('change', function() {
             const moduleId = this.value;
             studentContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
             
@@ -1117,14 +1057,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         html += '</div>';
                         studentContainer.innerHTML = html;
                         sendBtn.disabled = false;
-                        
-                        // Reset select all
                         selectAllCheckbox.checked = false;
                     }
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
-                    studentContainer.innerHTML = '<p class="text-danger small text-center mb-0 py-3">Error loading students. Please try again or check logs.</p>';
+                    studentContainer.innerHTML = '<p class="text-danger small text-center mb-0 py-3">Error loading students.</p>';
                     sendBtn.disabled = true;
                 });
         });
@@ -1138,7 +1076,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-{{-- ═══════════════════════════════════════════
-     MODAL — Assign Certificate
-═══════════════════════════════════════════ --}}
 @endsection
