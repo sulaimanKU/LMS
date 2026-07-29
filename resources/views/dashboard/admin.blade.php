@@ -91,10 +91,10 @@
                 <span class="dstat-trend text-purple"><i class="fa-solid fa-graduation-cap me-1"></i>Seats Filled</span>
             </div>
             <div class="dstat-body mt-3">
-                <p class="dstat-label">Total Module Seats</p>
+                <p class="dstat-label">Total Course Enrollments</p>
                 <h2 class="dstat-num">{{ number_format($totalEnrollments) }}</h2>
             </div>
-            <span class="dstat-sub-info"><i class="fa-solid fa-book-open me-1"></i>Active Module Seats</span>
+            <span class="dstat-sub-info"><i class="fa-solid fa-book-open me-1"></i>Across {{ $totalCourses ?? 15 }} Active Courses</span>
         </div>
 
         {{-- Pending Approvals --}}
