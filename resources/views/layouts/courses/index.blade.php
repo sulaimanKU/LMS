@@ -115,9 +115,9 @@
                         @if($search) <input type="hidden" name="search" value="{{ $search }}"> @endif
                         @if($category) <input type="hidden" name="category" value="{{ $category }}"> @endif
                         
-                        <div class="cr-filter-select-box shadow-sm">
-                            <i class="fa-solid fa-graduation-cap cr-filter-icon text-indigo"></i>
-                            <select name="course_id" class="cr-filter-select" onchange="this.form.submit()" title="Filter by Course / Workshop">
+                        <div class="input-group shadow-sm" style="border-radius: 12px; border: 1.5px solid #cbd5e1; background: #fff; overflow: hidden;">
+                            <span class="input-group-text bg-white border-0 ps-3 text-primary"><i class="fa-solid fa-graduation-cap"></i></span>
+                            <select name="course_id" class="form-select border-0 py-2 fw-semibold text-dark shadow-none" onchange="this.form.submit()" style="font-size: 0.85rem; max-width: 280px; cursor: pointer;">
                                 <option value="">Filter by Course / Workshop...</option>
                                 @foreach($allCoursesList as $cList)
                                     <option value="{{ $cList->id }}" {{ $selectedCourseId == $cList->id ? 'selected' : '' }}>
@@ -129,14 +129,14 @@
                     </form>
 
                     {{-- Category Filter --}}
-                    <form action="{{ route('course.index') }}" method="GET" class="m-0">
+                    <form action="{{ route('course.index') }}" method="GET" class="m-0 flex-grow-1 flex-md-grow-0">
                         @if($filter !== 'all') <input type="hidden" name="filter" value="{{ $filter }}"> @endif
                         @if($search) <input type="hidden" name="search" value="{{ $search }}"> @endif
                         @if($selectedCourseId) <input type="hidden" name="course_id" value="{{ $selectedCourseId }}"> @endif
                         
-                        <div class="cr-filter-select-box shadow-sm">
-                            <i class="fa-solid fa-filter cr-filter-icon text-muted"></i>
-                            <select name="category" class="cr-filter-select" onchange="this.form.submit()" title="Filter by Category" style="max-width: 170px;">
+                        <div class="input-group shadow-sm" style="border-radius: 12px; border: 1.5px solid #cbd5e1; background: #fff; overflow: hidden;">
+                            <span class="input-group-text bg-white border-0 ps-3 text-muted"><i class="fa-solid fa-filter"></i></span>
+                            <select name="category" class="form-select border-0 py-2 fw-semibold text-dark shadow-none" onchange="this.form.submit()" style="font-size: 0.85rem; max-width: 180px; cursor: pointer;">
                                 <option value="">All Categories</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat }}" {{ $category === $cat ? 'selected' : '' }}>{{ $cat }}</option>
@@ -151,11 +151,11 @@
                         @if($filter !== 'all') <input type="hidden" name="filter" value="{{ $filter }}"> @endif
                         @if($selectedCourseId) <input type="hidden" name="course_id" value="{{ $selectedCourseId }}"> @endif
                         
-                        <div class="cr-search-box shadow-sm">
-                            <i class="fa-solid fa-magnifying-glass cr-search-icon"></i>
-                            <input type="text" name="search" value="{{ $search }}" placeholder="Search course, email, mobile..." class="cr-search-input">
+                        <div class="input-group shadow-sm" style="border-radius: 12px; border: 1.5px solid #cbd5e1; background: #fff; overflow: hidden;">
+                            <span class="input-group-text bg-white border-0 ps-3 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" name="search" value="{{ $search }}" placeholder="Search course, email, mobile..." class="form-control border-0 py-2 fw-medium text-dark shadow-none" style="font-size: 0.85rem; min-width: 220px;">
                             @if($search)
-                                <a href="{{ route('course.index', array_filter(['filter' => $filter, 'category' => $category, 'course_id' => $selectedCourseId])) }}" class="cr-clear-btn" title="Clear Search">
+                                <a href="{{ route('course.index', array_filter(['filter' => $filter, 'category' => $category, 'course_id' => $selectedCourseId])) }}" class="input-group-text bg-white border-0 text-muted px-3" title="Clear Search">
                                     <i class="fa-solid fa-xmark"></i>
                                 </a>
                             @endif
@@ -552,95 +552,6 @@
     color: #4F46E5;
 }
 
-/* ── Live Compatible Select Box Styling ── */
-.cr-filter-select-box {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    background: #FFFFFF;
-    border: 1.5px solid #CBD5E1;
-    border-radius: 12px;
-    transition: all 0.2s ease;
-    max-width: 100%;
-}
-.cr-filter-select-box:focus-within,
-.cr-filter-select-box:hover {
-    border-color: #4F46E5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
-}
-.cr-filter-icon {
-    position: absolute;
-    left: 12px;
-    font-size: 0.85rem;
-    pointer-events: none;
-    z-index: 2;
-}
-.cr-filter-select {
-    border: none;
-    background: transparent;
-    padding: 0.6rem 2.2rem 0.6rem 2.4rem;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #0F172A;
-    outline: none;
-    cursor: pointer;
-    max-width: 280px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234F46E5' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 12px 10px;
-}
-.cr-filter-select option {
-    background: #FFFFFF;
-    color: #0F172A;
-    font-weight: 600;
-    padding: 10px;
-}
-
-.cr-search-box {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    background: #FFFFFF;
-    border: 1.5px solid #CBD5E1;
-    border-radius: 12px;
-    transition: all 0.2s ease;
-}
-.cr-search-box:focus-within,
-.cr-search-box:hover {
-    border-color: #4F46E5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
-}
-.cr-search-icon {
-    position: absolute;
-    left: 12px;
-    color: #94A3B8;
-    font-size: 0.85rem;
-}
-.cr-search-input {
-    border: none;
-    background: transparent;
-    padding: 0.6rem 2.2rem 0.6rem 2.4rem;
-    font-size: 0.82rem;
-    color: #0F172A;
-    outline: none;
-    width: 220px;
-}
-.cr-clear-btn {
-    position: absolute;
-    right: 10px;
-    color: #94A3B8;
-    text-decoration: none;
-    font-size: 0.85rem;
-}
-.cr-clear-btn:hover { color: #0F172A; }
-
 /* ── Panel Card (Selected Course Students) ── */
 .cr-panel-card {
     background: #FFFFFF;
@@ -986,12 +897,10 @@
 
 @media(max-width: 991.98px) {
     .cr-stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .cr-filter-select { max-width: 100%; width: 100%; }
 }
 @media(max-width: 575.98px) {
     .cr-stats-grid { grid-template-columns: 1fr; }
     .cr-page { padding: 1rem; }
-    .cr-search-input { width: 100%; }
 }
 </style>
 @endsection

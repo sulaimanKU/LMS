@@ -419,8 +419,14 @@ public function adminEnrollStudentCourse(Request $request)
             }
         }
 
+        $totalRecords   = $enrollmentList->count();
+        $issuedCount    = $enrollmentList->filter(fn($i) => $i->certificate !== null)->count();
+        $pendingCount   = $totalRecords - $issuedCount;
+        $completedCount = $enrollmentList->filter(fn($i) => $i->status === 'completed')->count();
+
         return view('layouts.certificatesManagment', compact(
-            'allModules', 'selectedModuleId', 'search', 'users', 'enrollmentList'
+            'allModules', 'selectedModuleId', 'search', 'users', 'enrollmentList',
+            'totalRecords', 'issuedCount', 'pendingCount', 'completedCount'
         ));
     }
 
