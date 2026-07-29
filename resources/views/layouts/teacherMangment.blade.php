@@ -29,12 +29,105 @@
     {{-- ── Page header ── --}}
     <div class="tm-header">
         <div>
-            <h5 class="tm-title">Teacher Directory</h5>
-            <p class="tm-subtitle">{{ $teachers->count() }} instructor{{ $teachers->count() !== 1 ? 's' : '' }} registered</p>
+            <h5 class="tm-title"><i class="fa-solid fa-chalkboard-user text-primary me-2"></i>Teacher Directory & Management</h5>
+            <p class="tm-subtitle">Manage faculty profiles, course assignments, and credentials</p>
         </div>
         <button class="tm-add-btn" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
-            <i class="fa-solid fa-user-plus me-2"></i>Add Teacher
+            <i class="fa-solid fa-user-plus me-2"></i>Add New Teacher
         </button>
+    </div>
+
+    {{-- ── Analytics KPI Stat Cards ── --}}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="tm-stat-card tm-stat-purple">
+                <div class="tm-stat-icon">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <span class="tm-stat-title">Total Instructors</span>
+                    <h3 class="tm-stat-num">{{ number_format($teachers->count()) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="tm-stat-card tm-stat-green">
+                <div class="tm-stat-icon">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div>
+                    <span class="tm-stat-title">Assigned Instructors</span>
+                    <h3 class="tm-stat-num">{{ number_format($teachers->filter(fn($t) => $t->courses->isNotEmpty())->count()) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="tm-stat-card tm-stat-amber">
+                <div class="tm-stat-icon">
+                    <i class="fa-solid fa-user-clock"></i>
+                </div>
+                <div>
+                    <span class="tm-stat-title">Unassigned Instructors</span>
+                    <h3 class="tm-stat-num">{{ number_format($teachers->filter(fn($t) => $t->courses->isEmpty())->count()) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="tm-stat-card tm-stat-blue">
+                <div class="tm-stat-icon">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                    <span class="tm-stat-title">Total Modules Assigned</span>
+                    <h3 class="tm-stat-num">{{ number_format($teachers->sum(fn($t) => $t->courses->count())) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Filter & Search Toolbar ── --}}
+    <div class="tm-toolbar-card mb-3">
+        <div class="row g-2 align-items-center">
+            {{-- Search Bar --}}
+            <div class="col-md-5 col-12">
+                <div class="tm-search-wrap">
+                    <i class="fa-solid fa-magnifying-glass tm-search-icon"></i>
+                    <input type="text" id="tmSearchInput" class="tm-search-input" placeholder="Search teacher by name, email, designation...">
+                    <button type="button" id="tmClearSearch" class="tm-search-clear d-none">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Module Filter Dropdown --}}
+            <div class="col-md-3 col-6">
+                <select id="tmCourseFilter" class="form-select tm-filter-select">
+                    <option value="">All Modules / Courses</option>
+                    @foreach($courses as $c)
+                        <option value="{{ $c->id }}">{{ $c->title }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Assignment Status Filter --}}
+            <div class="col-md-2 col-6">
+                <select id="tmStatusFilter" class="form-select tm-filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="assigned">Assigned Only</option>
+                    <option value="unassigned">Unassigned Only</option>
+                </select>
+            </div>
+
+            {{-- Reset / Count Badge --}}
+            <div class="col-md-2 col-12 text-end d-flex align-items-center justify-content-md-end justify-content-between gap-2">
+                <span id="tmResultBadge" class="badge bg-light text-dark border px-2.5 py-2 font-monospace" style="font-size: 0.75rem;">
+                    Showing {{ $teachers->count() }} of {{ $teachers->count() }}
+                </span>
+                <button type="button" id="tmResetFiltersBtn" class="btn btn-sm btn-outline-secondary d-none" title="Reset Filters">
+                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     {{-- ── Table card ── --}}
@@ -51,9 +144,15 @@
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="teacherTableBody">
                     @forelse($teachers as $teacher)
-                    <tr>
+                    <tr class="tm-teacher-row"
+                        data-name="{{ strtolower($teacher->name) }}"
+                        data-email="{{ strtolower($teacher->email) }}"
+                        data-designation="{{ strtolower($teacher->designation ?? '') }}"
+                        data-bio="{{ strtolower($teacher->bio ?? '') }}"
+                        data-assigned="{{ $teacher->courses->isNotEmpty() ? 'assigned' : 'unassigned' }}"
+                        data-course-ids="{{ json_encode($teacher->courses->pluck('id')) }}">
                         {{-- Avatar + name --}}
                         <td>
                             <div class="d-flex align-items-center gap-3">
@@ -151,6 +250,12 @@
                         </td>
                     </tr>
                     @endforelse
+                    <tr id="tmNoMatchRow" class="d-none">
+                        <td colspan="6" class="text-center text-muted py-5" style="font-size:.875rem;">
+                            <i class="fa-solid fa-filter-circle-xmark mb-2 d-block" style="font-size:2rem; color:#CBD5E1;"></i>
+                            No teachers match the selected filters or search criteria.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -351,6 +456,104 @@
     text-decoration: none;
 }
 .tm-add-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,70,229,.38); color: #fff; }
+
+/* ── KPI Stat Cards ── */
+.tm-stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #F1F5F9;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.tm-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+.tm-stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+.tm-stat-purple .tm-stat-icon { background: #EEF2FF; color: #4F46E5; }
+.tm-stat-green .tm-stat-icon  { background: #ECFDF5; color: #10B981; }
+.tm-stat-amber .tm-stat-icon  { background: #FFFBEB; color: #F59E0B; }
+.tm-stat-blue .tm-stat-icon   { background: #EFF6FF; color: #3B82F6; }
+
+.tm-stat-title { font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748B; display: block; margin-bottom: 0.15rem; }
+.tm-stat-num   { font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0; line-height: 1.1; }
+
+/* ── Filter Toolbar Card ── */
+.tm-toolbar-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    border: 1px solid #F1F5F9;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.tm-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.tm-search-icon {
+    position: absolute;
+    left: 12px;
+    color: #94A3B8;
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+.tm-search-input {
+    width: 100%;
+    padding: 0.45rem 2rem 0.45rem 2.3rem;
+    font-size: 0.84rem;
+    border-radius: 8px;
+    border: 1.5px solid #E2E8F0;
+    background: #F8FAFF;
+    outline: none;
+    transition: all 0.2s;
+}
+.tm-search-input:focus {
+    background: #fff;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+.tm-search-clear {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+}
+.tm-search-clear:hover { color: #64748B; }
+
+.tm-filter-select {
+    font-size: 0.83rem;
+    padding: 0.45rem 2rem 0.45rem 0.75rem;
+    border-radius: 8px;
+    border: 1.5px solid #E2E8F0;
+    background-color: #F8FAFF;
+    color: #334155;
+    font-weight: 500;
+    cursor: pointer;
+}
+.tm-filter-select:focus {
+    background-color: #fff;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
 
 /* ── Table card ── */
 .tm-card {
@@ -600,6 +803,96 @@ select.tm-input    { padding-left: .85rem; cursor: pointer; }
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+    // ── Live Search & Multi-Filter Logic ──
+    const searchInput     = document.getElementById('tmSearchInput');
+    const clearSearchBtn  = document.getElementById('tmClearSearch');
+    const courseFilter    = document.getElementById('tmCourseFilter');
+    const statusFilter    = document.getElementById('tmStatusFilter');
+    const resetFiltersBtn = document.getElementById('tmResetFiltersBtn');
+    const resultBadge     = document.getElementById('tmResultBadge');
+    const teacherRows     = document.querySelectorAll('.tm-teacher-row');
+    const noMatchRow      = document.getElementById('tmNoMatchRow');
+
+    function applyTeacherFilters() {
+        const query       = (searchInput ? searchInput.value : '').toLowerCase().trim();
+        const selectedCId = courseFilter ? courseFilter.value : '';
+        const selectedSt  = statusFilter ? statusFilter.value : '';
+
+        let visibleCount = 0;
+        const totalCount = teacherRows.length;
+
+        // Toggle clear search button
+        if (clearSearchBtn) {
+            clearSearchBtn.classList.toggle('d-none', !query);
+        }
+
+        // Toggle reset filters button
+        const isFiltered = query || selectedCId || selectedSt;
+        if (resetFiltersBtn) {
+            resetFiltersBtn.classList.toggle('d-none', !isFiltered);
+        }
+
+        teacherRows.forEach(row => {
+            const name        = row.dataset.name || '';
+            const email       = row.dataset.email || '';
+            const designation = row.dataset.designation || '';
+            const bio         = row.dataset.bio || '';
+            const assignedSt  = row.dataset.assigned || '';
+            const courseIds   = JSON.parse(row.dataset.courseIds || '[]');
+
+            // Search query match (name, email, designation, or bio)
+            const matchesQuery = !query || 
+                name.includes(query) || 
+                email.includes(query) || 
+                designation.includes(query) || 
+                bio.includes(query);
+
+            // Module filter match
+            const matchesCourse = !selectedCId || courseIds.includes(parseInt(selectedCId));
+
+            // Status filter match (assigned vs unassigned)
+            const matchesStatus = !selectedSt || assignedSt === selectedSt;
+
+            if (matchesQuery && matchesCourse && matchesStatus) {
+                row.classList.remove('d-none');
+                visibleCount++;
+            } else {
+                row.classList.add('d-none');
+            }
+        });
+
+        // Show/hide empty state
+        if (noMatchRow) {
+            noMatchRow.classList.toggle('d-none', visibleCount > 0);
+        }
+
+        // Update result count badge
+        if (resultBadge) {
+            resultBadge.textContent = `Showing ${visibleCount} of ${totalCount}`;
+        }
+    }
+
+    if (searchInput)     searchInput.addEventListener('input', applyTeacherFilters);
+    if (courseFilter)    courseFilter.addEventListener('change', applyTeacherFilters);
+    if (statusFilter)    statusFilter.addEventListener('change', applyTeacherFilters);
+
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            applyTeacherFilters();
+            searchInput.focus();
+        });
+    }
+
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', function () {
+            if (searchInput) searchInput.value = '';
+            if (courseFilter) courseFilter.value = '';
+            if (statusFilter) statusFilter.value = '';
+            applyTeacherFilters();
+        });
+    }
 
     // ── Assign course modal ──
     const assignModal = document.getElementById('assignCourseModal');
