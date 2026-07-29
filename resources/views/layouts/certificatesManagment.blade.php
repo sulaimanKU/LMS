@@ -45,37 +45,43 @@
         </div>
     </div>
 
-    {{-- ── Executive KPI Stat Cards ── --}}
+    {{-- ── Executive KPI Stat Cards (Clickable Filters) ── --}}
     <div class="cm-stats-grid mb-4">
-        <div class="cm-stat-box">
-            <div class="cm-stat-icon-wrap bg-indigo-subtle text-indigo">
-                <i class="fa-solid fa-user-graduate"></i>
+        <a href="{{ route('admin.certificates.management', array_filter(['module_id' => $selectedModuleId, 'search' => $search, 'cert_status' => 'all'])) }}" class="text-decoration-none">
+            <div class="cm-stat-box {{ $certStatus === 'all' ? 'border-primary shadow-sm' : '' }}">
+                <div class="cm-stat-icon-wrap bg-indigo-subtle text-indigo">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <div class="cm-stat-content">
+                    <span class="cm-stat-val">{{ $totalStudents ?? 0 }}</span>
+                    <span class="cm-stat-lbl">All Approved Students</span>
+                </div>
             </div>
-            <div class="cm-stat-content">
-                <span class="cm-stat-val">{{ $totalStudents ?? 0 }}</span>
-                <span class="cm-stat-lbl">Approved Students</span>
-            </div>
-        </div>
+        </a>
 
-        <div class="cm-stat-box">
-            <div class="cm-stat-icon-wrap bg-emerald-subtle text-emerald">
-                <i class="fa-solid fa-award"></i>
+        <a href="{{ route('admin.certificates.management', array_filter(['module_id' => $selectedModuleId, 'search' => $search, 'cert_status' => 'issued'])) }}" class="text-decoration-none">
+            <div class="cm-stat-box {{ $certStatus === 'issued' ? 'border-success shadow-sm' : '' }}">
+                <div class="cm-stat-icon-wrap bg-emerald-subtle text-emerald">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <div class="cm-stat-content">
+                    <span class="cm-stat-val">{{ $issuedCount ?? 0 }}</span>
+                    <span class="cm-stat-lbl">With Certs Issued</span>
+                </div>
             </div>
-            <div class="cm-stat-content">
-                <span class="cm-stat-val">{{ $issuedCount ?? 0 }}</span>
-                <span class="cm-stat-lbl">Students With Certs</span>
-            </div>
-        </div>
+        </a>
 
-        <div class="cm-stat-box">
-            <div class="cm-stat-icon-wrap bg-amber-subtle text-amber">
-                <i class="fa-solid fa-clock"></i>
+        <a href="{{ route('admin.certificates.management', array_filter(['module_id' => $selectedModuleId, 'search' => $search, 'cert_status' => 'pending'])) }}" class="text-decoration-none">
+            <div class="cm-stat-box {{ $certStatus === 'pending' ? 'border-warning shadow-sm' : '' }}">
+                <div class="cm-stat-icon-wrap bg-amber-subtle text-amber">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div class="cm-stat-content">
+                    <span class="cm-stat-val">{{ $pendingCount ?? 0 }}</span>
+                    <span class="cm-stat-lbl">Pending Certificates</span>
+                </div>
             </div>
-            <div class="cm-stat-content">
-                <span class="cm-stat-val">{{ $pendingCount ?? 0 }}</span>
-                <span class="cm-stat-lbl">Pending Students</span>
-            </div>
-        </div>
+        </a>
 
         <div class="cm-stat-box">
             <div class="cm-stat-icon-wrap bg-purple-subtle text-purple">
@@ -92,23 +98,34 @@
     <div class="cm-toolbar mb-4">
         <form action="{{ route('admin.certificates.management') }}" method="GET" id="cmFilterForm" class="m-0">
             <div class="row align-items-center g-3">
-                <div class="col-12 col-md-6 col-xl-7">
+                <div class="col-12 col-md-5 col-xl-5">
                     <div class="input-group shadow-sm" style="border-radius: 12px; border: 1.5px solid #cbd5e1; background: #fff; overflow: hidden;">
                         <span class="input-group-text bg-white border-0 ps-3 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" name="search" class="form-control border-0 py-2 fw-medium text-dark shadow-none" placeholder="Search student name or email address..." value="{{ $search ?? '' }}" style="font-size: 0.85rem;">
+                        <input type="text" name="search" class="form-control border-0 py-2 fw-medium text-dark shadow-none" placeholder="Search student name or email..." value="{{ $search ?? '' }}" style="font-size: 0.85rem;">
                         @if($search)
-                            <a href="{{ route('admin.certificates.management', array_filter(['module_id' => $selectedModuleId])) }}" class="input-group-text bg-white border-0 text-muted px-3" title="Clear Search">
+                            <a href="{{ route('admin.certificates.management', array_filter(['module_id' => $selectedModuleId, 'cert_status' => $certStatus])) }}" class="input-group-text bg-white border-0 text-muted px-3" title="Clear Search">
                                 <i class="fa-solid fa-xmark"></i>
                             </a>
                         @endif
                     </div>
                 </div>
 
-                <div class="col-12 col-md-6 col-xl-5">
+                <div class="col-12 col-md-4 col-xl-4">
+                    <div class="input-group shadow-sm" style="border-radius: 12px; border: 1.5px solid #cbd5e1; background: #fff; overflow: hidden;">
+                        <span class="input-group-text bg-white border-0 ps-3 text-warning"><i class="fa-solid fa-award"></i></span>
+                        <select name="cert_status" class="form-select border-0 py-2 fw-semibold text-dark shadow-none" onchange="this.form.submit()" style="font-size: 0.85rem; cursor: pointer;">
+                            <option value="all" {{ $certStatus === 'all' ? 'selected' : '' }}>All Certificate Statuses</option>
+                            <option value="issued" {{ $certStatus === 'issued' ? 'selected' : '' }}>Certificates Issued Only ({{ $issuedCount }})</option>
+                            <option value="pending" {{ $certStatus === 'pending' ? 'selected' : '' }}>Pending Certificates Only ({{ $pendingCount }})</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 col-xl-3">
                     <div class="input-group shadow-sm" style="border-radius: 12px; border: 1.5px solid #cbd5e1; background: #fff; overflow: hidden;">
                         <span class="input-group-text bg-white border-0 ps-3 text-primary"><i class="fa-solid fa-layer-group"></i></span>
                         <select name="module_id" class="form-select border-0 py-2 fw-semibold text-dark shadow-none" onchange="this.form.submit()" style="font-size: 0.85rem; cursor: pointer;">
-                            <option value="">All Courses & Workshops</option>
+                            <option value="">All Courses</option>
                             @foreach($allModules as $mod)
                                 <option value="{{ $mod->id }}" {{ $selectedModuleId == $mod->id ? 'selected' : '' }}>
                                     {{ $mod->title }}

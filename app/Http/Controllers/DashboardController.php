@@ -381,6 +381,7 @@ public function adminEnrollStudentCourse(Request $request)
     {
         $allModules = Courses::orderBy('title')->get();
         $selectedModuleId = $request->get('module_id');
+        $certStatus = $request->get('cert_status', 'all');
         $search = trim($request->get('search', ''));
 
         // 1. Get all approved registrations
@@ -477,6 +478,13 @@ public function adminEnrollStudentCourse(Request $request)
         $pendingCount    = $totalStudents - $issuedCount;
         $totalCertsCount = $allCertificates->count();
 
+        // Apply Certificate Status Filter ('issued' vs 'pending')
+        if ($certStatus === 'issued') {
+            $studentRoster = $studentRoster->filter(fn($s) => $s->hasAnyCert)->values();
+        } elseif ($certStatus === 'pending') {
+            $studentRoster = $studentRoster->filter(fn($s) => !$s->hasAnyCert)->values();
+        }
+
         // Paginate studentRoster into $users
         $perPage = 15;
         $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
@@ -491,7 +499,7 @@ public function adminEnrollStudentCourse(Request $request)
         );
 
         return view('layouts.certificatesManagment', compact(
-            'allModules', 'selectedModuleId', 'search', 'users', 'studentRoster',
+            'allModules', 'selectedModuleId', 'certStatus', 'search', 'users', 'studentRoster',
             'totalStudents', 'issuedCount', 'pendingCount', 'totalCertsCount'
         ));
     }
