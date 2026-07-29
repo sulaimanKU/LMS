@@ -383,30 +383,25 @@ public function adminEnrollStudentCourse(Request $request)
         $selectedModuleId = $request->get('module_id');
         $search = trim($request->get('search', ''));
 
-        // 1. Fetch all approved registrations
+        // 1. Get all approved registrations
         $approvedRegs = Registration::where('status', 'approved')->get();
-        $approvedEmails = $approvedRegs->pluck('email')->filter()->map(fn($e) => strtolower(trim($e)))->unique();
 
-        // 2. Fetch all student users
-        $studentUsers = User::whereIn('email', $approvedEmails)
-            ->orWhereHas('roles', function($r) {
-                $r->where('name', 'student');
-            })
-            ->orWhereHas('enrolledModules')
+        // 2. Get all student users who have enrolled modules OR approved registrations
+        $studentUsers = User::whereHas('enrolledModules')
+            ->orWhereIn('email', $approvedRegs->pluck('email')->filter())
             ->with(['enrolledModules', 'certificates'])
             ->get();
 
-        // Key by lowercase email to deduplicate
         $usersByEmail = $studentUsers->keyBy(fn($u) => strtolower(trim($u->email)));
         $regsByEmail  = $approvedRegs->keyBy(fn($r) => strtolower(trim($r->email)));
 
-        // 3. Build unique set of all student emails
-        $allStudentEmails = $usersByEmail->keys()->merge($regsByEmail->keys())->unique();
+        // Unique student emails
+        $allEmails = $usersByEmail->keys()->merge($regsByEmail->keys())->unique()->filter();
 
-        // 4. Apply search filter
+        // Apply search filter
         if (!empty($search)) {
             $searchLower = strtolower($search);
-            $allStudentEmails = $allStudentEmails->filter(function($email) use ($usersByEmail, $regsByEmail, $searchLower) {
+            $allEmails = $allEmails->filter(function($email) use ($usersByEmail, $regsByEmail, $searchLower) {
                 $u = $usersByEmail->get($email);
                 $r = $regsByEmail->get($email);
                 $name = $u?->name ?? $r?->name ?? '';
@@ -414,13 +409,12 @@ public function adminEnrollStudentCourse(Request $request)
             });
         }
 
-        // 5. Pre-fetch all certificates
         $allUserIds = $studentUsers->pluck('id')->merge($approvedRegs->pluck('id'))->unique();
         $allCertificates = \App\Models\Certificate::whereIn('user_id', $allUserIds)->get();
 
         $enrollmentList = collect();
 
-        foreach ($allStudentEmails as $email) {
+        foreach ($allEmails as $email) {
             $user = $usersByEmail->get($email);
             $reg  = $regsByEmail->get($email);
 
@@ -428,24 +422,27 @@ public function adminEnrollStudentCourse(Request $request)
             $userId       = $user?->id ?? $reg?->id;
             $profileImage = $user?->profile_image ?? null;
 
-            // Merge course IDs from user pivot and registration selected_courses
+            // Get module IDs
             $pivotModules   = $user?->enrolledModules ?? collect();
             $pivotCourseIds = $pivotModules->pluck('id')->toArray();
             $regCourseIds   = $reg ? array_map('intval', $reg->selected_courses ?? []) : [];
 
-            $uniqueCourseIds = array_unique(array_merge($pivotCourseIds, $regCourseIds));
+            $courseIds = array_unique(array_filter(array_merge($pivotCourseIds, $regCourseIds)));
 
             if ($selectedModuleId) {
-                if (!in_array((int)$selectedModuleId, $uniqueCourseIds)) {
+                if (!in_array((int)$selectedModuleId, $courseIds)) {
                     continue;
                 }
-                $uniqueCourseIds = [(int)$selectedModuleId];
+                $courseIds = [(int)$selectedModuleId];
             }
 
-            $modules = Courses::whereIn('id', $uniqueCourseIds)->get();
+            if (empty($courseIds)) {
+                continue;
+            }
+
+            $modules = Courses::whereIn('id', $courseIds)->get();
 
             foreach ($modules as $module) {
-                // Find certificate by user ID (User ID or Registration ID)
                 $cert = $allCertificates->first(function($c) use ($user, $reg, $module) {
                     return $c->module_id == $module->id && (
                         ($user && $c->user_id == $user->id) || ($reg && $c->user_id == $reg->id)
@@ -460,7 +457,6 @@ public function adminEnrollStudentCourse(Request $request)
                     'name'          => $studentName,
                     'email'         => $email,
                     'profile_image' => $profileImage,
-                    'is_user'       => $user !== null,
                 ];
 
                 $enrollmentList->push((object)[
@@ -472,7 +468,7 @@ public function adminEnrollStudentCourse(Request $request)
             }
         }
 
-        // Global KPI Statistics (Unique per Student-Course pair)
+        // Precise Global KPI Statistics
         $totalRecords   = $enrollmentList->count();
         $issuedCount    = $enrollmentList->filter(fn($i) => $i->certificate !== null)->count();
         $pendingCount   = $totalRecords - $issuedCount;

@@ -53,7 +53,7 @@
             </div>
             <div class="cm-stat-content">
                 <span class="cm-stat-val">{{ $totalRecords ?? 0 }}</span>
-                <span class="cm-stat-lbl">Enrolled Records</span>
+                <span class="cm-stat-lbl">Course Enrollments</span>
             </div>
         </div>
 
@@ -73,7 +73,7 @@
             </div>
             <div class="cm-stat-content">
                 <span class="cm-stat-val">{{ $pendingCount ?? 0 }}</span>
-                <span class="cm-stat-lbl">Pending Issuance</span>
+                <span class="cm-stat-lbl">Pending Certificates</span>
             </div>
         </div>
 
