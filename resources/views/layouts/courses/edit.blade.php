@@ -13,6 +13,64 @@
 
 <div class="cr-page">
 
+    {{-- ── Alerts ── --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #ECFDF5; border-left: 4px solid #10B981 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-circle-check fs-5 me-2 text-success"></i>
+                <span class="fw-semibold text-dark">{{ session('success') }}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #FEF2F2; border-left: 4px solid #EF4444 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-triangle-exclamation fs-5 me-2 text-danger"></i>
+                <span class="fw-semibold text-dark">{{ session('error') }}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #FFFBEB; border-left: 4px solid #F59E0B !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-circle-exclamation fs-5 me-2 text-warning"></i>
+                <span class="fw-semibold text-dark">{{ session('warning') }}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('info'))
+        <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #EEF2FF; border-left: 4px solid #6366F1 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-circle-info fs-5 me-2 text-primary"></i>
+                <span class="fw-semibold text-dark">{{ session('info') }}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 14px; background: #FEF2F2; border-left: 4px solid #EF4444 !important;">
+            <div class="d-flex align-items-start">
+                <i class="fa-solid fa-triangle-exclamation fs-5 me-2 text-danger mt-1"></i>
+                <div>
+                    <strong class="text-dark d-block mb-1">Please correct the following errors:</strong>
+                    <ul class="mb-0 ps-3 text-danger">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="cr-header mb-4">
         <div>
             <h5 class="cr-title"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Course</h5>
@@ -33,46 +91,70 @@
                     {{-- Title & Workshop Number --}}
                     <div class="col-md-9">
                         <label class="cr-label">Course Title <span class="text-danger">*</span></label>
-                        <input type="text" name="title" class="cr-input shadow-none" value="{{ old('title', $course->title) }}" required>
+                        <input type="text" name="title" class="cr-input shadow-none @error('title') is-invalid @enderror" value="{{ old('title', $course->title) }}" required>
+                        @error('title')
+                            <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <label class="cr-label">Workshop # <span class="text-muted small">(Optional)</span></label>
-                        <input type="number" name="workshop_number" class="cr-input shadow-none" placeholder="1" value="{{ old('workshop_number', $course->workshop_number) }}">
+                        <input type="number" name="workshop_number" class="cr-input shadow-none @error('workshop_number') is-invalid @enderror" placeholder="1" value="{{ old('workshop_number', $course->workshop_number) }}">
+                        @error('workshop_number')
+                            <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     {{-- Category & Status --}}
                     <div class="col-md-6">
                         <label class="cr-label">Category <span class="text-danger">*</span></label>
-                        <input type="text" name="category" class="cr-input shadow-none" value="{{ old('category', $course->category) }}" required>
+                        <input type="text" name="category" class="cr-input shadow-none @error('category') is-invalid @enderror" value="{{ old('category', $course->category) }}" required>
+                        @error('category')
+                            <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-6">
                         <label class="cr-label">Status <span class="text-danger">*</span></label>
-                        <select name="status" class="cr-input shadow-none">
+                        <select name="status" class="cr-input shadow-none @error('status') is-invalid @enderror">
                             <option value="active" {{ old('status', $course->status) === 'active' ? 'selected' : '' }}>Active</option>
                             <option value="inactive" {{ old('status', $course->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
                         </select>
+                        @error('status')
+                            <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     {{-- Price & Duration --}}
                     <div class="col-md-6">
                         <label class="cr-label">Price (PKR) <span class="text-danger">*</span></label>
-                        <input type="number" name="price" class="cr-input shadow-none" min="0" required value="{{ old('price', $course->price) }}">
+                        <input type="number" name="price" class="cr-input shadow-none @error('price') is-invalid @enderror" min="0" required value="{{ old('price', $course->price) }}">
+                        @error('price')
+                            <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-6">
                         <label class="cr-label">Duration <span class="text-muted small">(Optional)</span></label>
-                        <input type="text" name="duration" class="cr-input shadow-none" value="{{ old('duration', $course->duration) }}">
+                        <input type="text" name="duration" class="cr-input shadow-none @error('duration') is-invalid @enderror" value="{{ old('duration', $course->duration) }}">
+                        @error('duration')
+                            <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     {{-- Short Description --}}
                     <div class="col-12">
                         <label class="cr-label">Short Description</label>
-                        <input type="text" name="short_description" class="cr-input shadow-none" value="{{ old('short_description', $course->short_description) }}">
+                        <input type="text" name="short_description" class="cr-input shadow-none @error('short_description') is-invalid @enderror" value="{{ old('short_description', $course->short_description) }}">
+                        @error('short_description')
+                            <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     {{-- Full Details (Summernote) --}}
                     <div class="col-12">
                         <label class="cr-label">Detailed Course Information</label>
-                        <textarea name="details" id="details_editor" class="summernote shadow-none">{{ old('details', $course->details) }}</textarea>
+                        <textarea name="details" id="details_editor" class="summernote shadow-none @error('details') is-invalid @enderror">{{ old('details', $course->details) }}</textarea>
+                        @error('details')
+                            <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     {{-- Course Image --}}
@@ -94,11 +176,14 @@
                             {{-- New Preview --}}
                             <div id="imagePreviewContainer" style="display:none;" class="text-center">
                                 <p class="small text-primary mb-2">New Preview</p>
-                                <img id="imagePreview" src="" style="width:180px; height:120px; object-fit:cover; border-radius:12px; border:2px solid var(--brand-primary);">
+                                <img id="imagePreview" src="" style="width:180px; height:120px; object-fit:cover; border-radius:12px; border:2px solid var(--brand-primary, #4F46E5);">
                             </div>
 
                             <div class="flex-grow-1">
-                                <input type="file" name="image" id="courseImageInput" class="cr-input" accept="image/*">
+                                <input type="file" name="image" id="courseImageInput" class="cr-input @error('image') is-invalid @enderror" accept="image/*">
+                                @error('image')
+                                    <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                                 <p class="text-muted small mt-2">Upload a new image to replace the existing one. Recommended size: 800x500px.</p>
                             </div>
                         </div>
@@ -127,6 +212,9 @@
     font-size: .95rem; color: #1E293B; background: #fff; transition: all .2s;
 }
 .cr-input:focus { border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,.1); outline: none; }
+.cr-input.is-invalid { border-color: #EF4444 !important; }
+.cr-input.is-invalid:focus { box-shadow: 0 0 0 4px rgba(239,68,68,.15) !important; }
+.invalid-feedback { font-size: .8rem; font-weight: 500; }
 .cr-btn-save {
     background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
     border: none; font-weight: 700; box-shadow: 0 10px 20px rgba(79,70,229,.25);

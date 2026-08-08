@@ -189,25 +189,29 @@ class CoursesController
             'image'             => 'nullable|image|max:2048',
         ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('courses', 'public');
+        try {
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('courses', 'public');
+            }
+
+            Courses::create([
+                'title'             => $request->title,
+                'workshop_number'   => $request->workshop_number,
+                'slug'              => Str::slug($request->title) . '-' . time(),
+                'category'          => $request->category,
+                'price'             => $request->price,
+                'duration'          => $request->duration,
+                'short_description' => $request->short_description,
+                'details'           => $request->details,
+                'status'            => $request->status,
+                'image'             => $imagePath,
+            ]);
+
+            return redirect()->route('course.index')->with('success', 'Course "' . $request->title . '" created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to create course: ' . $e->getMessage())->withInput();
         }
-
-        Courses::create([
-            'title'             => $request->title,
-            'workshop_number'   => $request->workshop_number,
-            'slug'              => Str::slug($request->title) . '-' . time(),
-            'category'          => $request->category,
-            'price'             => $request->price,
-            'duration'          => $request->duration,
-            'short_description' => $request->short_description,
-            'details'           => $request->details,
-            'status'            => $request->status,
-            'image'             => $imagePath,
-        ]);
-
-        return redirect()->back()->with('success', 'Course "' . $request->title . '" created successfully.');
     }
 
     public function update(Request $request, $id)
@@ -226,28 +230,32 @@ class CoursesController
             'image'             => 'nullable|image|max:2048',
         ]);
 
-        $data = [
-            'title'             => $request->title,
-            'workshop_number'   => $request->workshop_number,
-            'slug'              => Str::slug($request->title),
-            'category'          => $request->category,
-            'price'             => $request->price,
-            'duration'          => $request->duration,
-            'short_description' => $request->short_description,
-            'details'           => $request->details,
-            'status'            => $request->status,
-        ];
+        try {
+            $data = [
+                'title'             => $request->title,
+                'workshop_number'   => $request->workshop_number,
+                'slug'              => Str::slug($request->title),
+                'category'          => $request->category,
+                'price'             => $request->price,
+                'duration'          => $request->duration,
+                'short_description' => $request->short_description,
+                'details'           => $request->details,
+                'status'            => $request->status,
+            ];
 
-        if ($request->hasFile('image')) {
-            if ($course->image) {
-                \Storage::disk('public')->delete($course->image);
+            if ($request->hasFile('image')) {
+                if ($course->image) {
+                    \Storage::disk('public')->delete($course->image);
+                }
+                $data['image'] = $request->file('image')->store('courses', 'public');
             }
-            $data['image'] = $request->file('image')->store('courses', 'public');
+
+            $course->update($data);
+
+            return redirect()->back()->with('success', 'Course "' . $course->title . '" updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update course: ' . $e->getMessage())->withInput();
         }
-
-        $course->update($data);
-
-        return redirect()->back()->with('success', '"' . $course->title . '" updated successfully.');
     }
 
     public function destroy($id)
@@ -258,15 +266,22 @@ class CoursesController
             return redirect()->back()->with('error', 'Cannot delete "' . $course->title . '" — it has enrolled students.');
         }
 
-        $course->teacher()->detach();
-        // Delete lesson resources before deleting lessons
-        foreach ($course->lessons as $lesson) {
-            $lesson->resources()->delete();
-        }
-        $course->lessons()->delete();
-        $course->onlineclasses()->delete();
-        $course->delete();
+        try {
+            $course->teacher()->detach();
+            // Delete lesson resources before deleting lessons
+            foreach ($course->lessons as $lesson) {
+                $lesson->resources()->delete();
+            }
+            $course->lessons()->delete();
+            $course->onlineclasses()->delete();
+            if ($course->image) {
+                \Storage::disk('public')->delete($course->image);
+            }
+            $course->delete();
 
-        return redirect()->back()->with('success', 'Course deleted successfully.');
+            return redirect()->route('course.index')->with('success', 'Course deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete course: ' . $e->getMessage());
+        }
     }
 }
