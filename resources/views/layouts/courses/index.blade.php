@@ -39,6 +39,60 @@
             </div>
             <div class="col-12 col-lg-6 text-lg-end">
                 <div class="d-flex align-items-center justify-content-lg-end gap-2 flex-wrap">
+                    {{-- Bulk Status Action Dropdown --}}
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-sliders me-1 text-primary"></i> Bulk Status Action
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 p-2" style="min-width: 260px;">
+                            <h6 class="dropdown-header text-uppercase text-muted fw-bold px-2" style="font-size: 0.7rem;">Batch Inactivate / Activate</h6>
+                            
+                            {{-- Form: Inactivate Workshop 1 --}}
+                            <form action="{{ route('course.bulk-status') }}" method="POST" class="d-block mb-1">
+                                @csrf
+                                <input type="hidden" name="workshop_number" value="1">
+                                <input type="hidden" name="status" value="inactive">
+                                <button type="submit" class="dropdown-item rounded-2 text-danger fw-semibold py-2 d-flex align-items-center justify-content-between" onclick="return confirm('Deactivate all courses in Workshop #1?')">
+                                    <span><i class="fa-solid fa-circle-pause me-2"></i>Inactivate Workshop #1</span>
+                                    <span class="badge bg-danger-subtle text-danger small">Batch</span>
+                                </button>
+                            </form>
+
+                            {{-- Form: Activate Workshop 1 --}}
+                            <form action="{{ route('course.bulk-status') }}" method="POST" class="d-block mb-1">
+                                @csrf
+                                <input type="hidden" name="workshop_number" value="1">
+                                <input type="hidden" name="status" value="active">
+                                <button type="submit" class="dropdown-item rounded-2 text-success fw-semibold py-2 d-flex align-items-center justify-content-between" onclick="return confirm('Activate all courses in Workshop #1?')">
+                                    <span><i class="fa-solid fa-circle-check me-2"></i>Activate Workshop #1</span>
+                                    <span class="badge bg-success-subtle text-success small">Batch</span>
+                                </button>
+                            </form>
+
+                            <hr class="dropdown-divider my-1">
+
+                            {{-- Form: Inactivate ALL Courses --}}
+                            <form action="{{ route('course.bulk-status') }}" method="POST" class="d-block mb-1">
+                                @csrf
+                                <input type="hidden" name="workshop_number" value="all">
+                                <input type="hidden" name="status" value="inactive">
+                                <button type="submit" class="dropdown-item rounded-2 text-danger small py-2" onclick="return confirm('Deactivate ALL courses in the system?')">
+                                    <i class="fa-solid fa-power-off me-2"></i>Inactivate ALL Courses
+                                </button>
+                            </form>
+
+                            {{-- Form: Activate ALL Courses --}}
+                            <form action="{{ route('course.bulk-status') }}" method="POST" class="d-block">
+                                @csrf
+                                <input type="hidden" name="workshop_number" value="all">
+                                <input type="hidden" name="status" value="active">
+                                <button type="submit" class="dropdown-item rounded-2 text-success small py-2" onclick="return confirm('Activate ALL courses in the system?')">
+                                    <i class="fa-solid fa-play me-2"></i>Activate ALL Courses
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
                     <a href="{{ route('course.create') }}" class="cr-btn-primary text-decoration-none">
                         <i class="fa-solid fa-plus me-2"></i>Create New Course
                     </a>
@@ -317,9 +371,14 @@
                 @endif
                 
                 <div class="cr-media-badges">
-                    <span class="cr-status-chip {{ $course->status === 'active' ? 'status-active' : 'status-inactive' }}">
-                        <span class="cr-dot"></span>{{ ucfirst($course->status) }}
-                    </span>
+                    <form action="{{ route('course.toggle-status', $course->id) }}" method="POST" class="m-0">
+                        @csrf
+                        <button type="submit" class="border-0 bg-transparent p-0" title="Click to toggle Active / Inactive" onclick="return confirm('Change status of {{ addslashes($course->title) }} to {{ $course->status === 'active' ? 'Inactive' : 'Active' }}?')">
+                            <span class="cr-status-chip {{ $course->status === 'active' ? 'status-active' : 'status-inactive' }}" style="cursor: pointer;">
+                                <span class="cr-dot"></span>{{ ucfirst($course->status) }}
+                            </span>
+                        </button>
+                    </form>
                 </div>
 
                 <div class="cr-media-actions">

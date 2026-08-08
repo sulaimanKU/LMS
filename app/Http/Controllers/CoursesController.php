@@ -284,4 +284,40 @@ class CoursesController
             return redirect()->back()->with('error', 'Failed to delete course: ' . $e->getMessage());
         }
     }
+
+    public function toggleStatus($id)
+    {
+        try {
+            $course = Courses::findOrFail($id);
+            $newStatus = $course->status === 'active' ? 'inactive' : 'active';
+            $course->update(['status' => $newStatus]);
+
+            return redirect()->back()->with('success', '"' . $course->title . '" status changed to ' . ucfirst($newStatus) . '.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to toggle status: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkStatus(Request $request)
+    {
+        $status = $request->input('status', 'inactive');
+        $workshopNumber = $request->input('workshop_number');
+
+        try {
+            $query = Courses::where('category', '!=', 'Workshop');
+
+            if ($workshopNumber !== null && $workshopNumber !== '' && $workshopNumber !== 'all') {
+                $query->where('workshop_number', $workshopNumber);
+                $label = 'Workshop #' . $workshopNumber;
+            } else {
+                $label = 'All Courses';
+            }
+
+            $count = $query->update(['status' => $status]);
+
+            return redirect()->back()->with('success', "Updated {$count} course(s) in {$label} to " . ucfirst($status) . '.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Bulk update failed: ' . $e->getMessage());
+        }
+    }
 }
