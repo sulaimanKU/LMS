@@ -88,6 +88,7 @@ class CoursesController
         $courses  = $query->orderBy('title')->paginate(12)->withQueryString();
         $teachers = Teacher::orderBy('name')->get();
         $categories = Courses::where('category', '!=', 'Workshop')->distinct()->pluck('category');
+        $availableWorkshopNumbers = Courses::whereNotNull('workshop_number')->distinct()->orderBy('workshop_number')->pluck('workshop_number');
 
         $totalEnrolled   = \DB::table('enrollments')
             ->whereIn('module_id', Courses::where('category', '!=', 'Workshop')->pluck('id'))
@@ -151,7 +152,8 @@ class CoursesController
         return view('layouts.courses.index', compact(
             'courses', 'teachers', 'filter', 'search', 'category', 'categories',
             'totalCourses', 'activeCourses', 'inactiveCourses', 'totalEnrolled',
-            'allCoursesList', 'selectedCourseId', 'selectedCourse', 'enrolledStudents'
+            'allCoursesList', 'selectedCourseId', 'selectedCourse', 'enrolledStudents',
+            'availableWorkshopNumbers'
         ));
     }
 
